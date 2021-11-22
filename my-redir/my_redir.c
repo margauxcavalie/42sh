@@ -11,7 +11,7 @@
 int main(int argc, char *argv[])
 {
     if (argc < 3)
-        return 2;
+        errx(2, "not enough arguments");
     // opening the file
     int fd = open(argv[1], O_WRONLY | O_CREAT, 0644);
     if (fd < 0)
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
         int e = execvp(argv[2], argv + 2);
         if (e == -1)
         {
-            return 127;
+            errx(127, "%s: command not found", argv[0]);
         }
     }
     else // father
