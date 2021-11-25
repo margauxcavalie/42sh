@@ -1,11 +1,11 @@
 #include "mypipe.h"
 
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <err.h>
+#include <unistd.h>
 
 int main(void)
 {
@@ -18,7 +18,7 @@ int main(void)
 
 /**
  * @brief test
- * 
+ *
  * @param argv_left function that will be piped
  * @param argv_right function in which left param will be piped
  * @return integer (0 if successful, -1 otherwise)
@@ -57,6 +57,6 @@ int exec_pipe(char **argv_left, char **argv_right)
         if (e == -1)
             errx(127, "%s: command not found", argv_left[0]);
     }
-    
+
     return 0;
 }
