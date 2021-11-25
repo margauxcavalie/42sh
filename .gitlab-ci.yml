@@ -9,7 +9,7 @@ default:
 stages:
   - build
   - test
-  - qa
+  - clang
   - doc
 
 build_42sh:
@@ -45,7 +45,7 @@ unit_test:
     - ./builddir/testsuite
 
 clang-format:
-  stage: clang-format
+  stage: clang
   needs: []
   before_script: []
   script:
