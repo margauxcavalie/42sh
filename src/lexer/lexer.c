@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <utils/alloc.h>
-
 
 /**
  *  @brief return true if character is a space
@@ -58,24 +56,20 @@ static char *get_word(const char *str, size_t *size)
 }
 
 /*
- *@brief 
+ *@brief
  *
- * @param str: 
- * @param size: 
+ * @param str:
+ * @param size:
  */
 struct token *get_next_token(const char *str, size_t *size)
 {
     // initializes the lookup table
     struct matching_token lookup_table[] = {
-        {"if", 2, TOKEN_IF},
-        {"then", 4, TOKEN_THEN},
-        {"elif", 4, TOKEN_ELIF},
-        {"else", 4, TOKEN_ELSE},
-        {"fi", 2, TOKEN_FI},
-        {";", 1, TOKEN_SEMICOLON},
-        {"\n", 1, TOKEN_LINEFEED},
-        {"\'", 1, TOKEN_SINGLE_QUOTE},
-        {"\0", 0, TOKEN_EOF},
+        { "if", 2, TOKEN_IF },       { "then", 4, TOKEN_THEN },
+        { "elif", 4, TOKEN_ELIF },   { "else", 4, TOKEN_ELSE },
+        { "fi", 2, TOKEN_FI },       { ";", 1, TOKEN_SEMICOLON },
+        { "\n", 1, TOKEN_LINEFEED }, { "\'", 1, TOKEN_SINGLE_QUOTE },
+        { "\0", 0, TOKEN_EOF },
     };
 
     // gets the number of elements of the lookup table

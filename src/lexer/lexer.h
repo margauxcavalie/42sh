@@ -47,9 +47,9 @@ struct token *lexer_peek(struct lexer *lexer);
 struct token *lexer_pop(struct lexer *lexer);
 
 /*
- *@brief 
+ *@brief
  *
- * @param str: 
- * @param size: 
+ * @param str:
+ * @param size:
  */
 struct token *get_next_token(const char *str, size_t *size);

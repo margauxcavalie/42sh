@@ -1,9 +1,7 @@
 #include <criterion/criterion.h>
-
+#include <lexer/lexer.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <lexer/lexer.h>
 
 Test(get_next_token, empty_token)
 {
@@ -34,7 +32,6 @@ Test(get_next_token, if_basic)
     cr_assert_eq(size, 2);
     token_free(tok);
 }
-
 
 Test(get_next_token, if_spaces)
 {
@@ -158,4 +155,3 @@ Test(get_next_token, single_quote_basic)
     cr_assert_eq(size, 1);
     token_free(tok);
 }
-
