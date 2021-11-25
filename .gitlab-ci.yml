@@ -1,38 +1,54 @@
-# This file is a template, and might need editing before it works on your project.
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/C++.gitlab-ci.yml
+---
 
-# use the official gcc image, based on debian
-# can use verions as well, like gcc:5.2
-# see https://hub.docker.com/_/gcc/
+default:
+  image: registry.cri.epita.fr/cri/infrastructure/nixpie/nixos-pie
+  before_script:
+    - mkdir -p /tmp /var/tmp
+    - meson setup -Ddoc=true builddir
 
-image: gcc
+stages:
+  - build
+  - test
+  - qa
+  - doc
 
 build:
   stage: build
-  # instead of calling g++ directly you can also use some build toolkit like make
-  # install the necessary build tools when needed
-  before_script:
-    - apt update && apt -y install make autoconf meson ninja-build
   script:
-    - meson build && cd build && ninja
+    - meson compile -C builddir
   artifacts:
     paths:
-      - 42sh
-      # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
-      # cache:
-      #   paths:
-      #     - "*.o"
+      - builddir/42sh
+    expose_as: 42sh
 
-# run tests using the binary built before
-func_tests:
+test:
   stage: test
+  dependencies:
+    - build
   script:
-    - echo salut
+    - tests/run_tests builddir/42sh
 
-unit_tests:
-  stage: test
+clang-format:
+  stage: qa
+  needs: []
+  before_script: []
   script:
-    - echo unit test ouais
+    - find . -type f -name '*.[ch]' -exec clang-format --style=file -i {} ';'
+    - git diff --exit-code
+  after_script:
+    - git diff > diff
+  artifacts:
+    paths:
+      - diff
+    expose_as: clang-format diff
+    when: on_failure
+
+doc:
+  stage: doc
+  needs: []
+  script:
+    - meson compile -C builddir doxygen_doc
+  artifacts:
+    paths:
+      - builddir/doxygen_doc
+    expose_as: documentation
