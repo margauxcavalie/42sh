@@ -39,6 +39,12 @@ static struct token *get_next_token(const char *str, size_t *size)
         case ' ':
             *size += 1;
             break;
+        case '\n':
+            *size += 1;
+            break;
+        case '\t':
+            *size += 1;
+            break;
         case '+':
             *size += 1;
             return token_new(TOKEN_PLUS);
@@ -95,7 +101,6 @@ struct lexer *lexer_new(const char *input)
     new->current_tok = NULL;
     struct token *token = get_next_token(input, &new->pos);
     new->current_tok = token;
-    printf("acu si tu vois c'est de la trice : '%s'\n", input);
     return new;
 }
 
