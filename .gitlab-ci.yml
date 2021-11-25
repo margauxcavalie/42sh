@@ -42,7 +42,7 @@ unit_test:
   dependencies:
     - build_testsuite
   script:
-    - echo 'Please write some tests'
+    - ./builddir/testsuite
 
 clang-format:
   stage: qa
