@@ -21,12 +21,19 @@ build:
       - builddir/42sh
     expose_as: 42sh
 
-test:
+func_test:
   stage: test
   dependencies:
     - build
   script:
-    - tests/run_tests builddir/42sh
+    - ./pharaoh tests/functional
+
+unit_test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - echo 'Please write some tests'
 
 clang-format:
   stage: qa
