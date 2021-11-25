@@ -33,14 +33,14 @@ build_testsuite:
 func_test:
   stage: test
   dependencies:
-    - build
+    - build_42sh
   script:
     - ./pharaoh tests/functional
 
 unit_test:
   stage: test
   dependencies:
-    - build
+    - build_testsuite
   script:
     - echo 'Please write some tests'
 
