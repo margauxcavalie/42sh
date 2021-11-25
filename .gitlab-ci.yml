@@ -12,14 +12,23 @@ stages:
   - qa
   - doc
 
-build:
+build_42sh:
   stage: build
   script:
-    - meson compile -C builddir
+    - ninja -C builddir 42sh
   artifacts:
     paths:
       - builddir/42sh
     expose_as: 42sh
+
+build_testsuite:
+  stage: build
+  script:
+    - ninja -C builddir testsuite
+  artifacts:
+    paths:
+      - builddir/testsuite
+    expose_as: testsuite
 
 func_test:
   stage: test
