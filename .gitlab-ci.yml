@@ -45,7 +45,7 @@ unit_test:
     - ./builddir/testsuite
 
 clang-format:
-  stage: qa
+  stage: clang-format
   needs: []
   before_script: []
   script:
