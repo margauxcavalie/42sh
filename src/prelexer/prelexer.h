@@ -2,20 +2,14 @@
 
 #include "pretoken.h"
 
-/**
- * @brief Structure that associates a string with a pretoken type (lookup table)
- * (Simple aggregation)
- */
-struct matching_pretoken
+struct pretoken_operator
 {
     const char *str;
     size_t len;
-    enum pretoken_type type;
 };
 
 /*
- *
- *
+ * (complete agregation)
  */
 struct pretoken_vector
 {
@@ -49,3 +43,8 @@ void append_pretoken_list(struct pretoken_vector *vec, struct pretoken *pretoken
  * @param input Raw string from the user
  */
 struct pretoken_vector *prelexify(char *input);
+
+/**
+ * @brief pretty print of the pretoken list
+ */
+void print_pretoken_list(struct pretoken_vector *vec);

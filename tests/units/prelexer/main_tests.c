@@ -11,6 +11,7 @@ Test(prelexify, empty)
     struct pretoken_vector *vec = prelexify(input);
     cr_assert_eq(vec->size, 1);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, just_spaces)
@@ -19,6 +20,7 @@ Test(prelexify, just_spaces)
     struct pretoken_vector *vec = prelexify(input);
     cr_assert_eq(vec->size, 1);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, just_word)
@@ -28,6 +30,7 @@ Test(prelexify, just_word)
     cr_assert_eq(vec->size, 2);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, just_word_if)
@@ -37,6 +40,7 @@ Test(prelexify, just_word_if)
     cr_assert_eq(vec->size, 2);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, just_word_semicolon)
@@ -46,6 +50,7 @@ Test(prelexify, just_word_semicolon)
     cr_assert_eq(vec->size, 2);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_OPERATOR);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, just_3_word)
@@ -57,6 +62,7 @@ Test(prelexify, just_3_word)
     cr_assert_eq(vec->data[1]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[2]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[3]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, hard_word)
@@ -66,6 +72,7 @@ Test(prelexify, hard_word)
     cr_assert_eq(vec->size, 2);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, mix_types1)
@@ -77,6 +84,7 @@ Test(prelexify, mix_types1)
     cr_assert_eq(vec->data[1]->type, PRETOKEN_OPERATOR);
     cr_assert_eq(vec->data[2]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[3]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, mix_types2)
@@ -90,6 +98,7 @@ Test(prelexify, mix_types2)
     cr_assert_eq(vec->data[3]->type, PRETOKEN_OPERATOR);
     cr_assert_eq(vec->data[4]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[5]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
 
 Test(prelexify, hard_example)
@@ -103,4 +112,43 @@ Test(prelexify, hard_example)
     cr_assert_eq(vec->data[3]->type, PRETOKEN_WORD);
     cr_assert_eq(vec->data[4]->type, PRETOKEN_OPERATOR);
     cr_assert_eq(vec->data[5]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
 }
+
+
+Test(prelexify, word_semicolon)
+{
+    char *input = "word;";
+    struct pretoken_vector *vec = prelexify(input);
+    cr_assert_eq(vec->size, 3);
+    cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[1]->type, PRETOKEN_OPERATOR);
+    cr_assert_eq(vec->data[2]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
+}
+
+
+Test(prelexify, word_linefeed)
+{
+    char *input = "word\n";
+    struct pretoken_vector *vec = prelexify(input);
+    cr_assert_eq(vec->size, 3);
+    cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[1]->type, PRETOKEN_OPERATOR);
+    cr_assert_eq(vec->data[2]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
+}
+
+
+Test(prelexify, word_semicolon_word)
+{
+    char *input = "word;word";
+    struct pretoken_vector *vec = prelexify(input);
+    cr_assert_eq(vec->size, 4);
+    cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[1]->type, PRETOKEN_OPERATOR);
+    cr_assert_eq(vec->data[2]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[3]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
+}
+

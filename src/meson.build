@@ -4,3 +4,4 @@ subdir('io')
 subdir('prelexer')
 
 main_sources += files('42sh.c')
+print_pretoken_main += files('print_pretoken.c');

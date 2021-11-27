@@ -18,9 +18,9 @@ struct pretoken
 /**
  * \brief Allocate a new token
  */
-struct token *pretoken_new(enum token_type type);
+struct pretoken *pretoken_new(enum pretoken_type type, const char *str, size_t len);
 
 /**
  * \brief Frees a token
  */
-void pretoken_free(struct token *token);
+void pretoken_free(struct pretoken *pretoken);

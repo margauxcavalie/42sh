@@ -35,6 +35,7 @@ add_project_arguments(cflags, language: 'c')
 # interpret the meson.build in this directory
 all_sources = []
 main_sources = []
+print_pretoken_main = []
 subdir('src')
 
 all_test_sources = []
@@ -51,6 +52,15 @@ bin = executable(
   '42sh',
   all_sources,
   main_sources,
+  include_directories: 'src',
+  install: true,
+  dependencies: [readline_dep],
+  )
+
+bin = executable(
+  'pretoken_print',
+  all_sources,
+  print_pretoken_main,
   include_directories: 'src',
   install: true,
   dependencies: [readline_dep],
