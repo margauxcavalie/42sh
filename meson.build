@@ -37,6 +37,7 @@ all_sources = []
 main_sources = []
 print_pretoken_main = []
 print_token_main = []
+pretty_print_main = []
 subdir('src')
 
 all_test_sources = []
@@ -71,6 +72,15 @@ executable(
   'token_print',
   all_sources,
   print_token_main,
+  include_directories: 'src',
+  install: true,
+  dependencies: [readline_dep],
+  )
+
+executable(
+  'pretty_print',
+  all_sources,
+  pretty_print_main,
   include_directories: 'src',
   install: true,
   dependencies: [readline_dep],

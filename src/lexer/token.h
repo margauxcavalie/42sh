@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <unistd.h>
 
 enum token_type
@@ -59,3 +60,18 @@ struct token *token_new_eof(void);
  * \brief Frees a token
  */
 void token_free(struct token *token);
+
+/**
+ * \brief Check if the token is an operator and is = op_type
+ */
+bool is_op(struct token *tok, enum op_type op_type);
+
+/**
+ * \brief Check if the token is a reserved word and is = rw_type
+ */
+bool is_rw(struct token *tok, enum rw_type rw_type);
+
+/**
+ * \brief Check if the token is a word
+ */
+bool is_word(struct token *tok);

@@ -36,6 +36,31 @@ struct token *token_new_eof(void)
     return new;
 }
 
+bool is_op(struct token *tok, enum op_type op_type)
+{
+    if (tok->type != TOKEN_OP)
+        return false;
+    if (tok->data.op_type == op_type)
+        return true;
+    return false;
+}
+
+bool is_rw(struct token *tok, enum rw_type rw_type)
+{
+    if (tok->type != TOKEN_RW)
+        return false;
+    if (tok->data.rw_type == rw_type)
+        return true;
+    return false;
+}
+
+bool is_word(struct token *tok)
+{
+    if (tok->type != TOKEN_WORD)
+        return false;
+    return true;
+}
+
 void token_free(struct token *token)
 {
     if (token->type == TOKEN_WORD)

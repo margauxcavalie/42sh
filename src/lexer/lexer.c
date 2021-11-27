@@ -117,6 +117,13 @@ struct token *lexer_peek(struct lexer *lexer)
 
 void lexer_free(struct lexer *lexer)
 {
+    struct token *tok = lexer_pop(lexer);
+    while (tok->type != TOKEN_EOF)
+    {
+        token_free(tok);
+        tok = lexer_pop(lexer);
+    }
+    token_free(tok);
     free_pretoken_list(lexer->pretokens);
     free(lexer);
 }
