@@ -3,33 +3,49 @@
 #include "token.h"
 
 /**
- * @brief Structure that associates a string with a token type
+ * @brief Structure that associates a string with a reserve_word type
+ * example: 'if' -> RW_IF
  * (Simple aggregation)
  */
-struct matching_token
+struct matching_rw
 {
     const char *str;
     size_t len;
-    enum token_type type;
+    enum rw_type type;
+};
+
+/**
+ * @brief Structure that associates a string with a operator type
+ * example: ';' -> OP_SEMICOLON
+ *          '\n' -> OP_LINEFEED
+ * (Simple aggregation)
+ */
+struct matching_op
+{
+    const char *str;
+    size_t len;
+    enum op_type type;
 };
 
 /**
  * @brief Main structure for the lexer
+ * (complete agregation)
  */
 struct lexer
 {
-    const char *input; ///< The input data
-    size_t pos; ///< The current offset inside the input data
+    struct pretoken_vector *pretokens; ///< The vector of the pretokens
+    size_t pretoken_index; ///< The current index of the pretoken vector
+    size_t line_index; ///< The current index of the current command
     struct token *current_tok; ///< The next token, if processed
 };
 
 /**
- * \brief Creates a new lexer given an input string.
+ * \brief Creates a new lexer given an pretoken vector.
  */
-struct lexer *lexer_new(const char *input);
+struct lexer *lexer_new(struct pretoken_vector *pretokens);
 
 /**
- ** \brief Free the given lexer, but not its input.
+ ** \brief Free the given lexer with the pretoken vector.
  */
 void lexer_free(struct lexer *lexer);
 
@@ -52,4 +68,4 @@ struct token *lexer_pop(struct lexer *lexer);
  * @param str:
  * @param size:
  */
-struct token *get_next_token(const char *str, size_t *size);
+struct token *get_next_token(struct lexer *lexer);

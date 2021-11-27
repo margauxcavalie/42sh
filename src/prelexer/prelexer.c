@@ -1,4 +1,4 @@
-#include "prelexer/prelexer.h"
+#include <prelexer/prelexer.h>
 
 #include <err.h>
 #include <stdbool.h>
@@ -51,7 +51,7 @@ void append_pretoken_list(struct pretoken_vector *vec, struct pretoken *pretoken
     if (vec->size + 1 > vec->capacity)
     {
         vec->capacity = (vec->size + 1) * 2;
-        vec->data = xrealloc(vec->data, vec->capacity);
+        vec->data = xrealloc(vec->data, sizeof(struct pretoken *) * vec->capacity);
     }
     vec->data[vec->size] = pretoken;
     vec->size += 1;

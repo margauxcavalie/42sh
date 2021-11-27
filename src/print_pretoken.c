@@ -1,4 +1,4 @@
-#include <prelexer/prelexer.c>
+#include <prelexer/prelexer.h>
 
 #include <err.h>
 

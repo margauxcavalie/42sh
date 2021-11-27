@@ -4,28 +4,56 @@
 
 enum token_type
 {
-    TOKEN_IF,
-    TOKEN_THEN,
-    TOKEN_ELIF,
-    TOKEN_ELSE,
-    TOKEN_FI,
-    TOKEN_SEMICOLON,
-    TOKEN_LINEFEED,
-    TOKEN_SINGLE_QUOTE,
     TOKEN_WORD,
+    TOKEN_RW,
+    TOKEN_OP,
     TOKEN_EOF
+};
+
+enum op_type
+{
+    OP_UNKNOWN,
+    OP_SEMICOLON,
+    OP_LINEFEED
+};
+
+enum rw_type
+{
+    RW_UNKNOWN,
+    RW_IF,
+    RW_FI,
+    RW_THEN,
+    RW_ELIF,
+    RW_ELSE
 };
 
 struct token
 {
     enum token_type type;
-    char *word; // NULL if type != TOKEN_WORD
+    union
+    {
+        enum rw_type rw_type;
+        enum op_type op_type;
+        char *word;
+    } data;
 };
 
 /**
- * \brief Allocate a new token
+ * \brief Allocate a new token word
  */
-struct token *token_new(enum token_type type);
+struct token *token_new_word(char *word, size_t len);
+/**
+ * \brief Allocate a new token reserve word
+ */
+struct token *token_new_rw(enum rw_type type);
+/**
+ * \brief Allocate a new token operator
+ */
+struct token *token_new_op(enum op_type type);
+/**
+ * \brief Allocate a new token EOF
+ */
+struct token *token_new_eof(void);
 
 /**
  * \brief Frees a token

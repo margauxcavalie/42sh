@@ -36,6 +36,7 @@ add_project_arguments(cflags, language: 'c')
 all_sources = []
 main_sources = []
 print_pretoken_main = []
+print_token_main = []
 subdir('src')
 
 all_test_sources = []
@@ -57,10 +58,19 @@ bin = executable(
   dependencies: [readline_dep],
   )
 
-bin = executable(
+executable(
   'pretoken_print',
   all_sources,
   print_pretoken_main,
+  include_directories: 'src',
+  install: true,
+  dependencies: [readline_dep],
+  )
+
+executable(
+  'token_print',
+  all_sources,
+  print_token_main,
   include_directories: 'src',
   install: true,
   dependencies: [readline_dep],

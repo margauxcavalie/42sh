@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include <prelexer/prelexer.h>
 
 #include <err.h>
 #include <stdbool.h>
@@ -7,52 +8,44 @@
 #include <string.h>
 #include <utils/alloc.h>
 
-/**
- *  @brief return true if character is a space
- */
-static bool is_space(char c)
+enum op_type match_op_type(struct pretoken *new_pretoken)
 {
-    bool res = c == ' ' || c == '\t' || c == '\r';
-    return res;
-}
-
-static bool is_separator(char c)
-{
-    bool res = c == '\0' || is_space(c) || c == '\n' || c == ';' || c == '\'';
-    return res;
-}
-
-/**
- *  @brief return true if the given string matches with the pattern
- */
-static bool are_strings_equal(const char *pattern, const char *str, size_t len)
-{
-    bool res = false;
-    if (*pattern == '\0' && *str == '\0')
-        return true;
-    if (strncmp(str, pattern, len) == 0)
+    // initalizes the lookup table
+    struct matching_op lookup_table[] = {
+      { ";", 1, OP_SEMICOLON }, { "\n", 1, OP_LINEFEED }
+    };
+    size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
+    size_t count = 0;
+    while (count < lt_size)
     {
-        char c = str[len];
-        if (is_separator(c))
-            res = true;
+        // if we match the content of the lookup table
+        if (strcmp(lookup_table[count].str, new_pretoken->str) == 0)
+            return lookup_table[count].type;
+        count += 1;
     }
-    return res;
+    // if we do not match any of the possible operator
+    return OP_UNKNOWN;
 }
-/*
- *  @brief returns the first word found in str
- */
-static char *get_word(const char *str, size_t *size)
-{
-    int counter = 0;
-    while (!(is_separator(str[counter])))
-    {
-        counter += 1;
-    }
 
-    char *word = zalloc((counter + 1) * sizeof(char));
-    strncpy(word, str, counter);
-    *size += counter;
-    return word;
+enum rw_type match_rw_type(struct pretoken *new_pretoken)
+{
+    // initalizes the lookup table
+    struct matching_rw lookup_table[] = {
+      { "if", 2, RW_IF },       { "then", 4, RW_THEN },
+      { "elif", 4, RW_ELIF },   { "else", 4, RW_ELSE },
+      { "fi", 2, RW_FI }
+    };
+    size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
+    size_t count = 0;
+    while (count < lt_size)
+    {
+        // if we match the content of the lookup table
+        if (strcmp(lookup_table[count].str, new_pretoken->str) == 0)
+            return lookup_table[count].type;
+        count += 1;
+    }
+    // if we do not match any of the possible reserved word
+    return RW_UNKNOWN;
 }
 
 /*
@@ -61,55 +54,61 @@ static char *get_word(const char *str, size_t *size)
  * @param str:
  * @param size:
  */
-struct token *get_next_token(const char *str, size_t *size)
+struct token *get_next_token(struct lexer *lexer)
 {
-    // initializes the lookup table
-    struct matching_token lookup_table[] = {
-        { "if", 2, TOKEN_IF },       { "then", 4, TOKEN_THEN },
-        { "elif", 4, TOKEN_ELIF },   { "else", 4, TOKEN_ELSE },
-        { "fi", 2, TOKEN_FI },       { ";", 1, TOKEN_SEMICOLON },
-        { "\n", 1, TOKEN_LINEFEED }, { "\'", 1, TOKEN_SINGLE_QUOTE },
-        { "\0", 0, TOKEN_EOF },
-    };
+    struct pretoken *new_pretoken = lexer->pretokens->data[lexer->pretoken_index];
+    lexer->pretoken_index += 1;
 
-    // gets the number of elements of the lookup table
-    size_t nb_tokens = sizeof(lookup_table) / sizeof(struct matching_token);
-
-    // skip all spaces
-    while (is_space(str[0]))
+    if (new_pretoken->type == PRETOKEN_EOF)
     {
-        *size += 1;
-        str += 1;
+        struct token *eof_token = token_new_eof();
+        return eof_token;
     }
-    size_t i = 0;
-    while (i < nb_tokens)
+    else if (new_pretoken->type == PRETOKEN_OPERATOR)
     {
-        struct matching_token mt = lookup_table[i];
-        if (are_strings_equal(mt.str, str, mt.len))
+        lexer->line_index = 0;
+        enum op_type op_type = match_op_type(new_pretoken);
+        if (op_type == OP_UNKNOWN) // ERROR : Must never occur
+            errx(1, "lexer: get_next_token: impossible error while getting the op_type");
+        struct token *op_token = token_new_op(op_type);
+        return op_token;
+    }
+    else
+    {
+        // The pretoken is a PRETOKEN_WORD
+
+        size_t current_line_index = lexer->line_index;
+        lexer->line_index += 1;
+
+        // 'if' -> RW_IF; 'word' -> RW_UNKNOWN
+        enum rw_type rw_type = match_rw_type(new_pretoken);
+
+        if (rw_type != RW_UNKNOWN) // if the syntax matches the one of a reserve word
         {
-            // if we found the token type
-            *size += mt.len;
-            struct token *new_token = token_new(mt.type);
-            return new_token;
+            if (current_line_index == 0) // first token of the command
+            {
+                struct token *rw_token = token_new_rw(rw_type);
+                return rw_token;
+            }
+            // TODO other tests in future implementation (for, case)
         }
-        i++;
+        // The token is a simple word
+        size_t word_size = strlen(new_pretoken->str);
+        struct token *word_token = token_new_word(new_pretoken->str, word_size);
+        return word_token;
     }
-    // if a word was found
-    struct token *new_token = token_new(TOKEN_WORD);
-    char *word = get_word(str, size);
-    new_token->word = word;
-    return new_token;
 }
 
-struct lexer *lexer_new(const char *input)
+struct lexer *lexer_new(struct pretoken_vector *pretokens)
 {
-    if (!input)
+    if (!pretokens)
         return NULL;
     struct lexer *new = xmalloc(sizeof(struct lexer));
-    new->input = input;
-    new->pos = 0;
+    new->pretokens = pretokens;
+    new->pretoken_index = 0;
+    new->line_index = 0;
     new->current_tok = NULL;
-    struct token *token = get_next_token(input, &new->pos);
+    struct token *token = get_next_token(new);
     new->current_tok = token;
     return new;
 }
@@ -121,6 +120,7 @@ struct token *lexer_peek(struct lexer *lexer)
 
 void lexer_free(struct lexer *lexer)
 {
+    free_pretoken_list(lexer->pretokens);
     free(lexer);
 }
 
@@ -132,10 +132,8 @@ struct token *lexer_pop(struct lexer *lexer)
         return lexer->current_tok;
     }
 
-    size_t size = 0;
-    struct token *token = get_next_token(lexer->input + lexer->pos, &size);
+    struct token *token = get_next_token(lexer);
     struct token *prev = lexer->current_tok;
     lexer->current_tok = token;
-    lexer->pos += size;
     return prev;
 }
