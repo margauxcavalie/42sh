@@ -115,7 +115,6 @@ Test(prelexify, hard_example)
     free_pretoken_list(vec);
 }
 
-
 Test(prelexify, word_semicolon)
 {
     char *input = "word;";
@@ -126,7 +125,6 @@ Test(prelexify, word_semicolon)
     cr_assert_eq(vec->data[2]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
-
 
 Test(prelexify, word_linefeed)
 {
@@ -139,7 +137,6 @@ Test(prelexify, word_linefeed)
     free_pretoken_list(vec);
 }
 
-
 Test(prelexify, word_semicolon_word)
 {
     char *input = "word;word";
@@ -151,4 +148,3 @@ Test(prelexify, word_semicolon_word)
     cr_assert_eq(vec->data[3]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
-

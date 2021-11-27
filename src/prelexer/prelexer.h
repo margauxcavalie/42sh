@@ -26,17 +26,17 @@ struct pretoken_vector
 struct pretoken_vector *init_pretoken_list();
 
 /**
- * 
- * 
+ *
+ *
  */
 void free_pretoken_list(struct pretoken_vector *vec);
 
-
 /**
- * 
- * 
+ *
+ *
  */
-void append_pretoken_list(struct pretoken_vector *vec, struct pretoken *pretoken);
+void append_pretoken_list(struct pretoken_vector *vec,
+                          struct pretoken *pretoken);
 
 /**
  * @brief

@@ -1,13 +1,12 @@
+#include <err.h>
 #include <lexer/lexer.h>
 #include <prelexer/prelexer.h>
-
 #include <stdio.h>
-#include <err.h>
 
 int main(int argc, char *argv[])
 {
     if (argc == 1)
-        errx(1,"Usage: ./prelexer [SCRIPT]");
+        errx(1, "Usage: ./prelexer [SCRIPT]");
     struct pretoken_vector *vec = prelexify(argv[1]);
     struct lexer *lexer = lexer_new(vec);
     struct token *token = lexer_pop(lexer);
@@ -28,4 +27,3 @@ int main(int argc, char *argv[])
     lexer_free(lexer);
     return 0;
 }
-

@@ -1,7 +1,7 @@
 #include "lexer.h"
-#include <prelexer/prelexer.h>
 
 #include <err.h>
+#include <prelexer/prelexer.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,9 +11,8 @@
 enum op_type match_op_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
-    struct matching_op lookup_table[] = {
-      { ";", 1, OP_SEMICOLON }, { "\n", 1, OP_LINEFEED }
-    };
+    struct matching_op lookup_table[] = { { ";", 1, OP_SEMICOLON },
+                                          { "\n", 1, OP_LINEFEED } };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
     size_t count = 0;
     while (count < lt_size)
@@ -30,11 +29,11 @@ enum op_type match_op_type(struct pretoken *new_pretoken)
 enum rw_type match_rw_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
-    struct matching_rw lookup_table[] = {
-      { "if", 2, RW_IF },       { "then", 4, RW_THEN },
-      { "elif", 4, RW_ELIF },   { "else", 4, RW_ELSE },
-      { "fi", 2, RW_FI }
-    };
+    struct matching_rw lookup_table[] = { { "if", 2, RW_IF },
+                                          { "then", 4, RW_THEN },
+                                          { "elif", 4, RW_ELIF },
+                                          { "else", 4, RW_ELSE },
+                                          { "fi", 2, RW_FI } };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
     size_t count = 0;
     while (count < lt_size)
@@ -48,15 +47,10 @@ enum rw_type match_rw_type(struct pretoken *new_pretoken)
     return RW_UNKNOWN;
 }
 
-/*
- *@brief
- *
- * @param str:
- * @param size:
- */
 struct token *get_next_token(struct lexer *lexer)
 {
-    struct pretoken *new_pretoken = lexer->pretokens->data[lexer->pretoken_index];
+    struct pretoken *new_pretoken =
+        lexer->pretokens->data[lexer->pretoken_index];
     lexer->pretoken_index += 1;
 
     if (new_pretoken->type == PRETOKEN_EOF)
@@ -69,7 +63,9 @@ struct token *get_next_token(struct lexer *lexer)
         lexer->line_index = 0;
         enum op_type op_type = match_op_type(new_pretoken);
         if (op_type == OP_UNKNOWN) // ERROR : Must never occur
-            errx(1, "lexer: get_next_token: impossible error while getting the op_type");
+            errx(1,
+                 "lexer: get_next_token: impossible error while getting the "
+                 "op_type");
         struct token *op_token = token_new_op(op_type);
         return op_token;
     }
@@ -83,7 +79,8 @@ struct token *get_next_token(struct lexer *lexer)
         // 'if' -> RW_IF; 'word' -> RW_UNKNOWN
         enum rw_type rw_type = match_rw_type(new_pretoken);
 
-        if (rw_type != RW_UNKNOWN) // if the syntax matches the one of a reserve word
+        if (rw_type
+            != RW_UNKNOWN) // if the syntax matches the one of a reserve word
         {
             if (current_line_index == 0) // first token of the command
             {

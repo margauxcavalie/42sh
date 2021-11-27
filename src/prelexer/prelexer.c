@@ -1,13 +1,13 @@
-#include <prelexer/prelexer.h>
-
 #include <err.h>
+#include <prelexer/prelexer.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <utils/alloc.h>
 
-static bool is_operator(const char *str, struct  pretoken_operator *ops, size_t nb_ops)
+static bool is_operator(const char *str, struct pretoken_operator *ops,
+                        size_t nb_ops)
 {
     size_t i = 0;
     while (i < nb_ops)
@@ -46,12 +46,14 @@ void free_pretoken_list(struct pretoken_vector *vec)
     free(vec);
 }
 
-void append_pretoken_list(struct pretoken_vector *vec, struct pretoken *pretoken)
+void append_pretoken_list(struct pretoken_vector *vec,
+                          struct pretoken *pretoken)
 {
     if (vec->size + 1 > vec->capacity)
     {
         vec->capacity = (vec->size + 1) * 2;
-        vec->data = xrealloc(vec->data, sizeof(struct pretoken *) * vec->capacity);
+        vec->data =
+            xrealloc(vec->data, sizeof(struct pretoken *) * vec->capacity);
     }
     vec->data[vec->size] = pretoken;
     vec->size += 1;
@@ -60,10 +62,12 @@ void append_pretoken_list(struct pretoken_vector *vec, struct pretoken *pretoken
 /*
  *  @brief returns the first word found in str
  */
-static char *get_word(const char *str, size_t *size, struct pretoken_operator *ops, size_t nb_ops)
+static char *get_word(const char *str, size_t *size,
+                      struct pretoken_operator *ops, size_t nb_ops)
 {
     int counter = 0;
-    while (!(is_separator(str[counter])) && !is_operator(str + counter, ops, nb_ops))
+    while (!(is_separator(str[counter]))
+           && !is_operator(str + counter, ops, nb_ops))
     {
         counter += 1;
     }
@@ -83,7 +87,7 @@ static char *get_word(const char *str, size_t *size, struct pretoken_operator *o
 struct pretoken *get_next_pretoken(const char *str, size_t *size)
 {
     // initializes the lookup table
-    struct pretoken_operator operators[] = { {"\n", 1}, {";", 1} };
+    struct pretoken_operator operators[] = { { "\n", 1 }, { ";", 1 } };
     // gets the number of elements of the lookup table
     size_t nb_operators = sizeof(operators) / sizeof(struct pretoken_operator);
 
@@ -101,7 +105,8 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
         {
             // if we found an operator
             *size += pretok_op.len;
-            struct pretoken *new = pretoken_new(PRETOKEN_OPERATOR, pretok_op.str, pretok_op.len);
+            struct pretoken *new =
+                pretoken_new(PRETOKEN_OPERATOR, pretok_op.str, pretok_op.len);
             return new;
         }
         i++;
@@ -112,8 +117,10 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
         return new;
     }
     // else it's a word
-    struct pretoken_operator *operators_cpy = xmalloc(sizeof(struct pretoken_operator) * nb_operators);
-    memcpy(operators_cpy, operators, sizeof(struct pretoken_operator) * nb_operators);
+    struct pretoken_operator *operators_cpy =
+        xmalloc(sizeof(struct pretoken_operator) * nb_operators);
+    memcpy(operators_cpy, operators,
+           sizeof(struct pretoken_operator) * nb_operators);
     char *word = get_word(str, size, operators_cpy, nb_operators);
     size_t word_size = strlen(word);
     struct pretoken *new = pretoken_new(PRETOKEN_WORD, word, word_size);

@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <utils/alloc.h>
 
-struct pretoken *pretoken_new(enum pretoken_type type, const char *str, size_t len)
+struct pretoken *pretoken_new(enum pretoken_type type, const char *str,
+                              size_t len)
 {
     struct pretoken *new = zalloc(sizeof(struct pretoken));
     new->type = type;
