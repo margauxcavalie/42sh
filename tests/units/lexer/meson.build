@@ -1,0 +1,1 @@
+all_test_sources += files('main_tests.c')
