@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <utils/alloc.h>
 #include <vector/vector.h>
-#include <unistd.h>
-#include <sys/wait.h>
 
 /**
  * @brief Frees all the AST contains
@@ -129,7 +129,7 @@ ast_node_simple_cmd_attach(struct ast_node **ast)
  * @return
  */
 enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
-                                             struct lexer *lexer)
+                                         struct lexer *lexer)
 {
     // ERROR
     if (lexer_peek(lexer)->type != TOKEN_WORD)

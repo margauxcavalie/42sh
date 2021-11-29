@@ -129,4 +129,3 @@ void vector_apply_on_elts(struct vector *v, void (*func)(void *))
         (*func)(v->data[counter]);
     }
 }
-

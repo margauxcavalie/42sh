@@ -1,12 +1,12 @@
 #include <err.h>
 #include <io/cstream.h>
+#include <lexer/lexer.h>
+#include <parser/parser.h>
+#include <prelexer/prelexer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <utils/vec.h>
-#include <lexer/lexer.h>
-#include <parser/parser.h>
-#include <prelexer/prelexer.h>
 
 /**
  * \brief Parse the command line arguments
@@ -44,7 +44,6 @@ static struct cstream *parse_args(int argc, char *argv[], char **to_free)
         *to_free = str;
         return machin;
     }
-
 
     fprintf(stderr, "Usage: %s [COMMAND]\n", argv[0]);
     return NULL;
@@ -103,7 +102,7 @@ static int execution(struct cstream *cs, struct vec *vec)
 
         vec_push(vec, c);
     }
-    
+
     // printf("vec->data : %s", vec->data);
     // write(STDOUT_FILENO, vec->data, vec->size - 1);
     struct pretoken_vector *pretoken = prelexify(vec->data);
@@ -111,7 +110,7 @@ static int execution(struct cstream *cs, struct vec *vec)
     struct lexer *lexer = lexer_new(pretoken);
     struct ast_node *ast = NULL;
     parse(&ast, lexer);
-    
+
     int return_code = 0;
     if (ast == NULL)
         printf("ast = (null)\n");
@@ -124,7 +123,6 @@ static int execution(struct cstream *cs, struct vec *vec)
 
     lexer_free(lexer);
     return return_code;
-    
 }
 
 int main(int argc, char *argv[])
@@ -153,7 +151,7 @@ int main(int argc, char *argv[])
 
     rc = execution(cs, &line); // return code
 
-// err_loop:
+    // err_loop:
     if (to_free != NULL) // éventuellement faire quelque chose de plus propre
         free(to_free);
     cstream_string_free(cs);

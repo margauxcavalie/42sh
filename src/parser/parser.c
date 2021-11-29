@@ -4,7 +4,7 @@
 #include <parser/ast_simple_cmd_node.h>
 
 static enum parser_status handle_parse_error(enum parser_status status,
-                                      struct ast_node **ast)
+                                             struct ast_node **ast)
 {
     warnx("unexpected token");
     ast_node_free(*ast);
@@ -54,4 +54,3 @@ enum parser_status parse(struct ast_node **ast, struct lexer *lexer)
     // ERROR HERE
     return handle_parse_error(PARSER_UNEXPECTED_TOKEN, ast);
 }
-
