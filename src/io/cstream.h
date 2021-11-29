@@ -63,6 +63,8 @@ enum error cstream_free(struct cstream *cstream);
  */
 struct cstream *cstream_file_create(FILE *file, bool fclose_on_free);
 
+enum error cstream_string_free(struct cstream *cstream_base __unused);
+
 /**
  * \brief Creates a stream which read from the given string.
  * Freeing the stream does not free the string.

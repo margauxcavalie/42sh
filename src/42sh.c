@@ -4,12 +4,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <utils/vec.h>
+#include <lexer/lexer.h>
+#include <parser/parser.h>
+#include <prelexer/prelexer.h>
 
 /**
  * \brief Parse the command line arguments
  * \return A character stream
  */
-static struct cstream *parse_args(int argc, char *argv[])
+static struct cstream *parse_args(int argc, char *argv[], char **to_free)
 {
     // If launched without argument, read the standard input
     if (argc == 1)
@@ -34,11 +37,12 @@ static struct cstream *parse_args(int argc, char *argv[])
 
     if (argc >= 3 && (!(strcmp(argv[1], "-c"))))
     {
-        char *str = zalloc(sizeof(char) * (strlen(argv[2] + 1)));
-        strcpy(str, argv[2]); //heap buffer overflow
+        char *str = zalloc(sizeof(char) * (strlen(argv[2]) + 2));
+        strcpy(str, argv[2]);
         str[strlen(argv[2])] = '\n';
-        return cstream_string_create(str);
-        // PEUT ETRE QU IL FAUDRA FREE ICI
+        struct cstream *machin = cstream_string_create(str);
+        *to_free = str;
+        return machin;
     }
 
 
@@ -80,13 +84,57 @@ enum error read_print_loop(struct cstream *cs, struct vec *line)
     return NO_ERROR;
 }
 
+static int execution(struct cstream *cs, struct vec *vec)
+{
+    enum error err;
+    while (true)
+    {
+        // Read the next character
+        int c;
+        if ((err = cstream_pop(cs, &c)))
+            return err;
+
+        // If the end of file was reached, add a '\0'
+        if (c == EOF)
+        {
+            vec_push(vec, '\0');
+            break;
+        }
+
+        vec_push(vec, c);
+    }
+    
+    // printf("vec->data : %s", vec->data);
+    // write(STDOUT_FILENO, vec->data, vec->size - 1);
+    struct pretoken_vector *pretoken = prelexify(vec->data);
+    vec_reset(vec);
+    struct lexer *lexer = lexer_new(pretoken);
+    struct ast_node *ast = NULL;
+    parse(&ast, lexer);
+    
+    int return_code = 0;
+    if (ast == NULL)
+        printf("ast = (null)\n");
+    else
+    {
+        return_code = ast_node_exec(ast);
+        // printf("Exited with status code %d\n", return_code);
+        ast_node_free(ast);
+    }
+
+    lexer_free(lexer);
+    return return_code;
+    
+}
+
 int main(int argc, char *argv[])
 {
     int rc;
+    char *to_free = NULL;
 
     // Parse command line arguments and get an input stream
     struct cstream *cs;
-    if ((cs = parse_args(argc, argv)) == NULL)
+    if ((cs = parse_args(argc, argv, &to_free)) == NULL)
     {
         rc = 1;
         goto err_parse_args;
@@ -96,19 +144,20 @@ int main(int argc, char *argv[])
     struct vec line;
     vec_init(&line);
 
-    printf("test numero 1\n");
     // Run the test loop
-    if (read_print_loop(cs, &line) != NO_ERROR)
+    /*if (read_print_loop(cs, &line) != NO_ERROR)
     {
         rc = 1;
         goto err_loop;
-    }
+    }*/
 
-    // Success
-    rc = 0;
+    rc = execution(cs, &line); // return code
 
-err_loop:
-    cstream_free(cs);
+// err_loop:
+    if (to_free != NULL) // éventuellement faire quelque chose de plus propre
+        free(to_free);
+    cstream_string_free(cs);
+    // cstream_free(cs);
     vec_destroy(&line);
 err_parse_args:
     return rc;
