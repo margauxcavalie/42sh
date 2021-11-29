@@ -39,6 +39,24 @@ static void ast_cmd_list_print(struct ast_node *ast)
     ast_node_print_rec(v->data[v->size - 1]);
 }
 
+static int ast_cmd_list_exec(struct ast_node *ast)
+{
+    struct ast_cmd_list_node *ast_cmd_list = (struct ast_cmd_list_node *)ast;
+    struct vector *v = ast_cmd_list->ast_list;
+    if (!v || v->size == 0) // Vector is empty or non-existent
+    { // usually impossible since a command list must have at least 1 command
+        return 1;
+    }
+
+    for (size_t i = 0; i < v->size - 1; i++)
+    {
+        ast_node_exec(v->data[i]);
+    }
+
+    int last_return_code = ast_node_exec(v->data[v->size - 1]);
+    return last_return_code;
+}
+
 /**
  * @brief Initializes a cmd_list AST. Its vector has a size 5
  */
@@ -52,7 +70,7 @@ static struct ast_cmd_list_node *ast_cmd_list_init(void)
     base->type = AST_CMD_LIST;
     base->node_free = &ast_cmd_list_free;
     base->node_print = &ast_cmd_list_print;
-    // base->node_exec = TODO
+    base->node_exec = &ast_cmd_list_exec;
 
     new_ast->ast_list = vector_init(5);
     return new_ast;

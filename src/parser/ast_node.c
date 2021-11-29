@@ -28,3 +28,10 @@ void ast_node_print(void *ptr)
     ast_node_print_rec(ptr);
     printf("\n");
 }
+
+int ast_node_exec(void *ptr)
+{
+    struct ast_node *ast = ptr;
+    return (*(ast->node_exec))(ast);
+}
+

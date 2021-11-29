@@ -4,6 +4,8 @@
 #include <string.h>
 #include <utils/alloc.h>
 #include <vector/vector.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 /**
  * @brief Frees all the AST contains
@@ -42,6 +44,35 @@ static void ast_simple_cmd_print(struct ast_node *ast)
     printf("%s", str);
 }
 
+static int ast_simple_cmd_exec(struct ast_node *ast)
+{
+    struct ast_simple_cmd_node *ast_simple_cmd =
+        (struct ast_simple_cmd_node *)ast;
+    pid_t pid = fork();
+    if (pid == -1)
+        return 1;
+    if (pid == 0) // child
+    {
+        size_t params_size = ast_simple_cmd->params->size;
+        char **params_cast = zalloc(sizeof(char *) * (params_size + 1));
+        for (size_t i = 0; i < params_size; i++)
+        {
+            params_cast[i] = ast_simple_cmd->params->data[i];
+        }
+
+        int e = execvp(params_cast[0], params_cast);
+        if (e == -1)
+            errx(127, "%s: command not found", params_cast[0]);
+        return 127; // never executed
+    }
+    else // father
+    {
+        int wstatus;
+        waitpid(pid, &wstatus, 0);
+        return WEXITSTATUS(wstatus);
+    }
+}
+
 /**
  * @brief Initializes a simple_command AST. Its vector has a size 5
  */
@@ -55,7 +86,7 @@ static struct ast_simple_cmd_node *ast_simple_cmd_init(void)
     base->type = AST_SIMPLE_CMD;
     base->node_free = &ast_simple_cmd_free;
     base->node_print = &ast_simple_cmd_print;
-    // base->node_exec = TODO
+    base->node_exec = &ast_simple_cmd_exec;
 
     new_ast->params = vector_init(5);
     return new_ast;

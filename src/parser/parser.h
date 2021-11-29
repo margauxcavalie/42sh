@@ -13,3 +13,4 @@ enum parser_status
 enum parser_status parse();
 enum parser_status handle_parse_error(enum parser_status status,
                                       struct ast_node **ast);
+

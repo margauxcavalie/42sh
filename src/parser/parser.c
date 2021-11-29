@@ -39,3 +39,4 @@ enum parser_status parse(struct ast_node **ast, struct lexer *lexer)
     // ERROR HERE
     return handle_parse_error(PARSER_UNEXPECTED_TOKEN, ast);
 }
+

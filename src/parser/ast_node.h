@@ -27,3 +27,4 @@ struct ast_node
 void ast_node_free(void *ptr);
 void ast_node_print_rec(void *ptr);
 void ast_node_print(void *ptr);
+int ast_node_exec(void *ptr);
