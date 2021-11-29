@@ -88,7 +88,7 @@ static void ast_cmd_list_add_ast(struct ast_cmd_list_node *ast,
 
 /**
  * @brief (temporary version)
- * list: simple_command (';' simple_command)* [';']
+ * list: command (';' command)* [';']
  * @return
  */
 enum parser_status parse_rule_command_list(struct ast_node **ast,
@@ -96,7 +96,7 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
 {
     struct ast_node *ast_child = NULL;
     enum parser_status status =
-        parse_rule_simple_command(&ast_child, lexer); // simple_command
+        parse_rule_cmd(&ast_child, lexer); // command
     if (status != PARSER_OK)
         return PARSER_UNEXPECTED_TOKEN;
 
@@ -111,7 +111,7 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
         struct token *tok = lexer_pop(lexer);
         token_free(tok);
         enum parser_status status =
-            parse_rule_simple_command(&ast_child, lexer);
+            parse_rule_cmd(&ast_child, lexer);
         if (status != PARSER_OK)
             return PARSER_OK;
         ast_cmd_list_add_ast(ast_list, ast_child);

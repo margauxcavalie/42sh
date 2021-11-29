@@ -12,7 +12,6 @@ Test(lexer, empty)
     struct pretoken_vector *vec = prelexify(s);
     struct lexer *lexer = lexer_new(vec);
     cr_assert_eq(lexer->current_tok->type, TOKEN_EOF);
-    token_free(lexer->current_tok);
     lexer_free(lexer); // free vec inside
 }
 
@@ -22,7 +21,6 @@ Test(lexer, spaces)
     struct pretoken_vector *vec = prelexify(s);
     struct lexer *lexer = lexer_new(vec);
     cr_assert_eq(lexer->current_tok->type, TOKEN_EOF);
-    token_free(lexer->current_tok);
     lexer_free(lexer); // free vec inside
 }
 Test(lexer, simple_word)
@@ -39,7 +37,6 @@ Test(lexer, simple_word)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_EOF);
-    token_free(tok);
 
     lexer_free(lexer); // free vec inside
 }
@@ -59,7 +56,6 @@ Test(lexer, simple_word_big)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_EOF);
-    token_free(tok);
 
     lexer_free(lexer); // free vec inside
 }
@@ -76,7 +72,6 @@ Test(lexer, simple_word_special_chars)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_EOF);
-    token_free(tok);
 
     lexer_free(lexer); // free vec inside
 }
@@ -94,7 +89,6 @@ Test(lexer, simple_rw_if)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_EOF);
-    token_free(tok);
 
     lexer_free(lexer); // free vec inside
 }
@@ -112,7 +106,6 @@ Test(lexer, simple_op_semicolon)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_EOF);
-    token_free(tok);
 
     lexer_free(lexer); // free vec inside
 }
@@ -135,7 +128,6 @@ Test(lexer, word_with_op)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_EOF);
-    token_free(tok);
 
     lexer_free(lexer); // free vec inside
 }
@@ -184,7 +176,6 @@ Test(lexer, hard1)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_EOF);
-    token_free(tok);
 
     lexer_free(lexer); // free vec inside
 }

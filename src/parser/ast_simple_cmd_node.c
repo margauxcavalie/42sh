@@ -128,7 +128,7 @@ ast_node_simple_cmd_attach(struct ast_node **ast)
  * Error if there are no words
  * @return
  */
-enum parser_status parse_rule_simple_command(struct ast_node **ast,
+enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
                                              struct lexer *lexer)
 {
     // ERROR

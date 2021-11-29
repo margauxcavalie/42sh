@@ -12,5 +12,5 @@ struct ast_simple_cmd_node
     struct vector *params;
 };
 
-enum parser_status parse_rule_simple_command(struct ast_node **ast,
+enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
                                              struct lexer *lexer);

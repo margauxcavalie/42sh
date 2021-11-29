@@ -1,8 +1,9 @@
 #include "parser.h"
 
 #include <parser/ast_cmd_list_node.h>
+#include <parser/ast_simple_cmd_node.h>
 
-enum parser_status handle_parse_error(enum parser_status status,
+static enum parser_status handle_parse_error(enum parser_status status,
                                       struct ast_node **ast)
 {
     warnx("unexpected token");
@@ -13,8 +14,22 @@ enum parser_status handle_parse_error(enum parser_status status,
 
 /**
  * @brief temporary version
- * input: simple_command '\n'
- *      | simple_command EOF
+ * command: simple_command
+ *
+ * @return enum parser_status
+ */
+enum parser_status parse_rule_cmd(struct ast_node **ast, struct lexer *lexer)
+{
+    enum parser_status status = parse_rule_simple_cmd(ast, lexer);
+    if (status != PARSER_OK)
+        return handle_parse_error(status, ast);
+    return PARSER_OK;
+}
+
+/**
+ * @brief temporary version
+ * input: list '\n'
+ *      | list EOF
  *      | '\n'
  *      | EOF
  * @return enum parser_status
