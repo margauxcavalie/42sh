@@ -32,6 +32,16 @@ static struct cstream *parse_args(int argc, char *argv[])
         return cstream_file_create(fp, /* fclose_on_free */ true);
     }
 
+    if (argc >= 3 && (!(strcmp(argv[1], "-c"))))
+    {
+        char *str = zalloc(sizeof(char) * (strlen(argv[2] + 1)));
+        strcpy(str, argv[2]); //heap buffer overflow
+        str[strlen(argv[2])] = '\n';
+        return cstream_string_create(str);
+        // PEUT ETRE QU IL FAUDRA FREE ICI
+    }
+
+
     fprintf(stderr, "Usage: %s [COMMAND]\n", argv[0]);
     return NULL;
 }
@@ -86,6 +96,7 @@ int main(int argc, char *argv[])
     struct vec line;
     vec_init(&line);
 
+    printf("test numero 1\n");
     // Run the test loop
     if (read_print_loop(cs, &line) != NO_ERROR)
     {
