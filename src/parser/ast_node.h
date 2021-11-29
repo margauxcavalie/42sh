@@ -7,6 +7,7 @@ enum ast_type
 {
     AST_SIMPLE_CMD,
     AST_CMD_LIST,
+    AST_IF,
 };
 
 /**

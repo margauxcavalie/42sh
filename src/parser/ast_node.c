@@ -19,6 +19,8 @@ void ast_node_free(void *ptr)
 void ast_node_print_rec(void *ptr)
 {
     struct ast_node *ast = ptr;
+    if (ast == NULL)
+        return;
     (*(ast->node_print))(ast);
 }
 

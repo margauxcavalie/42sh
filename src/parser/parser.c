@@ -14,7 +14,22 @@ static enum parser_status handle_parse_error(enum parser_status status,
 
 /**
  * @brief temporary version
+ * shell_command: rule_if
+ *
+ * @return enum parser_status
+ */
+enum parser_status parse_rule_shell_cmd(struct ast_node **ast, struct lexer *lexer)
+{
+    enum parser_status status = parse_rule_if(ast, lexer);
+    if (status != PARSER_OK)
+        return handle_parse_error(status, ast);
+    return PARSER_OK;
+}
+
+/**
+ * @brief temporary version
  * command: simple_command
+ *      |   shell_command
  *
  * @return enum parser_status
  */
@@ -22,7 +37,11 @@ enum parser_status parse_rule_cmd(struct ast_node **ast, struct lexer *lexer)
 {
     enum parser_status status = parse_rule_simple_cmd(ast, lexer);
     if (status != PARSER_OK)
-        return handle_parse_error(status, ast);
+    {
+        status = parse_rule_shell_cmd(ast, lexer);
+        if (status != PARSER_OK)
+            return handle_parse_error(status, ast);
+    }
     return PARSER_OK;
 }
 
