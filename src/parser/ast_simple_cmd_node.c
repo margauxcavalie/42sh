@@ -21,7 +21,7 @@ static void ast_simple_cmd_free(struct ast_node *ast)
 /**
  * @brief Prints the content of an AST simple_cmd. Isn't recursive.
  */
-static void ast_simple_cmd_print(struct ast_node *ast)
+static void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
 {
     struct ast_simple_cmd_node *ast_simple_cmd =
         (struct ast_simple_cmd_node *)ast;
@@ -33,6 +33,8 @@ static void ast_simple_cmd_print(struct ast_node *ast)
                                                     // least one word
         return;
     }
+
+    ast_node_print_indent(pc.indent);
 
     for (size_t i = 0; i < v->size - 1; i++)
     {
@@ -131,12 +133,12 @@ ast_node_simple_cmd_attach(struct ast_node **ast)
 enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
                                          struct lexer *lexer)
 {
+     // create a new AST node, and attach it to the ast pointer
+    struct ast_simple_cmd_node *ast_simple = ast_node_simple_cmd_attach(ast);
+
     // ERROR
     if (lexer_peek(lexer)->type != TOKEN_WORD)
-        return PARSER_UNEXPECTED_TOKEN;
-
-    // create a new AST node, and attach it to the ast pointer
-    struct ast_simple_cmd_node *ast_simple = ast_node_simple_cmd_attach(ast);
+        goto error;
 
     while (lexer_peek(lexer)->type == TOKEN_WORD) // WORD+
     {
@@ -147,4 +149,8 @@ enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
     }
 
     return PARSER_OK;
+    
+error:
+    ast_node_free_detach(ast);
+    return PARSER_UNEXPECTED_TOKEN;
 }

@@ -19,7 +19,7 @@ static void ast_cmd_list_free(struct ast_node *ast)
 /**
  * @brief Prints the content of an AST cmd_list.
  */
-static void ast_cmd_list_print(struct ast_node *ast)
+static void ast_cmd_list_print(struct ast_node *ast, struct print_context pc)
 {
     struct ast_cmd_list_node *ast_cmd_list = (struct ast_cmd_list_node *)ast;
     struct vector *v = ast_cmd_list->ast_list;
@@ -31,11 +31,11 @@ static void ast_cmd_list_print(struct ast_node *ast)
 
     for (size_t i = 0; i < v->size - 1; i++)
     {
-        ast_node_print_rec(v->data[i]);
-        printf("; ");
+        ast_node_print_rec(v->data[i], pc);
+        printf(";\n");
     }
 
-    ast_node_print_rec(v->data[v->size - 1]);
+    ast_node_print_rec(v->data[v->size - 1], pc);
 }
 
 static int ast_cmd_list_exec(struct ast_node *ast)
@@ -101,20 +101,20 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
     enum parser_status status = parse_rule_cmd(&ast_child, lexer); // command
     ast_cmd_list_add_ast(ast_list, ast_child);
     if (status != PARSER_OK)
-    {
-        ast_node_free(ast_list);
-        *ast = NULL;
-        return PARSER_UNEXPECTED_TOKEN;
-    }
+        goto error;
 
     while (is_op(lexer_peek(lexer), OP_SEMICOLON))
     {
         struct token *tok = lexer_pop(lexer);
         token_free(tok);
         enum parser_status status = parse_rule_cmd(&ast_child, lexer);
-        ast_cmd_list_add_ast(ast_list, ast_child);
         if (status != PARSER_OK)
             break;
+        ast_cmd_list_add_ast(ast_list, ast_child);
     }
     return PARSER_OK;
+
+error:
+    ast_node_free_detach(ast);
+    return PARSER_UNEXPECTED_TOKEN;
 }

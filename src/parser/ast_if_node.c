@@ -20,20 +20,32 @@ static void ast_if_free(struct ast_node *ast)
 /**
  * @brief Prints the content of an AST if.
  */
-static void ast_if_print(struct ast_node *ast)
+static void ast_if_print(struct ast_node *ast, struct print_context pc)
 {
+    struct print_context new_pc = { pc.indent + 1 };
+
     struct ast_if_node *ast_if = (struct ast_if_node *)ast;
-    printf("if { ");
-    ast_node_print(ast_if->condition);
-    printf(" }; ");
-    printf("then { ");
-    ast_node_print(ast_if->if_body);
-    printf(" }; ");
+    ast_node_print_indent(pc.indent); // ajoute l'indentation
+    printf("if {\n");
+    ast_node_print_rec(ast_if->condition, new_pc);
+    printf("\n");
+    ast_node_print_indent(pc.indent); // ajoute l'indentation
+    printf("};\n");
+    ast_node_print_indent(pc.indent); // ajoute l'indentation
+    printf("then {\n");
+    ast_node_print_rec(ast_if->if_body, new_pc);
+    printf("\n");
+    ast_node_print_indent(pc.indent); // ajoute l'indentation
+    printf("};");
     if (ast_if->else_body != NULL)
     {
-        printf("else { ");
-        ast_node_print(ast_if->else_body);
-        printf(" }; ");
+        printf("\n");
+        ast_node_print_indent(pc.indent); // ajoute l'indentation
+        printf("else {\n");
+        ast_node_print_rec(ast_if->else_body, new_pc);
+        printf("\n");
+        ast_node_print_indent(pc.indent); // ajoute l'indentation
+        printf("};\n");
     }
 }
 
@@ -99,6 +111,9 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
 {
     if (is_rw(lexer_peek(lexer), RW_ELIF) == true)
     {
+        struct ast_if_node *ast_if = ast_if_init();
+        *ast = (struct ast_node *)ast_if; // attach ast_if to ast
+
         token_free(lexer_pop(lexer));
         struct ast_node *ast_elif_condition = NULL;
         struct ast_node *ast_elif_body = NULL;
@@ -106,6 +121,9 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
 
         enum parser_status status =
             parse_rule_command_list(&ast_elif_condition, lexer);
+        ast_if_set_condition(ast_if,
+                             ast_elif_condition); // Set condition_body
+
         if (status != PARSER_OK)
             goto error_elif;
 
@@ -114,24 +132,19 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
         token_free(lexer_pop(lexer));
 
         status = parse_rule_command_list(&ast_elif_body, lexer);
+        ast_if_set_body(ast_if,
+                        ast_elif_body); // Set if_body
+
         if (status != PARSER_OK)
             goto error_elif;
 
         parse_rule_else_clause(&ast_elif_else, lexer);
-
-        struct ast_if_node *ast_if = ast_if_init();
-        *ast = (struct ast_node *)ast_if; // attach ast_if to ast
-        ast_if_set_condition(
-            ast_if, ast_elif_condition); // Set the condition_body of the new ast
-        ast_if_set_body(ast_if, ast_elif_body); // Set the if_body of the new ast
         ast_if_set_else(ast_if,
-                        ast_elif_else); // Set the else_body of the new ast
+                        ast_elif_else); // Set else_body
 
         return PARSER_OK;
-error_elif:
-        ast_node_free(ast_elif_else);
-        ast_node_free(ast_elif_body);
-        ast_node_free(ast_elif_condition);
+    error_elif:
+        ast_node_free_detach(ast);
         return PARSER_UNEXPECTED_TOKEN;
     }
 
@@ -154,6 +167,9 @@ error_elif:
  */
 enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
 {
+    struct ast_if_node *ast_if = ast_if_init();
+    *ast = (struct ast_node *)ast_if; // attach ast_if to ast
+
     struct ast_node *ast_if_condition = NULL;
     struct ast_node *ast_if_body = NULL;
     struct ast_node *ast_else_body = NULL;
@@ -164,6 +180,7 @@ enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
 
     enum parser_status status =
         parse_rule_command_list(&ast_if_condition, lexer);
+    ast_if_set_condition(ast_if, ast_if_condition); // Set the condition_body
 
     if (status != PARSER_OK)
         goto error;
@@ -173,27 +190,20 @@ enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
     token_free(lexer_pop(lexer));
 
     status = parse_rule_command_list(&ast_if_body, lexer);
+    ast_if_set_body(ast_if, ast_if_body); // Set the if_body
 
     if (status != PARSER_OK)
         goto error;
 
     parse_rule_else_clause(&ast_else_body, lexer);
+    ast_if_set_else(ast_if, ast_else_body); // Set the else_body
 
     if (is_rw(lexer_peek(lexer), RW_FI) == false)
         goto error;
     token_free(lexer_pop(lexer));
 
-    struct ast_if_node *ast_if = ast_if_init();
-    *ast = (struct ast_node *)ast_if; // attach ast_if to ast
-    ast_if_set_condition(
-        ast_if, ast_if_condition); // Set the condition_body of the new ast
-    ast_if_set_body(ast_if, ast_if_body); // Set the if_body of the new ast
-    ast_if_set_else(ast_if, ast_else_body); // Set the else_body of the new ast
-
     return PARSER_OK;
 error:
-    ast_node_free(ast_else_body);
-    ast_node_free(ast_if_body);
-    ast_node_free(ast_if_condition);
+    ast_node_free_detach(ast);
     return PARSER_UNEXPECTED_TOKEN;
 }

@@ -10,6 +10,11 @@ enum ast_type
     AST_IF,
 };
 
+struct print_context
+{
+    int indent;
+};
+
 /**
  * @brief Base struct for every AST node
  *
@@ -20,12 +25,16 @@ struct ast_node
     // pointeur de fonction pour free
     void (*node_free)(struct ast_node *node);
     // pointeur de fonction pour print
-    void (*node_print)(struct ast_node *node);
+    void (*node_print)(struct ast_node *node, struct print_context pc);
     // pointeur de fonction pour free
     int (*node_exec)(struct ast_node *node);
 };
 
 void ast_node_free(void *ptr);
-void ast_node_print_rec(void *ptr);
+void ast_node_free_detach(struct ast_node **ast);
+
+void ast_node_print_rec(void *ptr, struct print_context pc);
 void ast_node_print(void *ptr);
+void ast_node_print_indent(int indent);
+
 int ast_node_exec(void *ptr);
