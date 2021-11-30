@@ -12,35 +12,27 @@ stages:
   - clang
   - doc
 
-build_42sh:
+build main:
   stage: build
   script:
     - ninja -C builddir 42sh
-  artifacts:
-    paths:
-      - builddir/42sh
-    expose_as: 42sh
 
-build_testsuite:
+
+build unit_tests:
   stage: build
   script:
     - ninja -C builddir testsuite
-  artifacts:
-    paths:
-      - builddir/testsuite
-    expose_as: testsuite
+
 
 func_test:
   stage: test
-  dependencies:
-    - build_42sh
+  needs: ["build:main"]
   script:
     - ./pharaoh tests/functional
 
 unit_test:
   stage: test
-  dependencies:
-    - build_testsuite
+  needs: ["build:unit_tests"]
   script:
     - ./builddir/testsuite
 
