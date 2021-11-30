@@ -4,6 +4,7 @@ subdir('lexer')
 subdir('prelexer')
 subdir('parser')
 subdir('vector')
+subdir('builtins')
 
 main_sources += files('42sh.c')
 print_pretoken_main += files('print_pretoken.c')

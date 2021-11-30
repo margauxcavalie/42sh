@@ -102,13 +102,22 @@ static void ast_if_set_else(struct ast_if_node *ast, struct ast_node *else_body)
 
 /**
  * @brief (temporary version)
- * else_clause: ELSE list
- *            | ELIF list THEN list [else_clause]
+ * else_clause: ELSE compound_list
+ *            | ELIF compound_list THEN compound_list [else_clause]
  * @return
  */
 static enum parser_status parse_rule_else_clause(struct ast_node **ast,
                                                  struct lexer *lexer)
 {
+    if (is_rw(lexer_peek(lexer), RW_ELSE) == true)
+    {
+        token_free(lexer_pop(lexer));
+        enum parser_status status = parse_rule_compound_list(ast, lexer);
+        if (status != PARSER_OK)
+            return PARSER_UNEXPECTED_TOKEN;
+        return PARSER_OK;
+    }
+
     if (is_rw(lexer_peek(lexer), RW_ELIF) == true)
     {
         struct ast_if_node *ast_if = ast_if_init();
@@ -120,7 +129,7 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
         struct ast_node *ast_elif_else = NULL;
 
         enum parser_status status =
-            parse_rule_command_list(&ast_elif_condition, lexer);
+            parse_rule_compound_list(&ast_elif_condition, lexer);
         ast_if_set_condition(ast_if,
                              ast_elif_condition); // Set condition_body
 
@@ -131,7 +140,7 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
             goto error_elif;
         token_free(lexer_pop(lexer));
 
-        status = parse_rule_command_list(&ast_elif_body, lexer);
+        status = parse_rule_compound_list(&ast_elif_body, lexer);
         ast_if_set_body(ast_if,
                         ast_elif_body); // Set if_body
 
@@ -148,21 +157,12 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
         return PARSER_UNEXPECTED_TOKEN;
     }
 
-    if (is_rw(lexer_peek(lexer), RW_ELSE) == true)
-    {
-        token_free(lexer_pop(lexer));
-        enum parser_status status = parse_rule_command_list(ast, lexer);
-        if (status != PARSER_OK)
-            return PARSER_UNEXPECTED_TOKEN;
-        return PARSER_OK;
-    }
-
     return PARSER_UNEXPECTED_TOKEN;
 }
 
 /**
  * @brief (temporary version)
- * rule_if: IF list THEN list [else_clause] FI
+ * rule_if: IF compound_list THEN compound_list [else_clause] FI
  * @return
  */
 enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
@@ -179,7 +179,7 @@ enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
     token_free(lexer_pop(lexer));
 
     enum parser_status status =
-        parse_rule_command_list(&ast_if_condition, lexer);
+        parse_rule_compound_list(&ast_if_condition, lexer);
     ast_if_set_condition(ast_if, ast_if_condition); // Set the condition_body
 
     if (status != PARSER_OK)
@@ -189,7 +189,7 @@ enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
         goto error;
     token_free(lexer_pop(lexer));
 
-    status = parse_rule_command_list(&ast_if_body, lexer);
+    status = parse_rule_compound_list(&ast_if_body, lexer);
     ast_if_set_body(ast_if, ast_if_body); // Set the if_body
 
     if (status != PARSER_OK)
