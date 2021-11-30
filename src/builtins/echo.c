@@ -42,8 +42,8 @@ int builtin_echo(int argc, char **argv)
     bool opt_state = true;
 
     bool opt_n = false;
-    bool opt_e = false;
-    opt_e = opt_e;
+    // bool opt_e = false;
+    // opt_e = opt_e;
     int i = 1;
     while (opt_state && i < argc)
     {
@@ -53,12 +53,13 @@ int builtin_echo(int argc, char **argv)
         }
         else if (!strcmp("-e", argv[i]))
         {
-            opt_e = true;
+            // opt_e = true;
+            ;
         }
         else if (!strcmp("-ne", argv[i]) || !strcmp("-en", argv[i]))
         {
             opt_n = true;
-            opt_e = true;
+            // opt_e = true;
         }
         else
         {
