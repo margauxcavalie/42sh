@@ -1,5 +1,5 @@
 #include <parser/ast_cmd_list_node.h>
-#include <parser/ast_simple_cmd_node.h>
+#include <parser/ast_if_node.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,10 +54,10 @@ static int ast_if_exec(struct ast_node *ast)
 /**
  * @brief Initializes a cmd_list AST. Its vector has a size 5
  */
-static struct ast_if_node *ast_if_init(struct ast_node *condition, struct ast_node *if_body)
+static struct ast_if_node *ast_if_init()
 {
-    struct ast_cmd_list_node *new_ast = xmalloc(
-        sizeof(struct ast_cmd_list_node)); // expand (unique of each types)
+    struct ast_if_node *new_ast =
+        xmalloc(sizeof(struct ast_if_node)); // expand (unique of each types)
     struct ast_node *base = (struct ast_node *)new_ast; // reduce (common)
 
     // Set common properties
@@ -66,51 +66,134 @@ static struct ast_if_node *ast_if_init(struct ast_node *condition, struct ast_no
     base->node_print = &ast_if_print;
     base->node_exec = &ast_if_exec;
 
-    new_ast->condition = condition;
-    new_ast->if_body = if_body;
+    new_ast->condition = NULL;
+    new_ast->if_body = NULL;
+    new_ast->else_body = NULL;
     return new_ast;
 }
 
-/**
- * @brief Adds a new AST to the already existing AST.
- * @param ast_elt Newly added AST
- */
-static void ast_cmd_list_add_ast(struct ast_cmd_list_node *ast,
-                                 struct ast_node *ast_elt)
+static void ast_if_set_condition(struct ast_if_node *ast,
+                                 struct ast_node *condition)
 {
-    ast->ast_list = vector_append(ast->ast_list, ast_elt);
+    ast->condition = condition;
+}
+
+static void ast_if_set_body(struct ast_if_node *ast, struct ast_node *body)
+{
+    ast->if_body = body;
+}
+
+static void ast_if_set_else(struct ast_if_node *ast, struct ast_node *else_body)
+{
+    ast->else_body = else_body;
 }
 
 /**
  * @brief (temporary version)
- * list: command (';' command)* [';']
+ * else_clause: ELSE list
+ *            | ELIF list THEN list [else_clause]
  * @return
  */
-enum parser_status parse_rule_command_list(struct ast_node **ast,
-                                           struct lexer *lexer)
+static enum parser_status parse_rule_else_clause(struct ast_node **ast,
+                                                 struct lexer *lexer)
 {
-    struct ast_node *ast_child = NULL;
-    enum parser_status status =
-        parse_rule_cmd(&ast_child, lexer); // command
-    if (status != PARSER_OK)
-        return PARSER_UNEXPECTED_TOKEN;
-
-    struct ast_cmd_list_node *ast_list =
-        ast_cmd_list_init(); // Create an empy AST cmdlist
-    *ast = (struct ast_node *) ast_list; // attach ast_list to ast
-    ast_cmd_list_add_ast(ast_list, ast_child);
-
-    while (
-        is_op(lexer_peek(lexer), OP_SEMICOLON)) // (';' simple_command)* [';']
+    if (is_rw(lexer_peek(lexer), RW_ELIF) == true)
     {
-        struct token *tok = lexer_pop(lexer);
-        token_free(tok);
+        token_free(lexer_pop(lexer));
+        struct ast_node *ast_elif_condition = NULL;
+        struct ast_node *ast_elif_body = NULL;
+        struct ast_node *ast_elif_else = NULL;
+
         enum parser_status status =
-            parse_rule_cmd(&ast_child, lexer);
+            parse_rule_command_list(&ast_elif_condition, lexer);
         if (status != PARSER_OK)
-            return PARSER_OK;
-        ast_cmd_list_add_ast(ast_list, ast_child);
+            goto error_elif;
+
+        if (is_rw(lexer_peek(lexer), RW_THEN) == false)
+            goto error_elif;
+        token_free(lexer_pop(lexer));
+
+        status = parse_rule_command_list(&ast_elif_body, lexer);
+        if (status != PARSER_OK)
+            goto error_elif;
+
+        parse_rule_else_clause(&ast_elif_else, lexer);
+
+        struct ast_if_node *ast_if = ast_if_init();
+        *ast = (struct ast_node *)ast_if; // attach ast_if to ast
+        ast_if_set_condition(
+            ast_if, ast_elif_condition); // Set the condition_body of the new ast
+        ast_if_set_body(ast_if, ast_elif_body); // Set the if_body of the new ast
+        ast_if_set_else(ast_if,
+                        ast_elif_else); // Set the else_body of the new ast
+
+        return PARSER_OK;
+error_elif:
+        ast_node_free(ast_elif_else);
+        ast_node_free(ast_elif_body);
+        ast_node_free(ast_elif_condition);
+        return PARSER_UNEXPECTED_TOKEN;
     }
 
+    if (is_rw(lexer_peek(lexer), RW_ELSE) == true)
+    {
+        token_free(lexer_pop(lexer));
+        enum parser_status status = parse_rule_command_list(ast, lexer);
+        if (status != PARSER_OK)
+            return PARSER_UNEXPECTED_TOKEN;
+        return PARSER_OK;
+    }
+
+    return PARSER_UNEXPECTED_TOKEN;
+}
+
+/**
+ * @brief (temporary version)
+ * rule_if: IF list THEN list [else_clause] FI
+ * @return
+ */
+enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
+{
+    struct ast_node *ast_if_condition = NULL;
+    struct ast_node *ast_if_body = NULL;
+    struct ast_node *ast_else_body = NULL;
+
+    if (is_rw(lexer_peek(lexer), RW_IF) == false)
+        goto error;
+    token_free(lexer_pop(lexer));
+
+    enum parser_status status =
+        parse_rule_command_list(&ast_if_condition, lexer);
+
+    if (status != PARSER_OK)
+        goto error;
+
+    if (is_rw(lexer_peek(lexer), RW_THEN) == false)
+        goto error;
+    token_free(lexer_pop(lexer));
+
+    status = parse_rule_command_list(&ast_if_body, lexer);
+
+    if (status != PARSER_OK)
+        goto error;
+
+    parse_rule_else_clause(&ast_else_body, lexer);
+
+    if (is_rw(lexer_peek(lexer), RW_FI) == false)
+        goto error;
+    token_free(lexer_pop(lexer));
+
+    struct ast_if_node *ast_if = ast_if_init();
+    *ast = (struct ast_node *)ast_if; // attach ast_if to ast
+    ast_if_set_condition(
+        ast_if, ast_if_condition); // Set the condition_body of the new ast
+    ast_if_set_body(ast_if, ast_if_body); // Set the if_body of the new ast
+    ast_if_set_else(ast_if, ast_else_body); // Set the else_body of the new ast
+
     return PARSER_OK;
+error:
+    ast_node_free(ast_else_body);
+    ast_node_free(ast_if_body);
+    ast_node_free(ast_if_condition);
+    return PARSER_UNEXPECTED_TOKEN;
 }

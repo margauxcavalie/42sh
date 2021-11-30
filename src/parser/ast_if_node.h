@@ -14,5 +14,4 @@ struct ast_if_node
     struct ast_node *else_body;
 };
 
-enum parser_status parse_rule_if(struct ast_node **ast,
-                                           struct lexer *lexer);
+enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer);

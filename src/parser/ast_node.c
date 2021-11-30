@@ -36,4 +36,3 @@ int ast_node_exec(void *ptr)
     struct ast_node *ast = ptr;
     return (*(ast->node_exec))(ast);
 }
-
