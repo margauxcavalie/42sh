@@ -26,13 +26,15 @@ build unit_tests:
 
 func_test:
   stage: test
-  needs: ["build:main"]
+  needs:
+    - build:main
   script:
     - ./pharaoh tests/functional
 
 unit_test:
   stage: test
-  needs: ["build:unit_tests"]
+  needs:
+    - build:unit_tests
   script:
     - ./builddir/testsuite
 
