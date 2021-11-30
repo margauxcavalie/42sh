@@ -45,7 +45,7 @@ static void ast_if_print(struct ast_node *ast, struct print_context pc)
         ast_node_print_rec(ast_if->else_body, new_pc);
         printf("\n");
         ast_node_print_indent(pc.indent); // ajoute l'indentation
-        printf("};\n");
+        printf("}");
     }
 }
 
