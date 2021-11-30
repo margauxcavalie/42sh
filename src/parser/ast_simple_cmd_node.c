@@ -133,7 +133,7 @@ ast_node_simple_cmd_attach(struct ast_node **ast)
 enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
                                          struct lexer *lexer)
 {
-     // create a new AST node, and attach it to the ast pointer
+    // create a new AST node, and attach it to the ast pointer
     struct ast_simple_cmd_node *ast_simple = ast_node_simple_cmd_attach(ast);
 
     // ERROR
@@ -149,7 +149,7 @@ enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
     }
 
     return PARSER_OK;
-    
+
 error:
     ast_node_free_detach(ast);
     return PARSER_UNEXPECTED_TOKEN;
