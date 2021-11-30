@@ -145,16 +145,6 @@ Test(echo, dash_e_colors_backslashs2)
 
 // TESTS WITH '-n' ARG
 
-Test(echo, dash_n_empty)
-{
-    cr_redirect_stdout();
-    char *tab[] = { "echo", "-n", "" };
-    int res = builtin_echo(3, tab);
-    fflush(stdout);
-    cr_assert_eq(res, 0);
-    cr_assert_stdout_eq_str("");
-}
-
 Test(echo, dash_n_one_space)
 {
     cr_redirect_stdout();
