@@ -1,6 +1,7 @@
 #include "parser.h"
 
 #include <parser/ast_cmd_list_node.h>
+#include <parser/ast_if_node.h>
 #include <parser/ast_simple_cmd_node.h>
 
 static enum parser_status handle_parse_error(enum parser_status status,
@@ -14,15 +15,35 @@ static enum parser_status handle_parse_error(enum parser_status status,
 
 /**
  * @brief temporary version
+ * shell_command: rule_if
+ *
+ * @return enum parser_status
+ */
+enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
+                                        struct lexer *lexer)
+{
+    enum parser_status status = parse_rule_if(ast, lexer);
+    if (status != PARSER_OK)
+        return PARSER_UNEXPECTED_TOKEN;
+    return PARSER_OK;
+}
+
+/**
+ * @brief temporary version
  * command: simple_command
+ *      |   shell_command
  *
  * @return enum parser_status
  */
 enum parser_status parse_rule_cmd(struct ast_node **ast, struct lexer *lexer)
 {
-    enum parser_status status = parse_rule_simple_cmd(ast, lexer);
+    enum parser_status status = parse_rule_shell_cmd(ast, lexer);
     if (status != PARSER_OK)
-        return handle_parse_error(status, ast);
+    {
+        status = parse_rule_simple_cmd(ast, lexer);
+        if (status != PARSER_OK)
+            return PARSER_UNEXPECTED_TOKEN;
+    }
     return PARSER_OK;
 }
 
@@ -36,18 +57,16 @@ enum parser_status parse_rule_cmd(struct ast_node **ast, struct lexer *lexer)
  */
 enum parser_status parse(struct ast_node **ast, struct lexer *lexer)
 {
+    struct token *tok = lexer_peek(lexer);
+    if ((is_op(tok, OP_LINEFEED)) || tok->type == TOKEN_EOF) // '\n' | EOF
+        return PARSER_OK;
+
     enum parser_status status =
         parse_rule_command_list(ast, lexer); // simple command
     if (status != PARSER_OK) // not a simple command
-    {
-        struct token *tok = lexer_peek(lexer);
-        if ((is_op(tok, OP_LINEFEED)) || tok->type == TOKEN_EOF) // '\n' | EOF
-        {
-            return PARSER_OK;
-        }
         return handle_parse_error(status, ast);
-    }
-    struct token *tok = lexer_peek(lexer);
+
+    tok = lexer_peek(lexer);
     if ((is_op(tok, OP_LINEFEED)) || tok->type == TOKEN_EOF) // '\n' | EOF
         return PARSER_OK;
 
