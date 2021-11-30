@@ -27,7 +27,7 @@ build_unit_tests:
 func_test:
   stage: test
   dependencies:
-     build_main
+    - build_main
   needs:
     - build_main
   script:
@@ -36,7 +36,7 @@ func_test:
 unit_test:
   stage: test
   dependencies:
-     build_unit_tests
+    - build_unit_tests
   needs:
     - build_unit_tests
   script:
