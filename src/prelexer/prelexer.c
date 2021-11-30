@@ -59,7 +59,28 @@ void append_pretoken_list(struct pretoken_vector *vec,
     vec->size += 1;
 }
 
-/*
+/**
+ * @brief skip until a quote is found return an error if not
+ *
+ */
+static bool skip_quotes(const char *str, int *counter, char c)
+{
+    // printf("dep : %c\n", str[*counter]);
+    *counter += 1;
+    while (str[*counter] && str[*counter] != c)
+    {
+        // printf("char : %c\n", str[*counter]);
+        if (str[*counter] == '\0')
+            return false;
+        *counter += 1;
+    }
+    if (str[*counter] == '\0')
+        return false;
+    // printf("end : %c\n", str[*counter]);
+    return true;
+}
+
+/**
  *  @brief returns the first word found in str
  */
 static char *get_word(const char *str, size_t *size,
@@ -69,6 +90,14 @@ static char *get_word(const char *str, size_t *size,
     while (!(is_separator(str[counter]))
            && !is_operator(str + counter, ops, nb_ops))
     {
+        // quotes
+        if (str[counter] == '\'')
+        {
+            if (skip_quotes(str, &counter, '\'') == false)
+            {
+                return NULL;
+            }
+        }
         counter += 1;
     }
 
@@ -78,7 +107,7 @@ static char *get_word(const char *str, size_t *size,
     return word;
 }
 
-/*
+/**
  *@brief
  *
  * @param str:
@@ -122,6 +151,12 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     memcpy(operators_cpy, operators,
            sizeof(struct pretoken_operator) * nb_operators);
     char *word = get_word(str, size, operators_cpy, nb_operators);
+    if (word == NULL)
+    {
+        struct pretoken *new = pretoken_new(PRETOKEN_ERROR, NULL, 0);
+        free(operators_cpy);
+        return new;
+    }
     size_t word_size = strlen(word);
     struct pretoken *new = pretoken_new(PRETOKEN_WORD, word, word_size);
     free(word);
@@ -134,10 +169,16 @@ struct pretoken_vector *prelexify(char *input)
     struct pretoken_vector *vec = init_pretoken_list();
     size_t size = 0;
     struct pretoken *pretok = get_next_pretoken(input, &size);
-    while (pretok->type != PRETOKEN_EOF)
+    while (pretok->type != PRETOKEN_EOF && pretok->type != PRETOKEN_ERROR)
     {
         append_pretoken_list(vec, pretok);
         pretok = get_next_pretoken(input + size, &size);
+    }
+    if (pretok->type == PRETOKEN_ERROR)
+    {
+        append_pretoken_list(vec, pretok);
+        free_pretoken_list(vec);
+        return NULL;
     }
     append_pretoken_list(vec, pretok);
     return vec;

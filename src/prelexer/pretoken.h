@@ -6,7 +6,8 @@ enum pretoken_type
 {
     PRETOKEN_OPERATOR,
     PRETOKEN_WORD,
-    PRETOKEN_EOF
+    PRETOKEN_EOF,
+    PRETOKEN_ERROR
 };
 
 struct pretoken

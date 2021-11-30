@@ -9,7 +9,7 @@ struct pretoken *pretoken_new(enum pretoken_type type, const char *str,
 {
     struct pretoken *new = zalloc(sizeof(struct pretoken));
     new->type = type;
-    if (str != NULL && type != PRETOKEN_EOF)
+    if (str != NULL && type != PRETOKEN_EOF && type != PRETOKEN_ERROR)
     {
         new->str = zalloc(sizeof(char) * (len + 1));
         strncpy(new->str, str, len);
@@ -23,7 +23,7 @@ struct pretoken *pretoken_new(enum pretoken_type type, const char *str,
 
 void pretoken_free(struct pretoken *pretoken)
 {
-    if (pretoken->type != PRETOKEN_EOF)
+    if (pretoken->type != PRETOKEN_EOF && pretoken->type != PRETOKEN_EOF)
         free(pretoken->str);
     free(pretoken);
 }
