@@ -16,12 +16,21 @@ build_main:
   stage: build
   script:
     - ninja -C builddir 42sh
+  artifacts:
+    paths:
+      - builddir/42sh
+    expose_as: 42sh
+
 
 
 build_unit_tests:
   stage: build
   script:
     - ninja -C builddir testsuite
+  artifacts:
+    paths:
+      - builddir/testsuite
+    expose_as: testsuite
 
 
 func_test:
