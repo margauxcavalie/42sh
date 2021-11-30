@@ -86,6 +86,8 @@ static int execution(struct cstream *cs, struct vec *vec, int pretty_print)
     // printf("vec->data : %s", vec->data);
     // write(STDOUT_FILENO, vec->data, vec->size - 1);
     struct pretoken_vector *pretoken = prelexify(vec->data);
+    if (pretoken == NULL)
+        errx(2, "Syntax error");
     vec_reset(vec);
     struct lexer *lexer = lexer_new(pretoken);
     struct ast_node *ast = NULL;
