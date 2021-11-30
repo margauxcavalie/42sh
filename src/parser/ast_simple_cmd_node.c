@@ -1,3 +1,4 @@
+#include <builtins/builtins.h>
 #include <parser/ast_simple_cmd_node.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,6 +51,15 @@ static int ast_simple_cmd_exec(struct ast_node *ast)
 {
     struct ast_simple_cmd_node *ast_simple_cmd =
         (struct ast_simple_cmd_node *)ast;
+
+    // Check if the command is a builtin
+    bool is_builtin = false;
+    int status = exec_builtin(ast_simple_cmd, &is_builtin);
+    if (is_builtin)
+    {
+        return status;
+    }
+
     pid_t pid = fork();
     if (pid == -1)
         return 1;
