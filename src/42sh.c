@@ -91,7 +91,7 @@ static int execution(struct cstream *cs, struct vec *vec, int pretty_print)
     struct ast_node *ast = NULL;
     enum parser_status status = parse(&ast, lexer);
 
-    printf("parser status = %d\n", status);
+    // printf("parser status = %d\n", status);
 
     int return_code = 0;
     if (status == PARSER_UNEXPECTED_TOKEN || ast == NULL)
