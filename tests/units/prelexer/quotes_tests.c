@@ -59,7 +59,6 @@ Test(prelexify, quotes_strange_word2)
     free_pretoken_list(vec);
 }
 
-
 Test(prelexify, quotes_fail)
 {
     char *input = " '   hello'  'couille";
