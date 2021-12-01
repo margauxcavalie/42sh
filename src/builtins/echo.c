@@ -1,7 +1,6 @@
 #include <builtins/builtins.h>
 #include <stdio.h>
 
-
 static char *replace_opt_e(int size, const char *src)
 {
     char *dest = zalloc(sizeof(char) * (size + 1));
@@ -73,9 +72,9 @@ int builtin_echo(int argc, char **argv)
             char *new_str = replace_opt_e(strlen(argv[j]), argv[j]);
             argv[j] = new_str;
             j += 1;
-        }        
+        }
     }
-    
+
     for (int j = i; j < argc; j++)
     {
         printf("%s", argv[j]);
