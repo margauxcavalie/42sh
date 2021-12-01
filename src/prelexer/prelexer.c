@@ -94,8 +94,7 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
     struct vec *curr_token = xmalloc(sizeof(struct vec));
     vec_init(curr_token);
 
-    while (!(is_separator(str[counter]))
-           && !is_operator(str + counter))
+    while (!(is_separator(str[counter])) && !is_operator(str + counter))
     {
         // quotes
         if (str[counter] == '\'')
@@ -167,8 +166,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     // else it's a word
     struct pretoken_operator *operators_cpy =
         xmalloc(sizeof(struct pretoken_operator) * nb_ops);
-    memcpy(operators_cpy, ops,
-           sizeof(struct pretoken_operator) * nb_ops);
+    memcpy(operators_cpy, ops, sizeof(struct pretoken_operator) * nb_ops);
     int is_quoted = 0;
     char *word = get_word(str, size, &is_quoted);
     if (word == NULL)
