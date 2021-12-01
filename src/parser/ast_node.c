@@ -12,7 +12,8 @@ void ast_node_free(void *ptr)
     struct ast_node *ast = ptr;
     if (ast == NULL)
         return;
-    (*(ast->node_free))(ast);
+    if (ast->node_free != NULL)
+        (*(ast->node_free))(ast);
     free(ast);
 }
 
@@ -24,7 +25,8 @@ void ast_node_free_detach(struct ast_node **ast)
 {
     if (*ast == NULL)
         return;
-    (*((*ast)->node_free))(*ast);
+    if ((*ast)->node_free != NULL)
+        (*((*ast)->node_free))(*ast);
     free(*ast);
     *ast = NULL;
 }
