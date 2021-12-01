@@ -9,7 +9,7 @@
 /**
  * @brief Frees all the AST contains
  */
-static void ast_cmd_list_free(struct ast_node *ast)
+void ast_cmd_list_free(struct ast_node *ast)
 {
     struct ast_cmd_list_node *ast_cmd_list = (struct ast_cmd_list_node *)ast;
     vector_apply_on_elts(ast_cmd_list->ast_list, &ast_node_free);
@@ -19,15 +19,12 @@ static void ast_cmd_list_free(struct ast_node *ast)
 /**
  * @brief Prints the content of an AST cmd_list.
  */
-static void ast_cmd_list_print(struct ast_node *ast, struct print_context pc)
+void ast_cmd_list_print(struct ast_node *ast, struct print_context pc)
 {
     struct ast_cmd_list_node *ast_cmd_list = (struct ast_cmd_list_node *)ast;
     struct vector *v = ast_cmd_list->ast_list;
-    if (!v || v->size == 0) // Vector is empty or non-existent
-    { // usually impossible since a command list must have at least 1 command
-        printf("\nERROR: command list without commands\n");
+    if (v->size == 0) // Vector is empty
         return;
-    }
 
     for (size_t i = 0; i < v->size - 1; i++)
     {
@@ -38,10 +35,13 @@ static void ast_cmd_list_print(struct ast_node *ast, struct print_context pc)
     ast_node_print_rec(v->data[v->size - 1], pc);
 }
 
-static int ast_cmd_list_exec(struct ast_node *ast)
+int ast_cmd_list_exec(struct ast_node *ast)
 {
     struct ast_cmd_list_node *ast_cmd_list = (struct ast_cmd_list_node *)ast;
     struct vector *v = ast_cmd_list->ast_list;
+    if (v->size == 0) // Vector is empty
+        return 0;
+
     if (!v || v->size == 0) // Vector is empty or non-existent
     { // usually impossible since a command list must have at least 1 command
         return 1;
@@ -59,7 +59,7 @@ static int ast_cmd_list_exec(struct ast_node *ast)
 /**
  * @brief Initializes a cmd_list AST. Its vector has a size 5
  */
-static struct ast_cmd_list_node *ast_cmd_list_init(void)
+struct ast_cmd_list_node *ast_cmd_list_init(void)
 {
     struct ast_cmd_list_node *new_ast = xmalloc(
         sizeof(struct ast_cmd_list_node)); // expand (unique of each types)
@@ -79,8 +79,8 @@ static struct ast_cmd_list_node *ast_cmd_list_init(void)
  * @brief Adds a new AST to the already existing AST.
  * @param ast_elt Newly added AST
  */
-static void ast_cmd_list_add_ast(struct ast_cmd_list_node *ast,
-                                 struct ast_node *ast_elt)
+void ast_cmd_list_add_ast(struct ast_cmd_list_node *ast,
+                          struct ast_node *ast_elt)
 {
     ast->ast_list = vector_append(ast->ast_list, ast_elt);
 }
