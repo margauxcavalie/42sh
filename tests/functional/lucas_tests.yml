@@ -1,4 +1,98 @@
-name: this test will succeed
-cmd: printf 'foo\n'
+name: no command
+cmd: ./42sh -c ""
+---
+name: echo empty
+cmd: ./42sh -c "echo"
+stdout: "\n"
+---
+name: simple echo
+cmd: ./42sh -c "echo hello"
 stdout: |
-  foo
+  hello
+---
+name: multiple echo
+cmd: ./42sh -c "echo hello; echo bye; echo re; echo byebye"
+stdout: |
+  hello
+  bye
+  re
+  byebye
+---
+name: simple echo option n
+cmd: ./42sh -c "echo -n hello"
+stdout: "hello"
+---
+name: simple echo option e
+cmd: ./42sh -c "echo -e hello\\n"
+stdout: "hello\n\n"
+---
+name: medium echo option e
+cmd: ./42sh -c "echo -e hello"
+stdout: |
+  hello
+---
+name: medium echo option e and n
+cmd: ./42sh -c "echo -n -e hello"
+stdout: "hello"
+---
+name: hard echo option e and n
+cmd: ./42sh -c "echo -n -e hello\\n"
+stdout: "hello\n"
+---
+name: echo multiple option n
+cmd: ./42sh -c "echo -n -n -n -n -n hello"
+stdout: "hello"
+---
+name: echo multiple option e
+cmd: ./42sh -c "echo -e -e -e -e -e hello\\n"
+stdout: "hello\n\n"
+---
+name: echo multiple option n and e
+cmd: ./42sh -c "echo -n -n -e -n -e -n -n -e -e hello"
+stdout: "hello"
+---
+name: echo multiple option n and e with linefeed
+cmd: ./42sh -c "echo -n -n -e -n -e -n -n -e -e hello\\n"
+stdout: "hello\n"
+---
+name: if simple
+cmd: ./42sh -c "if true; then echo its true; fi"
+stdout: |
+  its true
+---
+name: if hard
+cmd: ./42sh -c "if echo salut; echo bonjour; false; then echo no display; else echo condition was false; fi"
+stdout: |
+  salut
+  bonjour
+  condition was false
+---
+name: if elif hard
+cmd: ./42sh -c "if true; then echo its true; elif true; then echo second true; fi"
+stdout: |
+  its true
+---
+name: if elif hard two
+cmd: ./42sh -c "if false; then echo its true; elif true; then echo second true; fi"
+stdout: |
+  second true
+---
+name: simple single quote
+cmd: ./42sh -c "echo 'echo'"
+stdout: |
+  echo
+---
+name: simple single quote false if
+cmd: ./42sh -c "echo 'if true; then echo in quote'"
+stdout: |
+  if true; then echo in quote
+---
+name: hard single quote
+cmd: ./42sh -c "echo 'aaassadsdf;dsf;sd;;sd;f;sd;;;;;;;ififififithen;;;;;fifi'"
+stdout: |
+  aaassadsdf;dsf;sd;;sd;f;sd;;;;;;;ififififithen;;;;;fifi
+---
+name: hard tricky single quote
+cmd: ./42sh -c "echo ''salut''"
+stdout: |
+  salut
