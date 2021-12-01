@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <utils/alloc.h>
+#include <utils/vec.h>
 
 static bool is_operator(const char *str, struct pretoken_operator *ops,
                         size_t nb_ops)
@@ -87,23 +88,43 @@ static char *get_word(const char *str, size_t *size,
                       struct pretoken_operator *ops, size_t nb_ops)
 {
     int counter = 0;
+    // init the vec
+    struct vec *curr_token = xmalloc(sizeof(struct vec));
+    vec_init(curr_token);
+
     while (!(is_separator(str[counter]))
            && !is_operator(str + counter, ops, nb_ops))
     {
         // quotes
         if (str[counter] == '\'')
         {
+            int tmp = counter;
             if (skip_quotes(str, &counter, '\'') == false)
             {
+                // ERROR: quote is not paired
+                vec_destroy(curr_token);
+                free(curr_token);
                 return NULL;
             }
+            else
+            {
+                for (int i = tmp + 1; i < counter; i++)
+                    vec_push(
+                        curr_token,
+                        str[i]); // add the quoted content to the curr token
+            }
+            counter += 1;
         }
-        counter += 1;
+        else // add the char to the token and proceed to the next one
+        {
+            vec_push(curr_token, str[counter]);
+            counter += 1;
+        }
     }
 
-    char *word = zalloc((counter + 1) * sizeof(char));
-    strncpy(word, str, counter);
-    *size += counter;
+    char *word = vec_cstring(curr_token); // get the string
+    free(curr_token); // free the vec preserving the str
+    *size += counter; // update the size
     return word;
 }
 
