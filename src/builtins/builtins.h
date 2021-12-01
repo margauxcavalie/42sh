@@ -1,6 +1,6 @@
 #pragma once
 
-#include <parser/ast_simple_cmd_node.h>
+#include <parser/simple_cmd/ast_simple_cmd.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
@@ -14,4 +14,4 @@ struct matching_builtin
 };
 
 int builtin_echo(int argc, char **argv);
-int exec_builtin(struct ast_simple_cmd_node *ast, bool *is_builtin);
+int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin);

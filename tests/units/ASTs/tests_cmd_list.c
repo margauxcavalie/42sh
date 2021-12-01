@@ -1,6 +1,6 @@
 #include <criterion/criterion.h>
 #include <criterion/redirect.h>
-#include <parser/ast_cmd_list_node.h>
+#include <parser/cmd_list/ast_cmd_list.h>
 #include <vector/vector.h>
 
 #include "ast_test.h" // test ast
@@ -23,7 +23,7 @@
 Test(ast_cmd_list, empty)
 {
     // init an empty cmd_list ast
-    struct ast_cmd_list_node *ast = ast_cmd_list_init();
+    struct ast_cmd_list *ast = ast_cmd_list_init();
     cr_assert_eq(ast->ast_list->size, 0);
     // print context
     struct print_context pc = { 0 };
@@ -43,7 +43,7 @@ Test(ast_cmd_list, one_ast)
     // redirect stdout
     cr_redirect_stdout();
     // init an empty cmd_list ast
-    struct ast_cmd_list_node *ast = ast_cmd_list_init();
+    struct ast_cmd_list *ast = ast_cmd_list_init();
     // add test ast
     struct ast_node *elt = (struct ast_node *)ast_test_init();
     ast_cmd_list_add_ast(ast, elt);
@@ -69,7 +69,7 @@ Test(ast_cmd_list, one_ast)
 Test(ast_cmd_list, two_ast)
 {
     // init an empty cmd_list ast
-    struct ast_cmd_list_node *ast = ast_cmd_list_init();
+    struct ast_cmd_list *ast = ast_cmd_list_init();
     // add test ast
     struct ast_node *elt1 = (struct ast_node *)ast_test_init();
     ast_cmd_list_add_ast(ast, elt1);

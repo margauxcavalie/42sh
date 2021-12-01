@@ -1,13 +1,13 @@
 #include <criterion/criterion.h>
 #include <criterion/redirect.h>
-#include <parser/ast_simple_cmd_node.h>
+#include <parser/simple_cmd/ast_simple_cmd.h>
 #include <vector/vector.h>
 
 Test(AST, print_vegetables)
 {
     cr_redirect_stdout();
     // INITIALIZATION
-    struct ast_simple_cmd_node *ast = ast_simple_cmd_init();
+    struct ast_simple_cmd *ast = ast_simple_cmd_init();
     cr_assert_eq(ast->base.type, AST_SIMPLE_CMD);
     cr_assert_eq(5, ast->params->capacity);
     cr_assert_eq(0, ast->params->size);
@@ -45,7 +45,7 @@ Test(AST, print_vegetables)
 Test(AST, execution_vegetables)
 {
     cr_redirect_stdout();
-    struct ast_simple_cmd_node *ast = ast_simple_cmd_init();
+    struct ast_simple_cmd *ast = ast_simple_cmd_init();
     ast = ast_simple_cmd_add_param(ast, "echo");
     ast = ast_simple_cmd_add_param(ast, "tomate");
     ast = ast_simple_cmd_add_param(ast, "poireau");
@@ -68,7 +68,7 @@ Test(AST, execution_vegetables)
 Test(AST, execution_unknown_command)
 {
     cr_redirect_stderr(); // not useful, just to avoid seeing the error msg
-    struct ast_simple_cmd_node *ast = ast_simple_cmd_init();
+    struct ast_simple_cmd *ast = ast_simple_cmd_init();
     ast = ast_simple_cmd_add_param(ast, "patate");
     ast = ast_simple_cmd_add_param(ast, "tomate");
     ast = ast_simple_cmd_add_param(ast, "poireau");

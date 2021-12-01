@@ -1,20 +1,18 @@
+#include "ast_simple_cmd.h"
+
 #include <builtins/builtins.h>
-#include <parser/ast_simple_cmd_node.h>
+#include <err.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <utils/alloc.h>
-#include <vector/vector.h>
 
 /**
  * @brief Frees all the AST contains
  */
 void ast_simple_cmd_free(struct ast_node *ast)
 {
-    struct ast_simple_cmd_node *ast_simple_cmd =
-        (struct ast_simple_cmd_node *)ast;
+    struct ast_simple_cmd *ast_simple_cmd = (struct ast_simple_cmd *)ast;
     vector_apply_on_elts(ast_simple_cmd->params, &free);
     vector_destroy(ast_simple_cmd->params);
 }
@@ -24,8 +22,7 @@ void ast_simple_cmd_free(struct ast_node *ast)
  */
 void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
 {
-    struct ast_simple_cmd_node *ast_simple_cmd =
-        (struct ast_simple_cmd_node *)ast;
+    struct ast_simple_cmd *ast_simple_cmd = (struct ast_simple_cmd *)ast;
     struct vector *v = ast_simple_cmd->params;
     if (v->size == 0) // Vector is empty or non-existent
         return;
@@ -44,8 +41,7 @@ void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
 
 int ast_simple_cmd_exec(struct ast_node *ast)
 {
-    struct ast_simple_cmd_node *ast_simple_cmd =
-        (struct ast_simple_cmd_node *)ast;
+    struct ast_simple_cmd *ast_simple_cmd = (struct ast_simple_cmd *)ast;
 
     // If there is nothing in the AST, do nothing
     if (ast_simple_cmd->params->size == 0)
@@ -85,10 +81,10 @@ int ast_simple_cmd_exec(struct ast_node *ast)
 /**
  * @brief Initializes a simple_command AST. Its vector has a size 5
  */
-struct ast_simple_cmd_node *ast_simple_cmd_init(void)
+struct ast_simple_cmd *ast_simple_cmd_init(void)
 {
-    struct ast_simple_cmd_node *new_ast = xmalloc(
-        sizeof(struct ast_simple_cmd_node)); // expand (unique of each types)
+    struct ast_simple_cmd *new_ast =
+        xmalloc(sizeof(struct ast_simple_cmd)); // expand (unique of each types)
     struct ast_node *base = (struct ast_node *)new_ast; // reduce (common)
 
     // Set common properties
@@ -106,8 +102,8 @@ struct ast_simple_cmd_node *ast_simple_cmd_init(void)
  * but does not free the old one.
  * @param param needs to have a '\\0' at the end
  */
-struct ast_simple_cmd_node *
-ast_simple_cmd_add_param(struct ast_simple_cmd_node *ast, char *param)
+struct ast_simple_cmd *ast_simple_cmd_add_param(struct ast_simple_cmd *ast,
+                                                char *param)
 {
     size_t len = strlen(param);
     // new allocation to avoid double free
@@ -115,49 +111,4 @@ ast_simple_cmd_add_param(struct ast_simple_cmd_node *ast, char *param)
     strncpy(tmp, param, len);
     ast->params = vector_append(ast->params, tmp);
     return ast;
-}
-
-/**
- * @brief attach a new ast_simple_cmd node at the adress of the node ast
- *
- * @param ast
- * @return struct ast_simple_cmd_node *
- */
-static struct ast_simple_cmd_node *
-ast_node_simple_cmd_attach(struct ast_node **ast)
-{
-    struct ast_simple_cmd_node *ast_simple_cmd = ast_simple_cmd_init();
-    *ast = (struct ast_node *)ast_simple_cmd;
-    return ast_simple_cmd;
-}
-
-/**
- * @brief (temporary version)
- * simple_command: WORD+.
- * Error if there are no words
- * @return
- */
-enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
-                                         struct lexer *lexer)
-{
-    // create a new AST node, and attach it to the ast pointer
-    struct ast_simple_cmd_node *ast_simple = ast_node_simple_cmd_attach(ast);
-
-    // ERROR
-    if (lexer_peek(lexer)->type != TOKEN_WORD)
-        goto error;
-
-    while (lexer_peek(lexer)->type == TOKEN_WORD) // WORD+
-    {
-        struct token *tok = lexer_pop(lexer);
-        // adds the node to the AST's vector
-        ast_simple = ast_simple_cmd_add_param(ast_simple, tok->data.word);
-        token_free(tok);
-    }
-
-    return PARSER_OK;
-
-error:
-    ast_node_free_detach(ast);
-    return PARSER_UNEXPECTED_TOKEN;
 }

@@ -1,7 +1,6 @@
 #include <builtins/builtins.h>
-#include <parser/ast_simple_cmd_node.h>
 
-int exec_builtin(struct ast_simple_cmd_node *ast, bool *is_builtin)
+int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin)
 {
     struct matching_builtin our_builtins[] = { { "echo", &builtin_echo } };
     size_t size = sizeof(our_builtins) / sizeof(struct matching_builtin);

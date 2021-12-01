@@ -1,8 +1,8 @@
 #include "parser.h"
 
-#include <parser/ast_cmd_list_node.h>
-#include <parser/ast_if_node.h>
-#include <parser/ast_simple_cmd_node.h>
+#include <parser/cmd_list/rules_cmd_list.h>
+#include <parser/if/rules_if.h>
+#include <parser/simple_cmd/rules_simple_cmd.h>
 
 static enum parser_status handle_parse_error(enum parser_status status,
                                              struct ast_node **ast)
