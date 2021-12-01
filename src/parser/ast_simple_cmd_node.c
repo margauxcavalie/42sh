@@ -11,7 +11,7 @@
 /**
  * @brief Frees all the AST contains
  */
-static void ast_simple_cmd_free(struct ast_node *ast)
+void ast_simple_cmd_free(struct ast_node *ast)
 {
     struct ast_simple_cmd_node *ast_simple_cmd =
         (struct ast_simple_cmd_node *)ast;
@@ -22,18 +22,13 @@ static void ast_simple_cmd_free(struct ast_node *ast)
 /**
  * @brief Prints the content of an AST simple_cmd. Isn't recursive.
  */
-static void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
+void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
 {
     struct ast_simple_cmd_node *ast_simple_cmd =
         (struct ast_simple_cmd_node *)ast;
     struct vector *v = ast_simple_cmd->params;
-    if (!v || v->size == 0) // Vector is empty or non-existent
-    {
-        printf("\nERROR: command without words\n"); // usually impossible since
-                                                    // a command must have at
-                                                    // least one word
+    if (v->size == 0) // Vector is empty or non-existent
         return;
-    }
 
     ast_node_print_indent(pc.indent);
 
@@ -47,18 +42,20 @@ static void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
     printf("%s", str);
 }
 
-static int ast_simple_cmd_exec(struct ast_node *ast)
+int ast_simple_cmd_exec(struct ast_node *ast)
 {
     struct ast_simple_cmd_node *ast_simple_cmd =
         (struct ast_simple_cmd_node *)ast;
+
+    // If there is nothing in the AST, do nothing
+    if (ast_simple_cmd->params->size == 0)
+        return 0;
 
     // Check if the command is a builtin
     bool is_builtin = false;
     int status = exec_builtin(ast_simple_cmd, &is_builtin);
     if (is_builtin)
-    {
         return status;
-    }
 
     pid_t pid = fork();
     if (pid == -1)
@@ -88,7 +85,7 @@ static int ast_simple_cmd_exec(struct ast_node *ast)
 /**
  * @brief Initializes a simple_command AST. Its vector has a size 5
  */
-static struct ast_simple_cmd_node *ast_simple_cmd_init(void)
+struct ast_simple_cmd_node *ast_simple_cmd_init(void)
 {
     struct ast_simple_cmd_node *new_ast = xmalloc(
         sizeof(struct ast_simple_cmd_node)); // expand (unique of each types)
@@ -109,7 +106,7 @@ static struct ast_simple_cmd_node *ast_simple_cmd_init(void)
  * but does not free the old one.
  * @param param needs to have a '\\0' at the end
  */
-static struct ast_simple_cmd_node *
+struct ast_simple_cmd_node *
 ast_simple_cmd_add_param(struct ast_simple_cmd_node *ast, char *param)
 {
     size_t len = strlen(param);
