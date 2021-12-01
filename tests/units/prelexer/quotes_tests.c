@@ -14,6 +14,7 @@ Test(prelexify, quotes_empty)
     cr_assert_eq(strcmp(vec->data[0]->str, "  hello   "), 0);
     cr_assert_eq(vec->size, 2);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[0]->is_quoted, 1);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
@@ -26,7 +27,9 @@ Test(prelexify, quotes_dbl)
     cr_assert_eq(strcmp(vec->data[0]->str, "  hello   "), 0);
     cr_assert_eq(strcmp(vec->data[1]->str, "hi  "), 0);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[0]->is_quoted, 1);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[1]->is_quoted, 1);
     cr_assert_eq(vec->data[2]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
@@ -39,8 +42,10 @@ Test(prelexify, quotes_op)
     cr_assert_eq(strcmp(vec->data[0]->str, "  hello  ;;\n "), 0);
     cr_assert_eq(strcmp(vec->data[2]->str, "hi  "), 0);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[0]->is_quoted, 1);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_OPERATOR);
     cr_assert_eq(vec->data[2]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[2]->is_quoted, 1);
     cr_assert_eq(vec->data[3]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
@@ -52,6 +57,7 @@ Test(prelexify, quotes_strange_word)
     cr_assert_eq(vec->size, 2);
     cr_assert_eq(strcmp(vec->data[0]->str, "hjuzegfajh      sdgqsdgsd"), 0);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[0]->is_quoted, 1);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
@@ -64,7 +70,23 @@ Test(prelexify, quotes_strange_word2)
     cr_assert_eq(strcmp(vec->data[0]->str, "hjuzegfajh      sdgqsdgsd;;;;;"),
                  0);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[0]->is_quoted, 1);
     cr_assert_eq(vec->data[1]->type, PRETOKEN_EOF);
+    free_pretoken_list(vec);
+}
+
+Test(prelexify, quotes_no_quotes)
+{
+    char *input = "yo 'yo'";
+    struct pretoken_vector *vec = prelexify(input);
+    cr_assert_eq(vec->size, 3);
+    cr_assert_eq(strcmp(vec->data[0]->str, "yo"), 0);
+    cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[0]->is_quoted, 0);
+    cr_assert_eq(strcmp(vec->data[1]->str, "yo"), 0);
+    cr_assert_eq(vec->data[1]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[1]->is_quoted, 1);
+    cr_assert_eq(vec->data[2]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
 

@@ -78,8 +78,10 @@ struct token *get_next_token(struct lexer *lexer)
 
         struct token *previus_token = lexer->current_tok;
 
+        enum rw_type rw_type =RW_UNKNOWN;
         // 'if' -> RW_IF; 'word' -> RW_UNKNOWN
-        enum rw_type rw_type = match_rw_type(new_pretoken);
+        if (new_pretoken->is_quoted == 0)
+            rw_type = match_rw_type(new_pretoken);
 
         if (rw_type
             != RW_UNKNOWN) // if the syntax matches the one of a reserve word

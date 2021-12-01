@@ -7,8 +7,11 @@
 #include <utils/alloc.h>
 #include <utils/vec.h>
 
-static bool is_operator(const char *str, struct pretoken_operator *ops,
-                        size_t nb_ops)
+// initializes the lookup table
+const struct pretoken_operator ops[] = { { "\n", 1 }, { ";", 1 } };
+#define nb_ops 2
+
+static bool is_operator(const char *str)
 {
     size_t i = 0;
     while (i < nb_ops)
@@ -84,8 +87,7 @@ static bool skip_quotes(const char *str, int *counter, char c)
 /**
  *  @brief returns the first word found in str
  */
-static char *get_word(const char *str, size_t *size,
-                      struct pretoken_operator *ops, size_t nb_ops)
+static char *get_word(const char *str, size_t *size, int *is_quoted)
 {
     int counter = 0;
     // init the vec
@@ -93,7 +95,7 @@ static char *get_word(const char *str, size_t *size,
     vec_init(curr_token);
 
     while (!(is_separator(str[counter]))
-           && !is_operator(str + counter, ops, nb_ops))
+           && !is_operator(str + counter))
     {
         // quotes
         if (str[counter] == '\'')
@@ -108,10 +110,11 @@ static char *get_word(const char *str, size_t *size,
             }
             else
             {
+                // mark the quotes
+                *is_quoted = 1;
+                // add the quoted content to the curr token
                 for (int i = tmp + 1; i < counter; i++)
-                    vec_push(
-                        curr_token,
-                        str[i]); // add the quoted content to the curr token
+                    vec_push(curr_token, str[i]);
             }
             counter += 1;
         }
@@ -136,11 +139,6 @@ static char *get_word(const char *str, size_t *size,
  */
 struct pretoken *get_next_pretoken(const char *str, size_t *size)
 {
-    // initializes the lookup table
-    struct pretoken_operator operators[] = { { "\n", 1 }, { ";", 1 } };
-    // gets the number of elements of the lookup table
-    size_t nb_operators = sizeof(operators) / sizeof(struct pretoken_operator);
-
     // skip all separators
     while (is_separator(str[0]) && str[0] != '\0')
     {
@@ -148,9 +146,9 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
         str += 1;
     }
     size_t i = 0;
-    while (i < nb_operators)
+    while (i < nb_ops)
     {
-        struct pretoken_operator pretok_op = operators[i];
+        struct pretoken_operator pretok_op = ops[i];
         if (!strncmp(pretok_op.str, str, pretok_op.len))
         {
             // if we found an operator
@@ -168,10 +166,11 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     }
     // else it's a word
     struct pretoken_operator *operators_cpy =
-        xmalloc(sizeof(struct pretoken_operator) * nb_operators);
-    memcpy(operators_cpy, operators,
-           sizeof(struct pretoken_operator) * nb_operators);
-    char *word = get_word(str, size, operators_cpy, nb_operators);
+        xmalloc(sizeof(struct pretoken_operator) * nb_ops);
+    memcpy(operators_cpy, ops,
+           sizeof(struct pretoken_operator) * nb_ops);
+    int is_quoted = 0;
+    char *word = get_word(str, size, &is_quoted);
     if (word == NULL)
     {
         struct pretoken *new = pretoken_new(PRETOKEN_ERROR, NULL, 0);
@@ -180,6 +179,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     }
     size_t word_size = strlen(word);
     struct pretoken *new = pretoken_new(PRETOKEN_WORD, word, word_size);
+    new->is_quoted = is_quoted;
     free(word);
     free(operators_cpy);
     return new;

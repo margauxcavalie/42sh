@@ -13,6 +13,7 @@ enum pretoken_type
 struct pretoken
 {
     enum pretoken_type type;
+    int is_quoted;
     char *str; // if type == PRETOKEN_EOF then NULL
 };
 

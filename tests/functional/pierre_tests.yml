@@ -1,4 +1,55 @@
-name: this test will succeed
-cmd: printf 'foo\n'
-stdout: |
-  foo
+name: c_empty
+cmd: ./42sh -c ""
+status: 0
+---
+name: c_quotes
+cmd: ./42sh -c "echo ' '"
+stdout: " \n"
+status: 0
+---
+name: c_quotes2
+cmd: ./42sh -c "'echo'    ;"
+stdout: "\n"
+status: 0
+---
+name: c_quotes_fail
+cmd: ./42sh -c "echo ' '    '  "
+stderr: "42sh: Syntax error\n"
+status: 2
+---
+name: c_quotes_fail2
+cmd: ./42sh -c "' '  ;  '  "
+stderr: "42sh: Syntax error\n"
+status: 2
+---
+name: c_quotes_fail3
+cmd: ./42sh -c "echo ' '    '  echo world"
+stderr: "42sh: Syntax error\n"
+status: 2
+---
+name: c_quotes_fail4
+cmd: ./42sh -c "echo '  "
+stderr: "42sh: Syntax error\n"
+status: 2
+---
+name: c_quotes_fail5
+cmd: ./42sh -c "'if' true; then echo hello; fi"
+stderr: "42sh: unexpected token\n"
+status: 2
+---
+name: c_quotes_fail6
+cmd: ./42sh -c "''if true; then echo hello; fi"
+stderr: "42sh: unexpected token\n"
+status: 2
+---
+name: c_if
+cmd: ./42sh -c "if echo hello; then echo world; else echo merde; fi"
+stdout: "hello\nworld\n"
+status: 0
+---
+name: c_if2
+cmd: ./42sh -c "if true; then if true; then if true; then echo -n oui; fi; fi ;fi"
+stdout: "oui"
+status: 0
+
+

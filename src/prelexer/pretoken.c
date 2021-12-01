@@ -18,6 +18,7 @@ struct pretoken *pretoken_new(enum pretoken_type type, const char *str,
     {
         new->str = NULL;
     }
+    new->is_quoted = 0;
     return new;
 }
 
