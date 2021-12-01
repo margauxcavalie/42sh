@@ -96,9 +96,13 @@ static int execution(struct cstream *cs, struct vec *vec, int pretty_print)
     // printf("parser status = %d\n", status);
 
     int return_code = 0;
-    if (status == PARSER_UNEXPECTED_TOKEN || ast == NULL)
+    if (status == PARSER_UNEXPECTED_TOKEN)
     {
         return_code = 2;
+    }
+    else if (ast == NULL)
+    {
+        return_code = 0;
     }
     else
     {

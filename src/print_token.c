@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
         token = lexer_pop(lexer);
     }
     printf("EOF\n");
-    token_free(token);
     lexer_free(lexer);
     return 0;
 }

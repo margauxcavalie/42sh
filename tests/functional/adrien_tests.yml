@@ -1,4 +1,17 @@
-name: this test will succeed
-cmd: printf 'foo\n'
-stdout: |
-  foo
+name: c_empty
+cmd: ./42sh -c ""
+status: 0
+---
+name: c_echo_empty_noopt
+cmd: ./42sh -c "echo"
+stdout: "\n"
+status: 0
+---
+name: c_echo_empty_optn
+cmd: ./42sh -c "echo -n"
+status: 0
+---
+name: c_echo_word_optn
+cmd: ./42sh -c "echo -n"
+status: 0
+
