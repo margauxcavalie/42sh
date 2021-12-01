@@ -1,9 +1,8 @@
 #include "ast_test.h"
 
+#include <stdio.h>
 #include <utils/alloc.h>
 #include <vector/vector.h>
-
-#include <stdio.h>
 
 /**
  * @brief This free function do nothing
@@ -32,8 +31,8 @@ int ast_test_exec(__attribute__((unused)) struct ast_node *ast)
  */
 struct ast_test_node *ast_test_init(void)
 {
-    struct ast_test_node *new_ast = xmalloc(
-        sizeof(struct ast_test_node)); // expand (unique of each types)
+    struct ast_test_node *new_ast =
+        xmalloc(sizeof(struct ast_test_node)); // expand (unique of each types)
     struct ast_node *base = (struct ast_node *)new_ast; // reduce (common)
 
     // Set common properties

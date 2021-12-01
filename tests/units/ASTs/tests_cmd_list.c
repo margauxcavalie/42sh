@@ -1,9 +1,8 @@
 #include <criterion/criterion.h>
 #include <criterion/redirect.h>
 #include <parser/ast_cmd_list_node.h>
-
-
 #include <vector/vector.h>
+
 #include "ast_test.h" // test ast
 
 /**
@@ -41,7 +40,7 @@ Test(ast_cmd_list, empty)
 
 Test(ast_cmd_list, one_ast)
 {
-    // redirect stdout 
+    // redirect stdout
     cr_redirect_stdout();
     // init an empty cmd_list ast
     struct ast_cmd_list_node *ast = ast_cmd_list_init();
@@ -67,7 +66,6 @@ Test(ast_cmd_list, one_ast)
     free(ast);
 }
 
-
 Test(ast_cmd_list, two_ast)
 {
     // init an empty cmd_list ast
@@ -83,7 +81,7 @@ Test(ast_cmd_list, two_ast)
     cr_assert_eq(ast->ast_list->size, 2);
     cr_assert_eq(ast->ast_list->data[1], (void *)elt2);
 
-    // redirect stdout 
+    // redirect stdout
     cr_redirect_stdout();
     // print context
     struct print_context pc = { 0 };

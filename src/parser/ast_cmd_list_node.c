@@ -80,7 +80,7 @@ struct ast_cmd_list_node *ast_cmd_list_init(void)
  * @param ast_elt Newly added AST
  */
 void ast_cmd_list_add_ast(struct ast_cmd_list_node *ast,
-                                 struct ast_node *ast_elt)
+                          struct ast_node *ast_elt)
 {
     ast->ast_list = vector_append(ast->ast_list, ast_elt);
 }
