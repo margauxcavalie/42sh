@@ -145,8 +145,56 @@ Test(lexer, hard1)
     token_free(tok);
 
     tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_RW);
+    cr_assert_eq(tok->data.rw_type, RW_THEN);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_type, OP_SEMICOLON);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_RW);
+    cr_assert_eq(tok->data.rw_type, RW_THEN);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_RW);
+    cr_assert_eq(tok->data.rw_type, RW_FI);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_type, OP_LINEFEED);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_RW);
+    cr_assert_eq(tok->data.rw_type, RW_FI);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_EOF);
+
+    lexer_free(lexer); // free vec inside
+}
+
+Test(lexer, hard2)
+{
+    char *s = "if ok1; then ok2\n fi";
+    struct pretoken_vector *vec = prelexify(s);
+    struct lexer *lexer = lexer_new(vec);
+    struct token *tok;
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_RW);
+    cr_assert_eq(tok->data.rw_type, RW_IF);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_WORD);
-    cr_assert_str_eq(tok->data.word, "then");
+    cr_assert_str_eq(tok->data.word, "ok1");
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -161,7 +209,7 @@ Test(lexer, hard1)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_WORD);
-    cr_assert_str_eq(tok->data.word, "fi");
+    cr_assert_str_eq(tok->data.word, "ok2");
     token_free(tok);
 
     tok = lexer_pop(lexer);

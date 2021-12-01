@@ -67,7 +67,7 @@ int ast_simple_cmd_exec(struct ast_node *ast)
 
         int e = execvp(params_cast[0], params_cast);
         if (e == -1)
-            errx(127, "%s: command not found", params_cast[0]);
+            errx(127, "command not found: %s", params_cast[0]);
         return 127; // never executed
     }
     else // father

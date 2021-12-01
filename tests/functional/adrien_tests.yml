@@ -2,6 +2,7 @@ name: c_empty
 cmd: ./42sh -c ""
 status: 0
 ---
+# ECHO TEST
 name: c_echo_empty_noopt
 cmd: ./42sh -c "echo"
 stdout: "\n"
@@ -11,7 +12,95 @@ name: c_echo_empty_optn
 cmd: ./42sh -c "echo -n"
 status: 0
 ---
-name: c_echo_word_optn
-cmd: ./42sh -c "echo -n"
+name: c_echo_opte
+cmd: ./42sh -c "echo -e"
+stdout: "\n"
 status: 0
+---
+name: c_echo_optn_opte1
+cmd: ./42sh -c "echo -ne"
+status: 0
+---
+name: c_echo_optn_opte2
+cmd: ./42sh -c "echo -en"
+status: 0
+---
+name: c_echo_optn_opte3
+cmd: ./42sh -c "echo -n -e"
+status: 0
+---
+name: c_echo_optn_opte4
+cmd: ./42sh -c "echo -e -n"
+status: 0
+---
+name: c_echo_basic_word
+cmd: ./42sh -c "echo salut"
+stdout: "salut\n"
+status: 0
+---
+name: c_echo_multiple_word
+cmd: ./42sh -c "echo salut je suis la"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_multiple_word_single_quote
+cmd: ./42sh -c "echo 'salut je suis la'"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_multiple_word_single_quote_viennoiserie
+cmd: ./42sh -c "echo 'salut je' suis 'la'"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_multiple_word_single_quote_viennoiserie2
+cmd: ./42sh -c "echo salut' 'je suis ''''la"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_linefeed
+cmd: ./42sh -c "echo \\n"
+stdout: "\\n\n"
+status: 0
+---
+name: c_echo_linefeed_opte
+cmd: ./42sh -c "echo -e \\n"
+stdout: "\n\n"
+status: 0
+---
+name: c_echo_tab
+cmd: ./42sh -c "echo \\t"
+stdout: "\\t\n"
+status: 0
+---
+name: c_echo_tab_opte
+cmd: ./42sh -c "echo -e \\t"
+stdout: "\t\n"
+status: 0
+---
+name: c_echo_backslash
+cmd: ./42sh -c "echo \\\\"
+stdout: "\\\\\n"
+status: 0
+---
+name: c_echo_backslash_opte
+cmd: ./42sh -c "echo -e \\\\"
+stdout: "\\\n"
+status: 0
+---
+name: c_echo_single_quote_one_word
+cmd: ./42sh -c "echo salut' _ 'salut"
+stdout: "salut _ salut\n"
+status: 0
+---
+name: c_echo_unknown_opt
+cmd: ./42sh -c "echo -z"
+stdout: "-z\n"
+status: 0
+# ----------------------------------
+---
+name: c_unknown_cmd
+cmd: ./42sh -c "sdfhdfhsd"
+stderr: "42sh: command not found: sdfhdfhsd\n"
+status: 127
 

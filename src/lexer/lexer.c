@@ -76,18 +76,27 @@ struct token *get_next_token(struct lexer *lexer)
         size_t current_line_index = lexer->line_index;
         lexer->line_index += 1;
 
+        struct token *previus_token = lexer->current_tok;
+
         // 'if' -> RW_IF; 'word' -> RW_UNKNOWN
         enum rw_type rw_type = match_rw_type(new_pretoken);
 
         if (rw_type
             != RW_UNKNOWN) // if the syntax matches the one of a reserve word
         {
+            bool is_rw = false;
             if (current_line_index == 0) // first token of the command
+                is_rw = true;
+            /* TODO && prevtok different than case, for, in*/
+            else if (previus_token->type == TOKEN_RW)
+                is_rw = true;
+            // TODO other tests in future implementation (for, case)
+
+            if (is_rw == true) // the word is a RW
             {
                 struct token *rw_token = token_new_rw(rw_type);
                 return rw_token;
             }
-            // TODO other tests in future implementation (for, case)
         }
         // The token is a simple word
         size_t word_size = strlen(new_pretoken->str);
