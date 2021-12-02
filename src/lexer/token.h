@@ -25,7 +25,10 @@ enum rw_type
     RW_FI,
     RW_THEN,
     RW_ELIF,
-    RW_ELSE
+    RW_ELSE,
+    RW_WHILE,
+    RW_DO,
+    RW_DONE
 };
 
 struct token
