@@ -36,7 +36,7 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
             break;
         ast_cmd_list_add_ast(ast_list, ast_child);
     }
-    
+
     lexer_free_without_pretokens(saved_lexer);
     return PARSER_OK;
 error:
