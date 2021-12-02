@@ -93,7 +93,7 @@ stdout: |
 
 ---
 name: if_things_in_the_middle
-cmd: ./42sh -c "if false; echo 'coucou'; then echo 'O'K; elif true; false; echo 'KO'; fi"
+cmd: ./42sh -c "if false; echo 'coucou'; then echo 'O'K; elif true; false; then echo 'KO'; fi"
 stdout: |
   coucou
   OK

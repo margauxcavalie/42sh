@@ -25,26 +25,30 @@ static struct ast_simple_cmd *ast_node_simple_cmd_attach(struct ast_node **ast)
  * @return
  */
 enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
-                                         struct lexer *lexer)
+                                         struct lexer **lexer)
 {
+    struct lexer *saved_lexer = save_lexer(*lexer);
+
     // create a new AST node, and attach it to the ast pointer
     struct ast_simple_cmd *ast_simple = ast_node_simple_cmd_attach(ast);
 
     // ERROR
-    if (lexer_peek(lexer)->type != TOKEN_WORD)
+    if (lexer_peek(*lexer)->type != TOKEN_WORD)
         goto error;
 
-    while (lexer_peek(lexer)->type == TOKEN_WORD) // WORD+
+    while (lexer_peek(*lexer)->type == TOKEN_WORD) // WORD+
     {
-        struct token *tok = lexer_pop(lexer);
+        struct token *tok = lexer_pop(*lexer);
         // adds the node to the AST's vector
         ast_simple = ast_simple_cmd_add_param(ast_simple, tok->data.word);
         token_free(tok);
     }
 
+    lexer_free_without_pretokens(saved_lexer);
     return PARSER_OK;
 
 error:
+    restore_lexer(lexer, saved_lexer);
     ast_node_free_detach(ast);
     return PARSER_UNEXPECTED_TOKEN;
 }

@@ -13,23 +13,27 @@
  * @return
  */
 static enum parser_status parse_rule_else_clause(struct ast_node **ast,
-                                                 struct lexer *lexer)
+                                                 struct lexer **lexer)
 {
-    if (is_rw(lexer_peek(lexer), RW_ELSE) == true)
+    struct lexer *saved_lexer = save_lexer(*lexer);
+
+    if (is_rw(lexer_peek(*lexer), RW_ELSE) == true)
     {
-        token_free(lexer_pop(lexer));
+        token_free(lexer_pop(*lexer));
         enum parser_status status = parse_rule_compound_list(ast, lexer);
         if (status != PARSER_OK)
-            return PARSER_UNEXPECTED_TOKEN;
+            goto error;
+
+        lexer_free_without_pretokens(saved_lexer);
         return PARSER_OK;
     }
 
-    if (is_rw(lexer_peek(lexer), RW_ELIF) == true)
+    if (is_rw(lexer_peek(*lexer), RW_ELIF) == true)
     {
         struct ast_if *ast_if = ast_if_init();
         *ast = (struct ast_node *)ast_if; // attach ast_if to ast
 
-        token_free(lexer_pop(lexer));
+        token_free(lexer_pop(*lexer));
         struct ast_node *ast_elif_condition = NULL;
         struct ast_node *ast_elif_body = NULL;
         struct ast_node *ast_elif_else = NULL;
@@ -42,9 +46,9 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
         if (status != PARSER_OK)
             goto error_elif;
 
-        if (is_rw(lexer_peek(lexer), RW_THEN) == false)
+        if (is_rw(lexer_peek(*lexer), RW_THEN) == false)
             goto error_elif;
-        token_free(lexer_pop(lexer));
+        token_free(lexer_pop(*lexer));
 
         status = parse_rule_compound_list(&ast_elif_body, lexer);
         ast_if_set_body(ast_if,
@@ -57,12 +61,14 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
         ast_if_set_else(ast_if,
                         ast_elif_else); // Set else_body
 
+        lexer_free_without_pretokens(saved_lexer);
         return PARSER_OK;
     error_elif:
         ast_node_free_detach(ast);
-        return PARSER_UNEXPECTED_TOKEN;
+        goto error;
     }
-
+error:
+    restore_lexer(lexer, saved_lexer);
     return PARSER_UNEXPECTED_TOKEN;
 }
 
@@ -71,8 +77,10 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
  * rule_if: IF compound_list THEN compound_list [else_clause] FI
  * @return
  */
-enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
+enum parser_status parse_rule_if(struct ast_node **ast, struct lexer **lexer)
 {
+    struct lexer *saved_lexer = save_lexer(*lexer);
+
     struct ast_if *ast_if = ast_if_init();
     *ast = (struct ast_node *)ast_if; // attach ast_if to ast
 
@@ -80,9 +88,9 @@ enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
     struct ast_node *ast_if_body = NULL;
     struct ast_node *ast_else_body = NULL;
 
-    if (is_rw(lexer_peek(lexer), RW_IF) == false)
+    if (is_rw(lexer_peek(*lexer), RW_IF) == false)
         goto error;
-    token_free(lexer_pop(lexer));
+    token_free(lexer_pop(*lexer));
 
     enum parser_status status =
         parse_rule_compound_list(&ast_if_condition, lexer);
@@ -91,9 +99,9 @@ enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
     if (status != PARSER_OK)
         goto error;
 
-    if (is_rw(lexer_peek(lexer), RW_THEN) == false)
+    if (is_rw(lexer_peek(*lexer), RW_THEN) == false)
         goto error;
-    token_free(lexer_pop(lexer));
+    token_free(lexer_pop(*lexer));
 
     status = parse_rule_compound_list(&ast_if_body, lexer);
     ast_if_set_body(ast_if, ast_if_body); // Set the if_body
@@ -104,12 +112,14 @@ enum parser_status parse_rule_if(struct ast_node **ast, struct lexer *lexer)
     parse_rule_else_clause(&ast_else_body, lexer);
     ast_if_set_else(ast_if, ast_else_body); // Set the else_body
 
-    if (is_rw(lexer_peek(lexer), RW_FI) == false)
+    if (is_rw(lexer_peek(*lexer), RW_FI) == false)
         goto error;
-    token_free(lexer_pop(lexer));
+    token_free(lexer_pop(*lexer));
 
+    lexer_free_without_pretokens(saved_lexer);
     return PARSER_OK;
 error:
+    restore_lexer(lexer, saved_lexer);
     ast_node_free_detach(ast);
     return PARSER_UNEXPECTED_TOKEN;
 }

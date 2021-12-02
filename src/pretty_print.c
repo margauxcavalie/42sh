@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     struct lexer *lexer = lexer_new(vec);
 
     struct ast_node *ast = NULL;
-    enum parser_status status = parse(&ast, lexer);
+    enum parser_status status = parse(&ast, &lexer);
 
     if (status == PARSER_OK)
     {

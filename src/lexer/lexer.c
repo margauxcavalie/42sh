@@ -139,6 +139,18 @@ void lexer_free(struct lexer *lexer)
     free(lexer);
 }
 
+void lexer_free_without_pretokens(struct lexer *lexer)
+{
+    struct token *tok = lexer_pop(lexer);
+    while (tok->type != TOKEN_EOF)
+    {
+        token_free(tok);
+        tok = lexer_pop(lexer);
+    }
+    token_free(tok);
+    free(lexer);
+}
+
 struct token *lexer_pop(struct lexer *lexer)
 {
     enum token_type type = lexer->current_tok->type;
@@ -151,4 +163,23 @@ struct token *lexer_pop(struct lexer *lexer)
     struct token *prev = lexer->current_tok;
     lexer->current_tok = token;
     return prev;
+}
+
+/**
+ * Create a copy of the lexer
+ */
+struct lexer *save_lexer(struct lexer *lexer)
+{
+    struct lexer *new = lexer_new(lexer->pretokens);
+    while (new->pretoken_index < lexer->pretoken_index)
+    {
+        token_free(lexer_pop(new));
+    }
+    return new;
+}
+
+void restore_lexer(struct lexer **lexer, struct lexer *save_lexer)
+{
+    lexer_free_without_pretokens(*lexer);
+    *lexer = save_lexer;
 }

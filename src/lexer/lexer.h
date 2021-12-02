@@ -66,3 +66,7 @@ struct token *lexer_pop(struct lexer *lexer);
  * @brief TODO
  */
 struct token *get_next_token(struct lexer *lexer);
+
+void restore_lexer(struct lexer **lexer, struct lexer *save_lexer);
+struct lexer *save_lexer(struct lexer *lexer);
+void lexer_free_without_pretokens(struct lexer *lexer);
