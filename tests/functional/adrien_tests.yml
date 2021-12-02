@@ -103,4 +103,19 @@ name: c_unknown_cmd
 cmd: ./42sh -c "sdfhdfhsd"
 stderr: "42sh: command not found: sdfhdfhsd\n"
 status: 127
+---
+name: c_quoted_op1
+cmd: ./42sh -c "echo ';'"
+stdout: ";\n"
+status: 0
+---
+name: c_quoted_op2
+cmd: ./42sh -c "echo '';"
+stdout: "\n"
+status: 0
+---
+name: c_quoted_rw
+cmd: ./42sh -c "echo ''if"
+stdout: "if\n"
+status: 0
 
