@@ -8,8 +8,8 @@
 #include <utils/vec.h>
 
 // initializes the lookup table
-const struct pretoken_operator ops[] = { { "\n", 1 }, { ";", 1 } };
-#define nb_ops 2
+const struct pretoken_operator ops[] = { { "\n", 1 }, { ";", 1 }, { ">", 1 }, { "<", 1 }};
+#define nb_ops 4
 
 static bool is_operator(const char *str)
 {
@@ -29,6 +29,18 @@ static bool is_separator(char c)
 {
     bool res = c == '\0' || c == '\t' || c == ' ';
     return res;
+}
+
+static bool is_ionumber(const char *str)
+{
+    if (str[0] == '\0' || str[1] == '\0')
+        return false;
+    if (str[0] >= '0' && str[0] <= '9') // is a digit ?
+    {
+        if (str[1] == '<' || str[1] == '>')
+            return true;
+    }
+    return false;
 }
 
 struct pretoken_vector *init_pretoken_list()
@@ -161,6 +173,12 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     if (str[0] == '\0')
     {
         struct pretoken *new = pretoken_new(PRETOKEN_EOF, NULL, 0);
+        return new;
+    }
+    if (is_ionumber(str))
+    {
+        struct pretoken *new = pretoken_new(PRETOKEN_IONUMBER, str, 1);
+        *size += 1;
         return new;
     }
     // else it's a word

@@ -6,6 +6,7 @@ enum pretoken_type
 {
     PRETOKEN_OPERATOR,
     PRETOKEN_WORD,
+    PRETOKEN_IONUMBER,
     PRETOKEN_EOF,
     PRETOKEN_ERROR
 };

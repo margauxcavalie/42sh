@@ -57,11 +57,12 @@ Test(prelexify, just_3_word)
 {
     char *input = "  pierre <3 lucas  \t";
     struct pretoken_vector *vec = prelexify(input);
-    cr_assert_eq(vec->size, 4);
+    cr_assert_eq(vec->size, 5);
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
-    cr_assert_eq(vec->data[1]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[1]->type, PRETOKEN_OPERATOR);
     cr_assert_eq(vec->data[2]->type, PRETOKEN_WORD);
-    cr_assert_eq(vec->data[3]->type, PRETOKEN_EOF);
+    cr_assert_eq(vec->data[3]->type, PRETOKEN_WORD);
+    cr_assert_eq(vec->data[4]->type, PRETOKEN_EOF);
     free_pretoken_list(vec);
 }
 
