@@ -44,7 +44,7 @@ enum parser_status parse_rule_while(struct ast_node **ast, struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
-    struct ast_while *ast_while = ast_while_init();
+    struct ast_while_until *ast_while = ast_while_init();
     *ast = (struct ast_node *)ast_while; // attach AST_while to AST
 
     struct ast_node *ast_while_condition = NULL;
@@ -57,13 +57,13 @@ enum parser_status parse_rule_while(struct ast_node **ast, struct lexer **lexer)
     enum parser_status status =
         parse_rule_compound_list(&ast_while_condition, lexer);
     // Set the condition
-    ast_while_set_condition(ast_while, ast_while_condition);
+    ast_while_until_set_condition(ast_while, ast_while_condition);
     if (status != PARSER_OK)
         goto error;
 
     status = parse_rule_do_group(&ast_while_body, lexer);
     // Set the body
-    ast_while_set_body(ast_while, ast_while_body);
+    ast_while_until_set_body(ast_while, ast_while_body);
     if (status != PARSER_OK)
         goto error;
 
@@ -84,26 +84,26 @@ enum parser_status parse_rule_until(struct ast_node **ast, struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
-    struct ast_while *ast_while = ast_until_init();
-    *ast = (struct ast_node *)ast_while; // attach AST_while to AST
+    struct ast_while_until *ast_until = ast_until_init();
+    *ast = (struct ast_node *)ast_until; // attach AST_while to AST
 
-    struct ast_node *ast_while_condition = NULL;
-    struct ast_node *ast_while_body = NULL;
+    struct ast_node *ast_until_condition = NULL;
+    struct ast_node *ast_until_body = NULL;
 
     if (is_rw(lexer_peek(*lexer), RW_UNTIL) == false)
         goto error;
     token_free(lexer_pop(*lexer));
 
     enum parser_status status =
-        parse_rule_compound_list(&ast_while_condition, lexer);
+        parse_rule_compound_list(&ast_until_condition, lexer);
     // Set the condition
-    ast_while_set_condition(ast_while, ast_while_condition);
+    ast_while_until_set_condition(ast_until, ast_until_condition);
     if (status != PARSER_OK)
         goto error;
 
-    status = parse_rule_do_group(&ast_while_body, lexer);
+    status = parse_rule_do_group(&ast_until_body, lexer);
     // Set the body
-    ast_while_set_body(ast_while, ast_while_body);
+    ast_while_until_set_body(ast_until, ast_until_body);
     if (status != PARSER_OK)
         goto error;
 
