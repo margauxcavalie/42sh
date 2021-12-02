@@ -18,6 +18,7 @@ static enum parser_status handle_parse_error(enum parser_status status,
  * @brief temporary version
  * shell_command: rule_if
  *          | rule_while
+ *          | rule_until
  *
  * @return enum parser_status
  */
@@ -31,7 +32,11 @@ enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
     {
         status = parse_rule_while(ast, lexer);
         if (status != PARSER_OK)
-            goto error;
+        {
+            status = parse_rule_until(ast, lexer);
+            if (status != PARSER_OK)
+                goto error;
+        }
     }
 
     lexer_free_without_pretokens(saved_lexer);

@@ -10,8 +10,11 @@ struct ast_while
 };
 
 struct ast_while *ast_while_init();
+struct ast_while *ast_until_init();
 int ast_while_exec(struct ast_node *ast);
+int ast_until_exec(struct ast_node *ast);
 void ast_while_print(struct ast_node *ast, struct print_context pc);
+void ast_until_print(struct ast_node *ast, struct print_context pc);
 void ast_while_free(struct ast_node *ast);
 
 void ast_while_set_condition(struct ast_while *ast, struct ast_node *condition);

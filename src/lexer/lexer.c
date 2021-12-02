@@ -30,10 +30,11 @@ enum rw_type match_rw_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
     struct matching_rw lookup_table[] = {
-        { "if", 2, RW_IF },     { "then", 4, RW_THEN },
-        { "elif", 4, RW_ELIF }, { "else", 4, RW_ELSE },
-        { "fi", 2, RW_FI },     { "while", 5, RW_WHILE },
-        { "do", 2, RW_DO },     { "done", 4, RW_DONE }
+        { "if", 2, RW_IF },      { "then", 4, RW_THEN },
+        { "elif", 4, RW_ELIF },  { "else", 4, RW_ELSE },
+        { "fi", 2, RW_FI },      { "while", 5, RW_WHILE },
+        { "do", 2, RW_DO },      { "done", 4, RW_DONE },
+        { "until", 5, RW_UNTIL }
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
     size_t count = 0;
