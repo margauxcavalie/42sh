@@ -53,71 +53,80 @@ stdout: "oui"
 status: 0
 ---
 name: c_if_3
-cmd: ./42sh -c "if true; then if true; then if false; then echo -n oui; else echo -n non; fi; fi ;fi"
-stdout: "non"
+cmd: ./42sh -c "if false; then echo true; else echo false; fi"
+stdout: "false\n"
 status: 0
 ---
-name: c_if_error
-cmd: ./42sh -c "if true; then if true; then if false; then echo -n oui; else echo -n non fi; fi ;fi"
-stderr: "42sh: unexpected token\n"
-status: 2
+name: c_if_4
+cmd: ./42sh -c "if true; then echo true; elif echo false; then echo true; fi"
+stdout: "true\n"
+status: 0
 ---
-name: c_if_error2
+name: c_if_5
+cmd: ./42sh -c "if false; then echo true; elif echo false; then echo true; fi"
+stdout: "false\ntrue\n"
+status: 0
+---
+name: c_if_6
+cmd: ./42sh -c "if false; then echo true; elif false; then echo true; fi"
+status: 0
+---
+name: c_if_error1
 cmd: ./42sh -c "if true; then fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error3
+name: c_if_error2
 cmd: ./42sh -c "if fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error4
+name: c_if_error3
 cmd: ./42sh -c "if fi;"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error5
+name: c_if_error4
 cmd: ./42sh -c "if true; then ; fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error6
+name: c_if_error5
 cmd: ./42sh -c "if true; then echo fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error7
+name: c_if_error6
 cmd: ./42sh -c "if true; then echo oui; fi; fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error8
+name: c_if_error7
 cmd: ./42sh -c "if true then ; fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error9
+name: c_if_error8
 cmd: ./42sh -c "if true then fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error10
+name: c_if_error9
 cmd: ./42sh -c "if true; then echo oui;else ;echo oui ;fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error11
+name: c_if_error10
 cmd: ./42sh -c "if true; then echo oui;else then echo oui;fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error12
+name: c_if_error11
 cmd: ./42sh -c "if true; then echo oui;else echo oui; fi; fi"
 stderr: "42sh: unexpected token\n"
 status: 2
 ---
-name: c_if_error13
+name: c_if_error12
 cmd: ./42sh -c "if true; then echo oui;elif; echo oui; fi"
 stderr: "42sh: unexpected token\n"
 status: 2
