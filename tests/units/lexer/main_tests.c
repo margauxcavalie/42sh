@@ -227,3 +227,87 @@ Test(lexer, hard2)
 
     lexer_free(lexer); // free vec inside
 }
+
+Test(lexer, one_pipe)
+{
+    char *s = "|";
+    struct pretoken_vector *vec = prelexify(s);
+    struct lexer *lexer = lexer_new(vec);
+    struct token *tok;
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_type, OP_PIPE);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_EOF);
+
+    lexer_free(lexer); // free vec inside
+}
+
+Test(lexer, word_one_pipe)
+{
+    char *s = "word |";
+    struct pretoken_vector *vec = prelexify(s);
+    struct lexer *lexer = lexer_new(vec);
+    struct token *tok;
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_WORD);
+    cr_assert_str_eq(tok->data.word, "word");
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_type, OP_PIPE);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_EOF);
+
+    lexer_free(lexer); // free vec inside
+}
+
+Test(lexer, real_pipe)
+{
+    char *s = "echo salut | tr a o";
+    struct pretoken_vector *vec = prelexify(s);
+    struct lexer *lexer = lexer_new(vec);
+    struct token *tok;
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_WORD);
+    cr_assert_str_eq(tok->data.word, "echo");
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_WORD);
+    cr_assert_str_eq(tok->data.word, "salut");
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_type, OP_PIPE);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_WORD);
+    cr_assert_str_eq(tok->data.word, "tr");
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_WORD);
+    cr_assert_str_eq(tok->data.word, "a");
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_WORD);
+    cr_assert_str_eq(tok->data.word, "o");
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_EOF);
+
+    lexer_free(lexer); // free vec inside
+}

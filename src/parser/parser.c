@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include <parser/pipeline/rule_pipeline.h>
+
 #include <parser/cmd_list/rules_cmd_list.h>
 #include <parser/if/rules_if.h>
 #include <parser/simple_cmd/rules_simple_cmd.h>
@@ -70,6 +72,15 @@ error:
 enum parser_status parse(struct ast_node **ast, struct lexer **lexer)
 {
     enum parser_status status =
+        parse_rule_pipeline(ast, lexer);
+    
+    if (status != PARSER_OK)
+        return handle_parse_error(PARSER_UNEXPECTED_TOKEN, ast);
+
+    return PARSER_OK;
+
+    /*
+    enum parser_status status =
         parse_rule_command_list(ast, lexer); // simple command
     if (status == PARSER_OK) // not a simple command
     {
@@ -84,5 +95,5 @@ enum parser_status parse(struct ast_node **ast, struct lexer **lexer)
         return PARSER_OK;
 
     // ERROR HERE
-    return handle_parse_error(PARSER_UNEXPECTED_TOKEN, ast);
+    return handle_parse_error(PARSER_UNEXPECTED_TOKEN, ast);*/
 }

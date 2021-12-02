@@ -12,7 +12,8 @@ enum op_type match_op_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
     struct matching_op lookup_table[] = { { ";", 1, OP_SEMICOLON },
-                                          { "\n", 1, OP_LINEFEED } };
+                                          { "\n", 1, OP_LINEFEED },
+                                          { "|", 1, OP_PIPE } };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
     size_t count = 0;
     while (count < lt_size)

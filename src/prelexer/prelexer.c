@@ -8,8 +8,8 @@
 #include <utils/vec.h>
 
 // initializes the lookup table
-const struct pretoken_operator ops[] = { { "\n", 1 }, { ";", 1 } };
-#define nb_ops 2
+const struct pretoken_operator ops[] = { { "\n", 1 }, { ";", 1 }, { "|", 1 } };
+#define nb_ops 3
 
 static bool is_operator(const char *str)
 {

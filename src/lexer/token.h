@@ -15,7 +15,8 @@ enum op_type
 {
     OP_UNKNOWN,
     OP_SEMICOLON,
-    OP_LINEFEED
+    OP_LINEFEED,
+    OP_PIPE
 };
 
 enum rw_type
