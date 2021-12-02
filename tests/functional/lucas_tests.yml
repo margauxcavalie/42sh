@@ -23,7 +23,7 @@ cmd: ./42sh -c "echo -n hello"
 stdout: "hello"
 ---
 name: simple echo option e
-cmd: ./42sh -c "echo -e hello\\n"
+cmd: ./42sh -c "echo -e hello\\\n"
 stdout: "hello\n\n"
 ---
 name: medium echo option e
@@ -36,7 +36,7 @@ cmd: ./42sh -c "echo -n -e hello"
 stdout: "hello"
 ---
 name: hard echo option e and n
-cmd: ./42sh -c "echo -n -e hello\\n"
+cmd: ./42sh -c "echo -n -e hello\\\n"
 stdout: "hello\n"
 ---
 name: echo multiple option n
@@ -44,7 +44,7 @@ cmd: ./42sh -c "echo -n -n -n -n -n hello"
 stdout: "hello"
 ---
 name: echo multiple option e
-cmd: ./42sh -c "echo -e -e -e -e -e hello\\n"
+cmd: ./42sh -c "echo -e -e -e -e -e hello\\\n"
 stdout: "hello\n\n"
 ---
 name: echo multiple option n and e
@@ -52,7 +52,7 @@ cmd: ./42sh -c "echo -n -n -e -n -e -n -n -e -e hello"
 stdout: "hello"
 ---
 name: echo multiple option n and e with linefeed
-cmd: ./42sh -c "echo -n -n -e -n -e -n -n -e -e hello\\n"
+cmd: ./42sh -c "echo -n -n -e -n -e -n -n -e -e hello\\\n"
 stdout: "hello\n"
 ---
 name: if simple
