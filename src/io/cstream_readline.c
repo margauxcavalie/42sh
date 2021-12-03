@@ -43,7 +43,7 @@ static enum error cstream_readline_read(struct cstream *base_cs, int *c)
     {
         free(str);
         cs->current_line = NULL;
-        *c = '\n';
+        *c = '\0'; // MAYBE ERROR
         return NO_ERROR;
     }
 

@@ -201,7 +201,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     return new;
 }
 
-struct pretoken_vector *prelexify(char *input)
+struct pretoken_vector *prelexify(char const *input)
 {
     struct pretoken_vector *vec = init_pretoken_list();
     size_t size = 0;

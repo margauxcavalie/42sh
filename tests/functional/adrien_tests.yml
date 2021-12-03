@@ -79,8 +79,8 @@ stdout: "\t\n"
 status: 0
 ---
 name: c_echo_backslash
-cmd: ./42sh -c "echo \\\\"
-stdout: "\\\\\n"
+cmd: /bin/sh -c "echo \\\\"
+stdout: "\\\n"
 status: 0
 ---
 name: c_echo_backslash_opte

@@ -21,11 +21,19 @@ struct token *token_new_rw(enum rw_type type)
     return new;
 }
 
-struct token *token_new_op(enum op_type type)
+struct token *token_new_ionumber(int number)
+{
+    struct token *new = zalloc(sizeof(struct token));
+    new->type = TOKEN_IONUMBER;
+    new->data.io_number = number;
+    return new;
+}
+
+struct token *token_new_op(struct op_data op_data)
 {
     struct token *new = zalloc(sizeof(struct token));
     new->type = TOKEN_OP;
-    new->data.op_type = type;
+    new->data.op_data = op_data;
     return new;
 }
 
@@ -40,8 +48,15 @@ bool is_op(struct token *tok, enum op_type op_type)
 {
     if (tok->type != TOKEN_OP)
         return false;
-    if (tok->data.op_type == op_type)
+    if (tok->data.op_data.type == op_type)
         return true;
+    return false;
+}
+
+bool is_ionumber(struct token *tok)
+{
+    if (tok->type != TOKEN_IONUMBER)
+        return false;
     return false;
 }
 
