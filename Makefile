@@ -2,10 +2,10 @@ all:
 	meson setup builddir
 	ninja -C builddir
 
-unit:
+unit: all
 	ninja -C builddir check_unit
 
-func:
+func: all
 	ninja -C builddir check
 
 check: func unit
