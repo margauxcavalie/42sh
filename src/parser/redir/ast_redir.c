@@ -48,7 +48,7 @@ int ast_redir_exec(struct ast_node *ast)
         return ast_node_exec(ast_redir->child);
     // its '>'
     ast_redir->fd = 1; // stdout
-    int fd = open(ast_redir->file, O_WRONLY | O_CREAT);
+    int fd = open(ast_redir->file, O_WRONLY | O_CREAT, 0644);
     // TODO on error
     int saved_stdout = dup(ast_redir->fd);
     dup2(fd, ast_redir->fd);
