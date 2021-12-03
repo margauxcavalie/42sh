@@ -8,7 +8,10 @@
 #include <utils/vec.h>
 
 // initializes the lookup table
-const struct pretoken_operator ops[] = { { "\n", 1 }, { ";", 1 }, { ">", 1 }, { "<", 1 }};
+const struct pretoken_operator ops[] = { { "\n", 1 },
+                                         { ";", 1 },
+                                         { ">", 1 },
+                                         { "<", 1 } };
 #define nb_ops 4
 
 static bool is_operator(const char *str)
@@ -224,7 +227,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     return new;
 }
 
-struct pretoken_vector *prelexify(char *input)
+struct pretoken_vector *prelexify(char const *input)
 {
     struct pretoken_vector *vec = init_pretoken_list();
     size_t size = 0;
