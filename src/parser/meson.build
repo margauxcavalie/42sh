@@ -1,7 +1,7 @@
 subdir('cmd_list')
 subdir('if')
 subdir('simple_cmd')
-subdir('while')
+subdir('while_until')
 
 all_sources += files('parser.c')
 all_sources += files('ast_node.c')

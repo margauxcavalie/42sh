@@ -6,6 +6,7 @@
 enum ast_type
 {
     AST_TEST, // For the units tests
+    AST_DECREM, // For the units tests
     AST_SIMPLE_CMD,
     AST_CMD_LIST,
     AST_IF,

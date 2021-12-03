@@ -18,6 +18,8 @@ void ast_while_print(struct ast_node *ast, struct print_context pc);
 void ast_until_print(struct ast_node *ast, struct print_context pc);
 
 // generic for both while and until
-void ast_while_until_free(struct ast_node *ast); 
-void ast_while_until_set_condition(struct ast_while_until *ast, struct ast_node *condition);
-void ast_while_until_set_body(struct ast_while_until *ast, struct ast_node *body);
+void ast_while_until_free(struct ast_node *ast);
+void ast_while_until_set_condition(struct ast_while_until *ast,
+                                   struct ast_node *condition);
+void ast_while_until_set_body(struct ast_while_until *ast,
+                              struct ast_node *body);

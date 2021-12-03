@@ -1,4 +1,4 @@
-#include "ast_while.h"
+#include "ast_while_until.h"
 
 #include <stdio.h>
 #include <utils/alloc.h>
@@ -60,18 +60,28 @@ void ast_until_print(struct ast_node *ast, struct print_context pc)
 int ast_while_exec(struct ast_node *ast)
 {
     struct ast_while_until *ast_while = (struct ast_while_until *)ast;
-    while (!ast_node_exec(ast_while->condition)) // if it returns 0
-        ast_node_exec(ast_while->body);
-
+    if (ast_while->condition)
+    {
+        while (!ast_node_exec(ast_while->condition)) // if it returns 0
+        {
+            if (ast_while->body)
+                ast_node_exec(ast_while->body);
+        }
+    }
     return 0;
 }
 
 int ast_until_exec(struct ast_node *ast)
 {
     struct ast_while_until *ast_until = (struct ast_while_until *)ast;
-    while (ast_node_exec(ast_until->condition)) // if it returns 0
-        ast_node_exec(ast_until->body);
-
+    if (ast_until->condition)
+    {
+        while (ast_node_exec(ast_until->condition)) // if it returns 0
+        {
+            if (ast_until->body)
+                ast_node_exec(ast_until->body);
+        }
+    }
     return 0;
 }
 
@@ -113,12 +123,14 @@ struct ast_while_until *ast_until_init()
     return new_ast;
 }
 
-void ast_while_until_set_condition(struct ast_while_until *ast, struct ast_node *condition)
+void ast_while_until_set_condition(struct ast_while_until *ast,
+                                   struct ast_node *condition)
 {
     ast->condition = condition;
 }
 
-void ast_while_until_set_body(struct ast_while_until *ast, struct ast_node *body)
+void ast_while_until_set_body(struct ast_while_until *ast,
+                              struct ast_node *body)
 {
     ast->body = body;
 }
