@@ -25,5 +25,6 @@ struct op_data
     union
     {
         enum redir_type redir_type;
+        void *null;
     } data;
 };
