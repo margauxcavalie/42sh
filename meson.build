@@ -49,7 +49,7 @@ cc = meson.get_compiler('c')
 readline_dep = cc.find_library('readline', required: true)
 
 cc = meson.get_compiler('c')
-criterion_dep = cc.find_library('criterion', required: true)
+criterion_dep = cc.find_library('criterion', required: false)
 
 bin = executable(
   '42sh',
@@ -60,7 +60,7 @@ bin = executable(
   dependencies: [readline_dep],
   )
 
-executable(
+ast_check = executable(
   'exec_ast',
   all_sources,
   exec_ast_main,
@@ -69,7 +69,7 @@ executable(
   dependencies: [readline_dep],
   )
 
-executable(
+pretoken_check = executable(
   'pretoken_print',
   all_sources,
   print_pretoken_main,
@@ -78,7 +78,7 @@ executable(
   dependencies: [readline_dep],
   )
 
-executable(
+token_check = executable(
   'token_print',
   all_sources,
   print_token_main,
@@ -87,7 +87,7 @@ executable(
   dependencies: [readline_dep],
   )
 
-executable(
+pretty_check = executable(
   'pretty_print',
   all_sources,
   pretty_print_main,
@@ -95,6 +95,8 @@ executable(
   install: true,
   dependencies: [readline_dep],
   )
+
+if criterion_dep.found()
 
 tests_bin = executable(
   'testsuite',
@@ -113,12 +115,14 @@ check_unit = custom_target(
   output: 'check_unit',
   build_always_stale: true,
 )
+endif
 
 run_func_tests = meson.source_root() / 'pharaoh'
 func_tests_path = meson.source_root() / 'tests/functional'
+
 custom_target(
   'check',
-  depends: [check_unit, bin],
+  # depends: [check_unit, bin],
   command: [run_func_tests, func_tests_path],
   # give the testsuite exclusive access to the terminal, which enables
   # pretty colors and live testsuite results (meson buffers it all otherwise)
