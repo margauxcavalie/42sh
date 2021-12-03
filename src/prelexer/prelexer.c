@@ -8,8 +8,11 @@
 #include <utils/vec.h>
 
 // initializes the lookup table
-const struct pretoken_operator ops[] = { { "\n", 1 }, { ";", 1 } };
-#define nb_ops 2
+const struct pretoken_operator ops[] = { { "\n", 1 },
+                                         { ";", 1 },
+                                         { ">", 1 },
+                                         { "<", 1 } };
+#define nb_ops 4
 
 static bool is_operator(const char *str)
 {
@@ -29,6 +32,18 @@ static bool is_separator(char c)
 {
     bool res = c == '\0' || c == '\t' || c == ' ';
     return res;
+}
+
+static bool is_ionumber(const char *str)
+{
+    if (str[0] == '\0' || str[1] == '\0')
+        return false;
+    if (str[0] >= '0' && str[0] <= '9') // is a digit ?
+    {
+        if (str[1] == '<' || str[1] == '>')
+            return true;
+    }
+    return false;
 }
 
 struct pretoken_vector *init_pretoken_list()
@@ -96,11 +111,24 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
 
     while (!(is_separator(str[counter])) && !is_operator(str + counter))
     {
+        char c = 0;
         // quotes
         if (str[counter] == '\'')
         {
+            // mark the quotes
+            *is_quoted = 1;
+            c = '\'';
+        }
+        if (str[counter] == '\"')
+        {
+            // mark the dbl quotes
+            *is_quoted = 2;
+            c = '\"';
+        }
+        if (c != 0)
+        {
             int tmp = counter;
-            if (skip_quotes(str, &counter, '\'') == false)
+            if (skip_quotes(str, &counter, c) == false)
             {
                 // ERROR: quote is not paired
                 vec_destroy(curr_token);
@@ -109,8 +137,6 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
             }
             else
             {
-                // mark the quotes
-                *is_quoted = 1;
                 // add the quoted content to the curr token
                 for (int i = tmp + 1; i < counter; i++)
                     vec_push(curr_token, str[i]);
@@ -119,7 +145,19 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
         }
         else // add the char to the token and proceed to the next one
         {
-            vec_push(curr_token, str[counter]);
+            if (str[counter] == '\\')
+            {
+                if (str[counter + 1] != '\0' && str[counter + 1] != EOF)
+                {
+                    counter += 1;
+                    vec_push(curr_token, str[counter]);
+                    *is_quoted = 1;
+                }
+            }
+            else
+            {
+                vec_push(curr_token, str[counter]);
+            }
             counter += 1;
         }
     }
@@ -163,6 +201,12 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
         struct pretoken *new = pretoken_new(PRETOKEN_EOF, NULL, 0);
         return new;
     }
+    if (is_ionumber(str))
+    {
+        struct pretoken *new = pretoken_new(PRETOKEN_IONUMBER, str, 1);
+        *size += 1;
+        return new;
+    }
     // else it's a word
     struct pretoken_operator *operators_cpy =
         xmalloc(sizeof(struct pretoken_operator) * nb_ops);
@@ -177,13 +221,13 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     }
     size_t word_size = strlen(word);
     struct pretoken *new = pretoken_new(PRETOKEN_WORD, word, word_size);
-    new->is_quoted = is_quoted;
+    new->is_quoted = is_quoted; // 0: no quotes, 1 single quotes, 2 dbl quotes
     free(word);
     free(operators_cpy);
     return new;
 }
 
-struct pretoken_vector *prelexify(char *input)
+struct pretoken_vector *prelexify(char const *input)
 {
     struct pretoken_vector *vec = init_pretoken_list();
     size_t size = 0;

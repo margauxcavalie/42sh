@@ -54,6 +54,8 @@ void ast_node_print(void *ptr)
 
 int ast_node_exec(void *ptr)
 {
+    if (ptr == NULL)
+        return 0;
     struct ast_node *ast = ptr;
     return (*(ast->node_exec))(ast);
 }

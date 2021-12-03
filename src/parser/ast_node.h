@@ -11,6 +11,7 @@ enum ast_type
     AST_CMD_LIST,
     AST_IF,
     AST_WHILE,
+    AST_REDIR,
 };
 
 struct print_context

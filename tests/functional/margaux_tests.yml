@@ -26,15 +26,15 @@ cmd: ./42sh -c "echo -n -e cat"
 stdout: "cat"
 ---
 name: echo_double_dash_all_in_one
-cmd: ./42sh -c "echo -ne ramen\\n"
+cmd: ./42sh -c "echo -ne ramen\\\n"
 stdout: "ramen\n"
 ---
 name: echo_triple_backslash_dash_e
-cmd: ./42sh -c "echo -e wesh\\n\\n"
+cmd: ./42sh -c "echo -e wesh\\\n\\\n"
 stdout: "wesh\n\n\n"
 ---
 name: echo_dash_n_backslash
-cmd: ./42sh -c "echo -en patate\\n"
+cmd: ./42sh -c "echo -en patate\\\n"
 stdout: |
   patate
 ---
@@ -103,5 +103,5 @@ cmd: ./42sh -c "if false; echo 'false'; then echo 'O'K; elif true; true; false; 
 stdout: "false\nOK\nrugby"
 ---
 name: if_dash_e
-cmd: ./42sh -c "if false; echo 'coucou\\n'; then echo -e 'O'K\\n; fi; if true; then echo -ne '\\nyes'; fi"
+cmd: ./42sh -c "if false; echo 'coucou\\n'; then echo -e 'O'K\\\n; fi; if true; then echo -ne '\\nyes'; fi"
 stdout: "coucou\\n\nOK\n\n\nyes"

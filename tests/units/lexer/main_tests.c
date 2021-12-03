@@ -101,7 +101,7 @@ Test(lexer, simple_op_semicolon)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
-    cr_assert_eq(tok->data.op_type, OP_SEMICOLON);
+    cr_assert_eq(tok->data.op_data.type, OP_SEMICOLON);
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -123,7 +123,7 @@ Test(lexer, word_with_op)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
-    cr_assert_eq(tok->data.op_type, OP_LINEFEED);
+    cr_assert_eq(tok->data.op_data.type, OP_LINEFEED);
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -151,7 +151,7 @@ Test(lexer, hard1)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
-    cr_assert_eq(tok->data.op_type, OP_SEMICOLON);
+    cr_assert_eq(tok->data.op_data.type, OP_SEMICOLON);
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -166,7 +166,7 @@ Test(lexer, hard1)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
-    cr_assert_eq(tok->data.op_type, OP_LINEFEED);
+    cr_assert_eq(tok->data.op_data.type, OP_LINEFEED);
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -199,7 +199,7 @@ Test(lexer, hard2)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
-    cr_assert_eq(tok->data.op_type, OP_SEMICOLON);
+    cr_assert_eq(tok->data.op_data.type, OP_SEMICOLON);
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -214,12 +214,81 @@ Test(lexer, hard2)
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
-    cr_assert_eq(tok->data.op_type, OP_LINEFEED);
+    cr_assert_eq(tok->data.op_data.type, OP_LINEFEED);
     token_free(tok);
 
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_RW);
     cr_assert_eq(tok->data.rw_type, RW_FI);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_EOF);
+
+    lexer_free(lexer); // free vec inside
+}
+Test(lexer, simple_ionumber)
+{
+    char *s = "1>";
+    struct pretoken_vector *vec = prelexify(s);
+    struct lexer *lexer = lexer_new(vec);
+    struct token *tok;
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_IONUMBER);
+    cr_assert_eq(tok->data.io_number, 1);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_data.type, OP_REDIR);
+    cr_assert_eq(tok->data.op_data.data.redir_type, REDIR_GREAT);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_EOF);
+
+    lexer_free(lexer); // free vec inside
+}
+Test(lexer, simple_ionumber2)
+{
+    char *s = "8>";
+    struct pretoken_vector *vec = prelexify(s);
+    struct lexer *lexer = lexer_new(vec);
+    struct token *tok;
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_IONUMBER);
+    cr_assert_eq(tok->data.io_number, 8);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_data.type, OP_REDIR);
+    cr_assert_eq(tok->data.op_data.data.redir_type, REDIR_GREAT);
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_EOF);
+
+    lexer_free(lexer); // free vec inside
+}
+Test(lexer, false_ionumber)
+{
+    char *s = "88>";
+    struct pretoken_vector *vec = prelexify(s);
+    struct lexer *lexer = lexer_new(vec);
+    struct token *tok;
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_WORD);
+    cr_assert_str_eq(tok->data.word, "88");
+    token_free(tok);
+
+    tok = lexer_pop(lexer);
+    cr_assert_eq(tok->type, TOKEN_OP);
+    cr_assert_eq(tok->data.op_data.type, OP_REDIR);
+    cr_assert_eq(tok->data.op_data.data.redir_type, REDIR_GREAT);
     token_free(tok);
 
     tok = lexer_pop(lexer);
