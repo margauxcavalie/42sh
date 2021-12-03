@@ -38,7 +38,7 @@ enum parser_status parse_rule_redirection(struct ast_node **ast,
 
     // add the ast parent into the redirect child and attach
     ast_redir_set_child(ast_redir, *ast);
-    *ast = (struct ast_node *)ast_redir; 
+    *ast = (struct ast_node *)ast_redir;
 
     lexer_free_without_pretokens(saved_lexer);
     return PARSER_OK;

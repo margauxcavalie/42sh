@@ -1,7 +1,7 @@
 #include "ast_redir.h"
 
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <utils/alloc.h>
 
 /**
@@ -104,4 +104,3 @@ void ast_redir_set_child(struct ast_redir *ast, struct ast_node *child)
 {
     ast->child = child;
 }
-

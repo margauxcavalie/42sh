@@ -13,7 +13,6 @@ static enum parser_status handle_parse_error(enum parser_status status,
     return status;
 }
 
-
 /**
  * @brief temporary version
  * shell_command: rule_if
