@@ -12,8 +12,8 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
     struct matching_op lookup_table[] = {
-        { ";", 1, .data = { OP_SEMICOLON } },
-        { "\n", 1, .data = { OP_LINEFEED } },
+        { ";", 1, .data = { OP_SEMICOLON, .data.null = NULL } },
+        { "\n", 1, .data = { OP_LINEFEED } .data.null = NULL },
         { "<", 1, .data = { OP_REDIR, .data.redir_type = REDIR_LESS } },
         { ">", 1, .data = { OP_REDIR, .data.redir_type = REDIR_GREAT } }
     };
@@ -27,7 +27,7 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
         count += 1;
     }
     // if we do not match any of the possible operator
-    struct op_data unknown_op = { OP_UNKNOWN };
+    struct op_data unknown_op = { OP_UNKNOWN, .data.null = NULL };
     return unknown_op;
 }
 

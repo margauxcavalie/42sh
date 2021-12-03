@@ -24,6 +24,7 @@ struct token
         struct op_data op_data;
         int io_number;
         char *word;
+        void *null;
     } data;
 };
 
