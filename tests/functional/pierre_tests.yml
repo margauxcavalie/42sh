@@ -126,3 +126,33 @@ name: c_ifchiant
 cmd: ./42sh -c "if true; then if true; then if true; then echo -n oui; fi; fi ;fi"
 stdout: "oui"
 status: 0
+---
+name: c_testbackslash
+cmd: ./42sh -c "if\"\" echo hello; then true; fi"
+stderr: "42sh: unexpected token\n"
+status: 2
+---
+name: c_testbackslash2
+cmd: ./42sh -c "\if echo hello; then true; fi"
+stderr: "42sh: unexpected token\n"
+status: 2
+---
+name: c_testbackslash3
+cmd: ./42sh -c "echo \'"
+stdout: "\'\n"
+status: 0
+---
+name: c_testbackslash4
+cmd: ./42sh -c "\'echo'"
+stderr: "42sh: Syntax error\n"
+status: 2
+---
+name: c_testbackslash5
+cmd: ./42sh -c "\'echo\'"
+stderr: "42sh: command not found: 'echo'\n"
+status: 127
+---
+name: c_testbackslash6
+cmd: ./42sh -c "'echo \'"
+stderr: "42sh: command not found: echo \\\n"
+status: 127
