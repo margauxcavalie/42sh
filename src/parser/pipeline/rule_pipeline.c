@@ -12,7 +12,7 @@
  * @return
  */
 enum parser_status parse_rule_pipeline(struct ast_node **ast,
-                                           struct lexer **lexer)
+                                       struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
@@ -38,7 +38,8 @@ enum parser_status parse_rule_pipeline(struct ast_node **ast,
         }
 
         struct ast_node *ast_child = NULL;
-        enum parser_status status = parse_rule_cmd(&ast_child, lexer); // command
+        enum parser_status status =
+            parse_rule_cmd(&ast_child, lexer); // command
         if (status != PARSER_OK)
             break;
         ast_pipeline_add_ast(ast_pipeline, ast_child);

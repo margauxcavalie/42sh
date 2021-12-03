@@ -1,12 +1,14 @@
-#include "ast_test.h"
-
 #include <criterion/criterion.h>
 #include <criterion/redirect.h>
 #include <parser/pipeline/ast_pipeline.h>
 #include <vector/vector.h>
 
+#include "ast_test.h"
+
 Test(ast_pipeline, empty)
 {
+    // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty pipeline ast
     struct ast_pipeline *ast = ast_pipeline_init();
     cr_assert_eq(ast->ast_list->size, 0);
@@ -15,16 +17,19 @@ Test(ast_pipeline, empty)
     // test print
     (*(ast->base.node_print))((struct ast_node *)ast, pc);
     // test exec
-    int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    int res = (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     cr_assert_eq(res, 0);
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_pipeline, one_ast)
 {
+    // Runtime struct
+    struct runtime *rt = runtime_init();
     // redirect stdout
     cr_redirect_stdout();
     // init an empty pipeline ast
@@ -43,10 +48,11 @@ Test(ast_pipeline, one_ast)
     cr_assert_stdout_eq_str("ast_test: print");
 
     // test exec
-    //int res = (*(ast->base.node_exec))((struct ast_node *)ast);
-    //cr_assert_eq(res, 666);
+    // int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    // cr_assert_eq(res, 666);
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }

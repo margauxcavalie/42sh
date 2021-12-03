@@ -1,10 +1,10 @@
 #include "ast_pipeline.h"
 
-#include <stdio.h>
-#include <unistd.h>
 #include <err.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include <utils/alloc.h>
 #include <vector/vector.h>
 
@@ -38,7 +38,7 @@ void ast_pipeline_print(struct ast_node *ast, struct print_context pc)
  * @param v vector of command
  * @return integer (0 if successful, -1 otherwise)
  */
-static int ast_pipeline_exec_child(struct vector *v)
+static int ast_pipeline_exec_child(struct vector *v, struct runtime *rt)
 {
     int last_return_code = 0;
     for (size_t i = 0; i < v->size - 1; i++)
@@ -49,7 +49,7 @@ static int ast_pipeline_exec_child(struct vector *v)
         if (pid == 0)
         {
             dup2(pipefds[1], STDOUT_FILENO);
-            exit(ast_node_exec(v->data[i]));
+            exit(ast_node_exec(v->data[i], rt));
         }
         else
         {
@@ -60,23 +60,18 @@ static int ast_pipeline_exec_child(struct vector *v)
             close(pipefds[1]);
         }
     }
-    last_return_code = ast_node_exec(v->data[v->size - 1]);
+    last_return_code = ast_node_exec(v->data[v->size - 1], rt);
     return last_return_code;
 }
 
-int ast_pipeline_exec(struct ast_node *ast)
+int ast_pipeline_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_pipeline *ast_pipeline = (struct ast_pipeline *)ast;
     struct vector *v = ast_pipeline->ast_list;
     if (v->size == 0) // Vector is empty
         return 0;
 
-    if (!v || v->size == 0) // Vector is empty or non-existent
-    { // usually impossible since a command list must have at least 1 command
-        return 1;
-    }
-
-    return ast_pipeline_exec_child(v);
+    return ast_pipeline_exec_child(v, rt);
 }
 
 struct ast_pipeline *ast_pipeline_init(void)

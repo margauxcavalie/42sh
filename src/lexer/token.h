@@ -27,8 +27,6 @@ struct token
     } data;
 };
 
-
-
 /**
  * \brief Allocate a new token word
  */

@@ -2,8 +2,8 @@
 #include <lexer/lexer.h>
 #include <parser/parser.h>
 #include <prelexer/prelexer.h>
-#include <stdio.h>
 #include <runtime.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {

@@ -10,7 +10,7 @@
 //
 Test(ast_while, empty)
 {
-     // Runtime struct
+    // Runtime struct
     struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
@@ -34,7 +34,7 @@ Test(ast_while, empty)
 
 Test(ast_while, print_test)
 {
-     // Runtime struct
+    // Runtime struct
     struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
@@ -60,7 +60,7 @@ Test(ast_while, print_test)
 
 Test(ast_while, print_test_concret)
 {
-     // Runtime struct
+    // Runtime struct
     struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
@@ -90,7 +90,7 @@ Test(ast_while, print_test_concret)
 
 Test(ast_while, exec_test_concret)
 {
-     // Runtime struct
+    // Runtime struct
     struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
@@ -123,7 +123,7 @@ Test(ast_while, exec_test_concret)
 //
 Test(ast_until, empty)
 {
-     // Runtime struct
+    // Runtime struct
     struct runtime *rt = runtime_init();
     // init an empty AST until
     struct ast_while_until *ast = ast_until_init();
@@ -147,7 +147,7 @@ Test(ast_until, empty)
 
 Test(ast_until, print_test_concret)
 {
-     // Runtime struct
+    // Runtime struct
     struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_until_init();
@@ -177,7 +177,7 @@ Test(ast_until, print_test_concret)
 
 Test(ast_until, exec_test_concret)
 {
-     // Runtime struct
+    // Runtime struct
     struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_until_init();

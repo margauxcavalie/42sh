@@ -41,7 +41,7 @@ void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
 
 int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
 {
-    rt->last_status = rt->last_status + 1 - 1;// TMP
+    rt->last_status = rt->last_status + 1 - 1; // TMP
     struct ast_simple_cmd *ast_simple_cmd = (struct ast_simple_cmd *)ast;
 
     // If there is nothing in the AST, do nothing

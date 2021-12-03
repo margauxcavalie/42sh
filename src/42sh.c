@@ -4,11 +4,11 @@
 #include <lexer/lexer.h>
 #include <parser/parser.h>
 #include <prelexer/prelexer.h>
+#include <runtime.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <utils/vec.h>
-#include <runtime.h>
 
 /**
  * \brief Parse the command line arguments

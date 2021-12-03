@@ -1,8 +1,8 @@
 #pragma once
 
 #include <lexer/lexer.h>
-#include <stddef.h>
 #include <runtime.h>
+#include <stddef.h>
 
 enum ast_type
 {
