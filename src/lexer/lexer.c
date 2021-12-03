@@ -34,11 +34,13 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
 static enum rw_type match_rw_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
-    struct matching_rw lookup_table[] = { { "if", 2, RW_IF },
-                                          { "then", 4, RW_THEN },
-                                          { "elif", 4, RW_ELIF },
-                                          { "else", 4, RW_ELSE },
-                                          { "fi", 2, RW_FI } };
+    struct matching_rw lookup_table[] = {
+        { "if", 2, RW_IF },      { "then", 4, RW_THEN },
+        { "elif", 4, RW_ELIF },  { "else", 4, RW_ELSE },
+        { "fi", 2, RW_FI },      { "while", 5, RW_WHILE },
+        { "do", 2, RW_DO },      { "done", 4, RW_DONE },
+        { "until", 5, RW_UNTIL }
+    };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
     size_t count = 0;
     while (count < lt_size)
@@ -95,8 +97,8 @@ struct token *get_next_token(struct lexer *lexer)
         if (new_pretoken->is_quoted == 0)
             rw_type = match_rw_type(new_pretoken);
 
-        if (rw_type
-            != RW_UNKNOWN) // if the syntax matches the one of a reserve word
+        // if the syntax matches the one of a reserved word
+        if (rw_type != RW_UNKNOWN)
         {
             bool is_rw = false;
             if (current_line_index == 0) // first token of the command

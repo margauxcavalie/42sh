@@ -15,6 +15,27 @@ enum token_type
     TOKEN_EOF
 };
 
+enum op_type
+{
+    OP_UNKNOWN,
+    OP_SEMICOLON,
+    OP_LINEFEED
+};
+
+enum rw_type
+{
+    RW_UNKNOWN,
+    RW_IF,
+    RW_FI,
+    RW_THEN,
+    RW_ELIF,
+    RW_ELSE,
+    RW_WHILE,
+    RW_DO,
+    RW_DONE,
+    RW_UNTIL
+};
+
 struct token
 {
     enum token_type type;

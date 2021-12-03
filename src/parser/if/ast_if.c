@@ -61,7 +61,7 @@ int ast_if_exec(struct ast_node *ast, struct runtime *rt)
 }
 
 /**
- * @brief Initializes a cmd_list AST. Its vector has a size 5
+ * @brief Initializes an AST if. Its vector has a size 5
  */
 struct ast_if *ast_if_init()
 {
