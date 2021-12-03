@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <utils/vec.h>
+#include <runtime.h>
 
 /**
  * \brief Parse the command line arguments
@@ -59,7 +60,7 @@ static struct cstream *parse_args(int argc, char *argv[], char **to_free,
     return NULL;
 }
 
-static int execution(const char *script, bool pretty_print)
+static void execution(const char *script, struct runtime *rt, bool pretty_print)
 {
     struct pretoken_vector *pretoken = prelexify(script);
     if (pretoken == NULL)
@@ -79,12 +80,13 @@ static int execution(const char *script, bool pretty_print)
         if (pretty_print)
             ast_node_print(ast);
         else
-            return_code = ast_node_exec(ast);
+            return_code = ast_node_exec(ast, rt);
         ast_node_free(ast);
     }
 
+    // set the last return code
+    runtime_set_status(rt, return_code);
     lexer_free(lexer);
-    return return_code;
 }
 
 /**
@@ -96,7 +98,8 @@ static int runtime(struct cstream *cs, bool pretty_print)
     struct vec vec;
     vec_init(&vec);
 
-    int status_code = 0;
+    // Runtime struct
+    struct runtime *rt = runtime_init();
 
     enum error err;
     while (true)
@@ -116,15 +119,18 @@ static int runtime(struct cstream *cs, bool pretty_print)
 
         if (c == '\0')
         {
-            status_code = execution(vec.data, pretty_print);
+            execution(vec.data, rt, pretty_print);
             // restore vector
             vec_reset(&vec);
         }
     }
 
-    status_code = execution(vec.data, pretty_print);
+    execution(vec.data, rt, pretty_print);
 
     vec_destroy(&vec);
+
+    int status_code = rt->last_status;
+    runtime_free(rt);
     return status_code;
 }
 

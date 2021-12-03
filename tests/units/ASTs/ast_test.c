@@ -21,7 +21,8 @@ void ast_test_print(__attribute__((unused)) struct ast_node *ast,
     printf("ast_test: print");
 }
 
-int ast_test_exec(__attribute__((unused)) struct ast_node *ast)
+int ast_test_exec(__attribute__((unused)) struct ast_node *ast,
+                  __attribute__((unused)) struct runtime *rt)
 {
     return 666;
 }

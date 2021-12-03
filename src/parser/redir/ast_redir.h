@@ -13,7 +13,7 @@ struct ast_redir
 };
 
 struct ast_redir *ast_redir_init();
-int ast_redir_exec(struct ast_node *ast);
+int ast_redir_exec(struct ast_node *ast, struct runtime *rt);
 void ast_redir_print(struct ast_node *ast, struct print_context pc);
 void ast_redir_free(struct ast_node *ast);
 

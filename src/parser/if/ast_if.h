@@ -11,7 +11,7 @@ struct ast_if
 };
 
 struct ast_if *ast_if_init();
-int ast_if_exec(struct ast_node *ast);
+int ast_if_exec(struct ast_node *ast, struct runtime *rt);
 void ast_if_print(struct ast_node *ast, struct print_context pc);
 void ast_if_free(struct ast_node *ast);
 
