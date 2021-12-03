@@ -60,27 +60,27 @@ status: 0
 ---
 name: c_echo_linefeed
 cmd: ./42sh -c "echo \\n"
-stdout: "\\n\n"
+stdout: "n\n"
 status: 0
 ---
 name: c_echo_linefeed_opte
-cmd: ./42sh -c "echo -e \\n"
+cmd: ./42sh -c "echo -e \\\n"
 stdout: "\n\n"
 status: 0
 ---
 name: c_echo_tab
-cmd: ./42sh -c "echo \\t"
-stdout: "\\t\n"
+cmd: ./42sh -c "echo \t"
+stdout: "t\n"
 status: 0
 ---
 name: c_echo_tab_opte
-cmd: ./42sh -c "echo -e \\t"
+cmd: ./42sh -c "echo -e \\\t"
 stdout: "\t\n"
 status: 0
 ---
 name: c_echo_backslash
-cmd: /bin/sh -c "echo \\\\"
-stdout: "\\\n"
+cmd: ./42sh -c "echo \\\\\\\\"
+stdout: "\\\\\n"
 status: 0
 ---
 name: c_echo_backslash_opte

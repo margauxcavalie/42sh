@@ -111,11 +111,24 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
 
     while (!(is_separator(str[counter])) && !is_operator(str + counter))
     {
+        char c = 0;
         // quotes
         if (str[counter] == '\'')
         {
+            // mark the quotes
+            *is_quoted = 1;
+            c = '\'';
+        }
+        if (str[counter] == '\"')
+        {
+            // mark the dbl quotes
+            *is_quoted = 2;
+            c = '\"';
+        }
+        if (c != 0)
+        {
             int tmp = counter;
-            if (skip_quotes(str, &counter, '\'') == false)
+            if (skip_quotes(str, &counter, c) == false)
             {
                 // ERROR: quote is not paired
                 vec_destroy(curr_token);
@@ -124,8 +137,6 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
             }
             else
             {
-                // mark the quotes
-                *is_quoted = 1;
                 // add the quoted content to the curr token
                 for (int i = tmp + 1; i < counter; i++)
                     vec_push(curr_token, str[i]);
@@ -134,7 +145,19 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
         }
         else // add the char to the token and proceed to the next one
         {
-            vec_push(curr_token, str[counter]);
+            if (str[counter] == '\\')
+            {
+                if (str[counter + 1] != '\0' && str[counter + 1] != EOF)
+                {
+                    counter += 1;
+                    vec_push(curr_token, str[counter]);
+                    *is_quoted = 1;
+                }
+            }
+            else
+            {
+                vec_push(curr_token, str[counter]);
+            }
             counter += 1;
         }
     }
@@ -198,7 +221,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     }
     size_t word_size = strlen(word);
     struct pretoken *new = pretoken_new(PRETOKEN_WORD, word, word_size);
-    new->is_quoted = is_quoted;
+    new->is_quoted = is_quoted; // 0: no quotes, 1 single quotes, 2 dbl quotes
     free(word);
     free(operators_cpy);
     return new;
