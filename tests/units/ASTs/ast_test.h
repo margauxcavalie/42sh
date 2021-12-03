@@ -24,6 +24,7 @@ struct ast_test_node *ast_test_init(void);
 
 void ast_decrem_free(__attribute__((unused)) struct ast_node *ast);
 void ast_decrem_print(__attribute__((unused)) struct ast_node *ast,
-                      __attribute__((unused)) struct print_context pc);
-int ast_decrem_exec(__attribute__((unused)) struct ast_node *ast);
+                      struct print_context pc);
+int ast_decrem_exec(struct ast_node *ast,
+                    __attribute__((unused)) struct runtime *rt);
 struct ast_decrem_node *ast_decrem_init(void);

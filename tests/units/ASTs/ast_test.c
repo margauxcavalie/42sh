@@ -58,13 +58,14 @@ void ast_decrem_free(__attribute__((unused)) struct ast_node *ast)
  * @brief Prints the content of an AST tests.
  */
 void ast_decrem_print(__attribute__((unused)) struct ast_node *ast,
-                      __attribute__((unused)) struct print_context pc)
+                      struct print_context pc)
 {
     ast_node_print_indent(pc.indent);
     printf("ast_test_decrem: print");
 }
 
-int ast_decrem_exec(__attribute__((unused)) struct ast_node *ast)
+int ast_decrem_exec(struct ast_node *ast,
+                    __attribute__((unused)) struct runtime *rt)
 {
     struct ast_decrem_node *decrem = (struct ast_decrem_node *)ast;
     return (((decrem->integer)-- == 0) ? (1) : (0));

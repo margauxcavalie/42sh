@@ -10,6 +10,8 @@
 //
 Test(ast_while, empty)
 {
+     // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
     struct print_context pc = { 0 };
@@ -21,16 +23,19 @@ Test(ast_while, empty)
     cr_assert_stdout_eq_str("while {\n\n};\ndo {\n\n};");
 
     // test exec
-    int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    int res = (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     cr_assert_eq(res, 0);
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_while, print_test)
 {
+     // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
     struct print_context pc = { 0 };
@@ -50,10 +55,13 @@ Test(ast_while, print_test)
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_while, print_test_concret)
 {
+     // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
 
@@ -77,10 +85,13 @@ Test(ast_while, print_test_concret)
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_while, exec_test_concret)
 {
+     // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_while_init();
 
@@ -95,13 +106,14 @@ Test(ast_while, exec_test_concret)
 
     // test exec
     cr_redirect_stdout();
-    (*(ast->base.node_exec))((struct ast_node *)ast);
+    (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     fflush(stdout);
     cr_assert_stdout_eq_str("teckel\nteckel\nteckel\n");
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 //
 //
@@ -111,6 +123,8 @@ Test(ast_while, exec_test_concret)
 //
 Test(ast_until, empty)
 {
+     // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty AST until
     struct ast_while_until *ast = ast_until_init();
     struct print_context pc = { 0 };
@@ -122,16 +136,19 @@ Test(ast_until, empty)
     cr_assert_stdout_eq_str("until {\n\n};\ndo {\n\n};");
 
     // test exec
-    int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    int res = (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     cr_assert_eq(res, 0);
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_until, print_test_concret)
 {
+     // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_until_init();
 
@@ -155,10 +172,13 @@ Test(ast_until, print_test_concret)
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_until, exec_test_concret)
 {
+     // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty AST while
     struct ast_while_until *ast = ast_until_init();
 
@@ -173,7 +193,7 @@ Test(ast_until, exec_test_concret)
 
     // test exec
     cr_redirect_stdout();
-    int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    int res = (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     fflush(stdout);
     cr_assert_stdout_eq_str("husky\n");
     cr_assert_eq(res, 0);
@@ -181,4 +201,5 @@ Test(ast_until, exec_test_concret)
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
