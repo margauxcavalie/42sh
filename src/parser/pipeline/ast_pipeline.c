@@ -38,45 +38,29 @@ void ast_pipeline_print(struct ast_node *ast, struct print_context pc)
  * @param v vector of command
  * @return integer (0 if successful, -1 otherwise)
  */
-static int ast_pipeline_exec_child(int *pipefds, struct vector *v)
+static int ast_pipeline_exec_child(struct vector *v)
 {
     int last_return_code = 0;
-    // int saved_stdout = dup(1);
-    // int saved_stdin = dup(0);
-    for (size_t i = 0; i < v->size; i++)
+    for (size_t i = 0; i < v->size - 1; i++)
     {
-        if (i == 0) // i is the first command
+        int pipefds[2];
+        pipe(pipefds);
+        pid_t pid = fork();
+        if (pid == 0)
         {
-            // redirect to pipe STDOUT
-            int saved_stdout = dup(1);
-            if (dup2(pipefds[1], STDOUT_FILENO) == -1)
-                return 127;
-            ast_node_exec(v->data[i]);
-            dup2(saved_stdout, 1);
-            close(saved_stdout);
-        }
-        else if (i == v->size - 1) // i is the last command
-        {
-            // take from pipe STDIN
-            int saved_stdin = dup(0);
-            if (dup2(pipefds[0], STDIN_FILENO) == -1)
-                return 127;
-            last_return_code = ast_node_exec(v->data[i]);
-            dup2(saved_stdin, 0);
-            close(saved_stdin);
+            dup2(pipefds[1], STDOUT_FILENO);
+            exit(ast_node_exec(v->data[i]));
         }
         else
         {
-            // take from pipe STDIN
-            if (dup2(pipefds[0], STDIN_FILENO) == -1)
-                return 127;
-            // redirect to pipe STDOUT
-            if (dup2(pipefds[1], STDOUT_FILENO) == -1)
-                return 127;
-            ast_node_exec(v->data[i]);
+            int wstatus;
+            waitpid(pid, &wstatus, 0);
+            last_return_code = WEXITSTATUS(wstatus);
+            dup2(pipefds[0], STDIN_FILENO);
+            close(pipefds[1]);
         }
     }
-
+    last_return_code = ast_node_exec(v->data[v->size - 1]);
     return last_return_code;
 }
 
@@ -92,7 +76,7 @@ int ast_pipeline_exec(struct ast_node *ast)
         return 1;
     }
 
-    return ast_pipeline_exec_child(ast_pipeline->pipefds, v);
+    return ast_pipeline_exec_child(v);
 }
 
 struct ast_pipeline *ast_pipeline_init(void)
@@ -108,7 +92,6 @@ struct ast_pipeline *ast_pipeline_init(void)
     base->node_exec = &ast_pipeline_exec;
 
     new_ast->ast_list = vector_init(5);
-    pipe(new_ast->pipefds);
     return new_ast;
 }
 

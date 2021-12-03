@@ -6,7 +6,6 @@ struct ast_pipeline
 {
     struct ast_node base; // not a pointer
     struct vector *ast_list;
-    int pipefds[2];
 };
 
 struct ast_pipeline *ast_pipeline_init(void);

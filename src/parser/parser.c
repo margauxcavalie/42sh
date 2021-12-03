@@ -72,15 +72,6 @@ error:
 enum parser_status parse(struct ast_node **ast, struct lexer **lexer)
 {
     enum parser_status status =
-        parse_rule_pipeline(ast, lexer);
-    
-    if (status != PARSER_OK)
-        return handle_parse_error(PARSER_UNEXPECTED_TOKEN, ast);
-
-    return PARSER_OK;
-
-    /*
-    enum parser_status status =
         parse_rule_command_list(ast, lexer); // simple command
     if (status == PARSER_OK) // not a simple command
     {
