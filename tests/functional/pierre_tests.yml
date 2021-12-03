@@ -156,3 +156,23 @@ name: c_testbackslash6
 cmd: ./42sh -c "'echo \'"
 stderr: "42sh: command not found: echo \\\n"
 status: 127
+---
+name: c_testbackslash7
+cmd: ./42sh -c "\echo oui"
+stdout: "oui\n"
+status: 0
+---
+name: c_testbackslash8
+cmd: ./42sh -c "echo \\\\"
+stdout: "\\\n"
+status: 0
+---
+name: c_testbackslash9
+cmd: ./42sh -c "echo '\\\\'"
+stdout: "\\\\\n"
+status: 0
+---
+name: c_testbackslash10
+cmd: ./42sh -c "echo \if"
+stdout: "if\n"
+status: 0
