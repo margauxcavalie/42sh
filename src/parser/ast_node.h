@@ -2,14 +2,18 @@
 
 #include <lexer/lexer.h>
 #include <stddef.h>
+#include <runtime.h>
 
 enum ast_type
 {
     AST_TEST, // For the units tests
+    AST_DECREM, // For the units tests
     AST_SIMPLE_CMD,
     AST_CMD_LIST,
     AST_IF,
     AST_PIPELINE,
+    AST_WHILE,
+    AST_REDIR,
 };
 
 struct print_context
@@ -29,7 +33,7 @@ struct ast_node
     // pointeur de fonction pour print
     void (*node_print)(struct ast_node *node, struct print_context pc);
     // pointeur de fonction pour free
-    int (*node_exec)(struct ast_node *node);
+    int (*node_exec)(struct ast_node *node, struct runtime *rt);
 };
 
 void ast_node_free(void *ptr);
@@ -39,4 +43,4 @@ void ast_node_print_rec(void *ptr, struct print_context pc);
 void ast_node_print(void *ptr);
 void ast_node_print_indent(int indent);
 
-int ast_node_exec(void *ptr);
+int ast_node_exec(void *ptr, struct runtime *rt);

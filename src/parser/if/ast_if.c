@@ -46,22 +46,22 @@ void ast_if_print(struct ast_node *ast, struct print_context pc)
     }
 }
 
-int ast_if_exec(struct ast_node *ast)
+int ast_if_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_if *ast_if = (struct ast_if *)ast;
-    if (!ast_node_exec(ast_if->condition)) // if it returns 0
+    if (!ast_node_exec(ast_if->condition, rt)) // if it returns 0
     {
-        return ast_node_exec(ast_if->if_body);
+        return ast_node_exec(ast_if->if_body, rt);
     }
     if (ast_if->else_body != NULL)
     {
-        return ast_node_exec(ast_if->else_body);
+        return ast_node_exec(ast_if->else_body, rt);
     }
     return 0;
 }
 
 /**
- * @brief Initializes a cmd_list AST. Its vector has a size 5
+ * @brief Initializes an AST if. Its vector has a size 5
  */
 struct ast_if *ast_if_init()
 {

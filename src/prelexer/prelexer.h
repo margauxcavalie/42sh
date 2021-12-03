@@ -42,7 +42,7 @@ void append_pretoken_list(struct pretoken_vector *vec,
  * @brief
  * @param input Raw string from the user
  */
-struct pretoken_vector *prelexify(char *input);
+struct pretoken_vector *prelexify(char const *input);
 
 /**
  * @brief pretty print of the pretoken list

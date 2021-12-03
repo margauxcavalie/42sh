@@ -13,7 +13,7 @@ struct ast_simple_cmd
 
 void ast_simple_cmd_free(struct ast_node *ast);
 void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc);
-int ast_simple_cmd_exec(struct ast_node *ast);
+int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt);
 struct ast_simple_cmd *ast_simple_cmd_init(void);
 struct ast_simple_cmd *ast_simple_cmd_add_param(struct ast_simple_cmd *ast,
                                                 char *param);

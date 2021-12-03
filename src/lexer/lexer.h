@@ -24,7 +24,7 @@ struct matching_op
 {
     const char *str;
     size_t len;
-    enum op_type type;
+    struct op_data data;
 };
 
 /**

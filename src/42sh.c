@@ -8,18 +8,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <utils/vec.h>
+#include <runtime.h>
 
 /**
  * \brief Parse the command line arguments
  * \return A character stream
  */
 static struct cstream *parse_args(int argc, char *argv[], char **to_free,
-                                  int *pretty_print)
+                                  bool *pretty_print)
 {
     if (argc >= 2
         && strcmp(argv[1], "--pretty-print") == 0) // temporary it's ugly
     {
-        *pretty_print = 1;
+        *pretty_print = true;
         argc -= 1;
     }
 
@@ -59,12 +60,47 @@ static struct cstream *parse_args(int argc, char *argv[], char **to_free,
     return NULL;
 }
 
+static void execution(const char *script, struct runtime *rt, bool pretty_print)
+{
+    struct pretoken_vector *pretoken = prelexify(script);
+    if (pretoken == NULL)
+        errx(2, "Syntax error");
+
+    struct lexer *lexer = lexer_new(pretoken);
+    struct ast_node *ast = NULL;
+    enum parser_status status = parse(&ast, &lexer);
+
+    int return_code = 0;
+    if (status == PARSER_UNEXPECTED_TOKEN)
+    {
+        return_code = 2;
+    }
+    else
+    {
+        if (pretty_print)
+            ast_node_print(ast);
+        else
+            return_code = ast_node_exec(ast, rt);
+        ast_node_free(ast);
+    }
+
+    // set the last return code
+    runtime_set_status(rt, return_code);
+    lexer_free(lexer);
+}
+
 /**
  * \brief Read and exec until EOF
  * \return An error code
  */
-static int execution(struct cstream *cs, struct vec *vec, int pretty_print)
+static int runtime(struct cstream *cs, bool pretty_print)
 {
+    struct vec vec;
+    vec_init(&vec);
+
+    // Runtime struct
+    struct runtime *rt = runtime_init();
+
     enum error err;
     while (true)
     {
@@ -73,56 +109,35 @@ static int execution(struct cstream *cs, struct vec *vec, int pretty_print)
         if ((err = cstream_pop(cs, &c)))
             return err;
 
-        // If the end of file was reached, add a '\0'
         if (c == EOF)
         {
-            vec_push(vec, '\0');
+            vec_push(&vec, '\0');
             break;
         }
 
-        vec_push(vec, c);
+        vec_push(&vec, c);
+
+        if (c == '\0')
+        {
+            execution(vec.data, rt, pretty_print);
+            // restore vector
+            vec_reset(&vec);
+        }
     }
 
-    // printf("vec->data : %s", vec->data);
-    // write(STDOUT_FILENO, vec->data, vec->size - 1);
-    struct pretoken_vector *pretoken = prelexify(vec->data);
-    if (pretoken == NULL)
-        errx(2, "Syntax error");
-    vec_reset(vec);
-    struct lexer *lexer = lexer_new(pretoken);
-    struct ast_node *ast = NULL;
-    enum parser_status status = parse(&ast, &lexer);
+    execution(vec.data, rt, pretty_print);
 
-    // printf("parser status = %d\n", status);
+    vec_destroy(&vec);
 
-    int return_code = 0;
-    if (status == PARSER_UNEXPECTED_TOKEN)
-    {
-        return_code = 2;
-    }
-    else if (ast == NULL)
-    {
-        return_code = 0;
-    }
-    else
-    {
-        if (pretty_print)
-            ast_node_print(ast);
-        else
-            return_code = ast_node_exec(ast);
-
-        // printf("Exited with status code %d\n", return_code);
-        ast_node_free(ast);
-    }
-
-    lexer_free(lexer);
-    return return_code;
+    int status_code = rt->last_status;
+    runtime_free(rt);
+    return status_code;
 }
 
 int main(int argc, char *argv[])
 {
     int rc;
-    int pretty_print = 0;
+    bool pretty_print = false;
     char *to_free = NULL;
 
     // Parse command line arguments and get an input stream
@@ -133,18 +148,13 @@ int main(int argc, char *argv[])
         goto err_parse_args;
     }
 
-    // Create a vector to hold the current line
-    struct vec line;
-    vec_init(&line);
-
-    rc = execution(cs, &line, pretty_print); // return code
+    rc = runtime(cs, pretty_print); // return code
 
     // err_loop:
     if (to_free != NULL) // éventuellement faire quelque chose de plus propre
         free(to_free);
     cstream_string_free(cs);
-    // cstream_free(cs);
-    vec_destroy(&line);
+
 err_parse_args:
     return rc;
 }

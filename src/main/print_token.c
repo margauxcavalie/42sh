@@ -16,7 +16,9 @@ int main(int argc, char *argv[])
     while (token->type != TOKEN_EOF)
     {
         if (token->type == TOKEN_WORD)
+        {
             printf("W ");
+        }
         if (token->type == TOKEN_RW)
             printf("RW ");
         if (token->type == TOKEN_OP)

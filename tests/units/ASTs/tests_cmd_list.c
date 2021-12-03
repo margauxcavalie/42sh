@@ -22,6 +22,8 @@
 
 Test(ast_cmd_list, empty)
 {
+    // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty cmd_list ast
     struct ast_cmd_list *ast = ast_cmd_list_init();
     cr_assert_eq(ast->ast_list->size, 0);
@@ -30,16 +32,19 @@ Test(ast_cmd_list, empty)
     // test print
     (*(ast->base.node_print))((struct ast_node *)ast, pc);
     // test exec
-    int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    int res = (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     cr_assert_eq(res, 0);
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_cmd_list, one_ast)
 {
+    // Runtime struct
+    struct runtime *rt = runtime_init();
     // redirect stdout
     cr_redirect_stdout();
     // init an empty cmd_list ast
@@ -58,16 +63,19 @@ Test(ast_cmd_list, one_ast)
     cr_assert_stdout_eq_str("ast_test: print");
 
     // test exec
-    int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    int res = (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     cr_assert_eq(res, 666);
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }
 
 Test(ast_cmd_list, two_ast)
 {
+    // Runtime struct
+    struct runtime *rt = runtime_init();
     // init an empty cmd_list ast
     struct ast_cmd_list *ast = ast_cmd_list_init();
     // add test ast
@@ -91,10 +99,11 @@ Test(ast_cmd_list, two_ast)
     cr_assert_stdout_eq_str("ast_test: print;\nast_test: print");
 
     // test exec
-    int res = (*(ast->base.node_exec))((struct ast_node *)ast);
+    int res = (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     cr_assert_eq(res, 666);
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);
     free(ast);
+    runtime_free(rt);
 }

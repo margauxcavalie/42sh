@@ -8,33 +8,40 @@
 #include <string.h>
 #include <utils/alloc.h>
 
-enum op_type match_op_type(struct pretoken *new_pretoken)
+static struct op_data match_op_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
-    struct matching_op lookup_table[] = { { ";", 1, OP_SEMICOLON },
-                                          { "\n", 1, OP_LINEFEED },
-                                          { "|", 1, OP_PIPE } };
+    struct matching_op lookup_table[] = {
+        { ";", 1, .data = { OP_SEMICOLON, .data.null = NULL } },
+        { "\n", 1, .data = { OP_LINEFEED, .data.null = NULL } },
+        { "<", 1, .data = { OP_REDIR, .data.redir_type = REDIR_LESS } },
+        { ">", 1, .data = { OP_REDIR, .data.redir_type = REDIR_GREAT } },
+        { "|", 1, .data = { OP_PIPE, .data.null = NULL } },
+    };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
     size_t count = 0;
     while (count < lt_size)
     {
         // if we match the content of the lookup table
         if (strcmp(lookup_table[count].str, new_pretoken->str) == 0)
-            return lookup_table[count].type;
+            return lookup_table[count].data;
         count += 1;
     }
     // if we do not match any of the possible operator
-    return OP_UNKNOWN;
+    struct op_data unknown_op = { OP_UNKNOWN, .data.null = NULL };
+    return unknown_op;
 }
 
-enum rw_type match_rw_type(struct pretoken *new_pretoken)
+static enum rw_type match_rw_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
-    struct matching_rw lookup_table[] = { { "if", 2, RW_IF },
-                                          { "then", 4, RW_THEN },
-                                          { "elif", 4, RW_ELIF },
-                                          { "else", 4, RW_ELSE },
-                                          { "fi", 2, RW_FI } };
+    struct matching_rw lookup_table[] = {
+        { "if", 2, RW_IF },      { "then", 4, RW_THEN },
+        { "elif", 4, RW_ELIF },  { "else", 4, RW_ELSE },
+        { "fi", 2, RW_FI },      { "while", 5, RW_WHILE },
+        { "do", 2, RW_DO },      { "done", 4, RW_DONE },
+        { "until", 5, RW_UNTIL }
+    };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
     size_t count = 0;
     while (count < lt_size)
@@ -62,12 +69,19 @@ struct token *get_next_token(struct lexer *lexer)
     else if (new_pretoken->type == PRETOKEN_OPERATOR)
     {
         lexer->line_index = 0;
-        enum op_type op_type = match_op_type(new_pretoken);
-        if (op_type == OP_UNKNOWN) // ERROR : Must never occur
+        struct op_data op_data = match_op_type(new_pretoken);
+        if (op_data.type == OP_UNKNOWN) // ERROR : Must never occur
             errx(1,
                  "lexer: get_next_token: impossible error while getting the "
                  "op_type");
-        struct token *op_token = token_new_op(op_type);
+        struct token *op_token = token_new_op(op_data);
+        return op_token;
+    }
+    else if (new_pretoken->type == PRETOKEN_IONUMBER)
+    {
+        // The IONUMBER respect this syntax : [0-9]
+        int value = new_pretoken->str[0] - '0';
+        struct token *op_token = token_new_ionumber(value);
         return op_token;
     }
     else
@@ -84,8 +98,8 @@ struct token *get_next_token(struct lexer *lexer)
         if (new_pretoken->is_quoted == 0)
             rw_type = match_rw_type(new_pretoken);
 
-        if (rw_type
-            != RW_UNKNOWN) // if the syntax matches the one of a reserve word
+        // if the syntax matches the one of a reserved word
+        if (rw_type != RW_UNKNOWN)
         {
             bool is_rw = false;
             if (current_line_index == 0) // first token of the command
