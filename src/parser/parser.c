@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include <parser/pipeline/rule_pipeline.h>
+
 #include <parser/cmd_list/rules_cmd_list.h>
 #include <parser/if/rules_if.h>
 #include <parser/simple_cmd/rules_simple_cmd.h>

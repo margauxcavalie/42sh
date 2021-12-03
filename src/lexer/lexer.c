@@ -15,7 +15,8 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
         { ";", 1, .data = { OP_SEMICOLON, .data.null = NULL } },
         { "\n", 1, .data = { OP_LINEFEED, .data.null = NULL } },
         { "<", 1, .data = { OP_REDIR, .data.redir_type = REDIR_LESS } },
-        { ">", 1, .data = { OP_REDIR, .data.redir_type = REDIR_GREAT } }
+        { ">", 1, .data = { OP_REDIR, .data.redir_type = REDIR_GREAT } },
+        { "|", 1, .data = { OP_PIPE, .data.null = NULL } },
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
     size_t count = 0;

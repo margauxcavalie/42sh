@@ -1,6 +1,7 @@
 subdir('cmd_list')
 subdir('if')
 subdir('simple_cmd')
+subdir('pipeline')
 subdir('while_until')
 subdir('redir')
 

@@ -11,6 +11,7 @@ enum ast_type
     AST_SIMPLE_CMD,
     AST_CMD_LIST,
     AST_IF,
+    AST_PIPELINE,
     AST_WHILE,
     AST_REDIR,
 };
