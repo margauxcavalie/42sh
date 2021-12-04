@@ -6,6 +6,8 @@ subdir('parser')
 subdir('vector')
 subdir('builtins')
 subdir('main')
+subdir('hash_map')
+subdir('var_expansion')
 
 all_sources += files('runtime.c')
 
