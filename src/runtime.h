@@ -1,4 +1,5 @@
 #pragma once
+#include <var_expansion/var_expansion.h>
 
 /**
  *
@@ -9,6 +10,7 @@
 struct runtime
 {
     int last_status; // is the return of the last execution
+    struct hash_map *hash_map;
 };
 
 struct runtime *runtime_init();
