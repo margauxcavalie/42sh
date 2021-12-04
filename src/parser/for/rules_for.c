@@ -33,11 +33,11 @@ static enum parser_status parse_rule_for_annex(struct ast_for **ast_for,
         return PARSER_OK;
     }
     token_free(lexer_pop(*lexer));
-    
+
     while (is_word(lexer_peek(*lexer)) == true) // WORD*
     {
         // DO SOMETHING TO GET THE WORDS
-        ast_for_add_word(*ast_for, (lexer_peek(*lexer)));
+        ast_for_add_word(*ast_for, (lexer_peek(*lexer)->data.word));
         token_free(lexer_pop(*lexer));
     }
 
@@ -73,7 +73,7 @@ enum parser_status parse_rule_for(struct ast_node **ast, struct lexer **lexer)
 
     if (is_word(lexer_peek(*lexer)) == false) // WORD
         goto error;
-    ast_for_add_word(ast_for, (lexer_peek(*lexer)));
+    ast_for_set_var_name(ast_for, lexer_peek(*lexer)->data.word);
     token_free(lexer_pop(*lexer));
 
     if (is_op(lexer_peek(*lexer), OP_SEMICOLON) == true) // ';'

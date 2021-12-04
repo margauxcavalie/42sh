@@ -10,7 +10,9 @@
 void ast_for_free(struct ast_node *ast)
 {
     struct ast_for *ast_for = (struct ast_for *)ast;
-    // vector_apply_on_elts(ast_for->condition, &free);
+    if (ast_for->var_name)
+        free(ast_for->var_name);
+    vector_apply_on_elts(ast_for->condition, &free);
     vector_destroy(ast_for->condition);
     ast_node_free(ast_for->body);
 }
@@ -24,18 +26,16 @@ void ast_for_print(struct ast_node *ast, struct print_context pc)
 
     struct ast_for *ast_for = (struct ast_for *)ast;
     ast_node_print_indent(pc.indent); // add indent
-    printf("for {\n");
+    printf("for { ");
     ast_node_print_indent(pc.indent);
-    char *temp = ast_for->condition->data[0];
-    printf("%s\n", temp); // mandatory word
-    //write(STDOUT_FILENO, temp[0], 1);
+    printf("%s ", ast_for->var_name); // mandatory word
     ast_node_print_indent(pc.indent); // add indent
-    printf("} in {\n");
-    /*for (size_t i = 1; i < ast_for->condition->size; i++)
+    printf("} in { ");
+    for (size_t i = 0; i < ast_for->condition->size; i++)
     {
-        temp = ast_for->condition->data[i];
-        printf("%s\n", temp);
-    }*/
+        char *temp = ast_for->condition->data[i];
+        printf("%s ", temp);
+    }
     ast_node_print_indent(pc.indent); // add indent
     printf("};\n");
     ast_node_print_indent(pc.indent); // add indent
@@ -53,7 +53,7 @@ int ast_for_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_for *ast_for = (struct ast_for *)ast;
     size_t c;
-    for (c = ast_for->advancement + 1; c < ast_for->condition->size; c++)
+    for (c = ast_for->advancement; c < ast_for->condition->size; c++)
     {
         ast_node_exec(ast_for->body, rt);
     }
@@ -79,22 +79,25 @@ struct ast_for *ast_for_init()
     new_ast->condition = vector_init(5);
     new_ast->body = NULL;
     new_ast->advancement = 0;
+    new_ast->var_name = NULL;
     return new_ast;
 }
 
 /**
  * @brief Adds a new word to the vector
  */
-void ast_for_add_word(struct ast_for *ast, struct token *token)
+void ast_for_add_word(struct ast_for *ast, char *word)
 {
-    if (token->type == TOKEN_WORD)
-    {
-        char *elt = token->data.word;
-        ast->condition = vector_append(ast->condition, elt);
-    }
+    char *elt = strdup(word);
+    ast->condition = vector_append(ast->condition, elt);
 }
 
 void ast_for_set_body(struct ast_for *ast, struct ast_node *body)
 {
     ast->body = body;
+}
+
+void ast_for_set_var_name(struct ast_for *ast, char *name)
+{
+    ast->var_name = strdup(name);
 }

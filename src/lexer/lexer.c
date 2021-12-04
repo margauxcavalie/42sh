@@ -108,7 +108,8 @@ struct token *get_next_token(struct lexer *lexer)
                 lexer->last_rw = rw_type;
             }
             /* TODO && prevtok different than case, for, in*/
-            else if ((previus_token->type == TOKEN_RW) && (lexer->last_rw != RW_FOR))
+            else if ((previus_token->type == TOKEN_RW)
+                     && (lexer->last_rw != RW_FOR) && (lexer->last_rw != RW_IN))
             {
                 is_rw = true;
                 lexer->last_rw = rw_type;
