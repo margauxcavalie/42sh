@@ -3,6 +3,7 @@ subdir('if')
 subdir('simple_cmd')
 subdir('pipeline')
 subdir('negation')
+subdir('operators')
 subdir('while_until')
 subdir('redir')
 
