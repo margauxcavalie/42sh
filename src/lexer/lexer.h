@@ -37,6 +37,7 @@ struct lexer
     size_t pretoken_index; ///< The current index of the pretoken vector
     size_t line_index; ///< The current index of the current command
     struct token *current_tok; ///< The next token, if processed
+    enum rw_type last_rw; ///< type of the last RW encoutered
 };
 
 /**

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <lexer/lexer.h>
-#include <stddef.h>
 #include <runtime.h>
+#include <stddef.h>
 
 enum ast_type
 {
@@ -13,6 +13,7 @@ enum ast_type
     AST_IF,
     AST_WHILE,
     AST_REDIR,
+    AST_FOR,
 };
 
 struct print_context

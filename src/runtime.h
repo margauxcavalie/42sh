@@ -1,10 +1,10 @@
 #pragma once
 
 /**
- * 
- * The goal of this structure is to contain 
+ *
+ * The goal of this structure is to contain
  * all the global data needed during the runtime
- * 
+ *
  */
 
 struct runtime
