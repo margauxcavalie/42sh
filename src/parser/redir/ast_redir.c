@@ -1,8 +1,9 @@
 #include "ast_redir.h"
 
-#include <fcntl.h>
 #include <stdio.h>
 #include <utils/alloc.h>
+
+#include "redir_fd.h"
 
 /**
  * @brief Frees all the AST contains
@@ -36,7 +37,7 @@ void ast_redir_print(struct ast_node *ast, struct print_context pc)
     else if (type == REDIR_LESSGREAT)
         strcpy(redir_op, "<>");
     else if (type == REDIR_CLOBBER)
-        strcpy(redir_op, "<|");
+        strcpy(redir_op, ">|");
 
     printf(" %d%s %s", ast_redir->fd, redir_op, ast_redir->file);
 }
@@ -44,21 +45,19 @@ void ast_redir_print(struct ast_node *ast, struct print_context pc)
 int ast_redir_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_redir *ast_redir = (struct ast_redir *)ast;
-    if (ast_redir->type != REDIR_GREAT)
-        return ast_node_exec(ast_redir->child, rt);
-    // its '>'
-    ast_redir->fd = 1; // stdout
-    int fd = open(ast_redir->file, O_WRONLY | O_CREAT);
-    // TODO on error
-    int saved_stdout = dup(ast_redir->fd);
-    dup2(fd, ast_redir->fd);
+
+    int saved_fd;
+    bool is_file;
+    int file_fd = redir_in_out(ast_redir, &saved_fd, &is_file, false); // TODO
+    if (file_fd == -1)
+        return 0;
 
     int status = ast_node_exec(ast_redir->child, rt);
     fflush(stdout);
 
-    close(fd);
-    dup2(saved_stdout, ast_redir->fd);
-    close(saved_stdout);
+    dup2(saved_fd, ast_redir->fd);
+    close(saved_fd);
+    close(file_fd);
     return status;
 }
 

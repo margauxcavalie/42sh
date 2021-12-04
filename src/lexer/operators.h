@@ -23,12 +23,18 @@ enum redir_type
     REDIR_CLOBBER, // '>|'
 };
 
+struct redir_data
+{
+    enum redir_type type;
+    int default_fd;
+};
+
 struct op_data
 {
     enum op_type type;
     union
     {
-        enum redir_type redir_type;
+        struct redir_data redir_data;
         void *null;
     } data;
 };

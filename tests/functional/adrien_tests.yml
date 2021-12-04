@@ -118,4 +118,99 @@ name: c_quoted_rw
 cmd: ./42sh -c "echo ''if"
 stdout: "if\n"
 status: 0
+# REDIRECTIONS
+---
+name: c_redir_echo_into_null
+cmd: ./42sh -c "echo test > /dev/null"
+status: 0
+---
+name: c_redir_echo_into_stdout
+cmd: ./42sh -c "echo test > /dev/stdout"
+stdout: "test\n"
+status: 0
+---
+name: c_redir_echo_into_stderr
+cmd: ./42sh -c "echo test > /dev/stderr"
+stderr: "test\n"
+status: 0
+---
+name: c_redir_simple
+cmd: ./42sh -c "echo test > file_test; cat -e < file_test; rm file_test";
+stdout: "test$\n"
+status: 0
+---
+name: c_redir_error_redirect_out
+cmd: ./42sh -c "ls dedzdzedzee 2> /dev/stdout";
+stdout: "ls: cannot access 'dedzdzedzee': No such file or directory\n"
+status: 2
+---
+name: c_redir_rw_op
+cmd: ./42sh -c "echo -n ok 1>     file_test; cat -e <> file_test; rm file_test";
+stdout: "ok"
+status: 0
+---
+name: c_redir_rw_append
+cmd: ./42sh -c "echo -n ok >> file_test; echo -n ok >> file_test; cat -e < file_test; rm file_test";
+stdout: "okok"
+status: 0
+---
+name: c_redir_rw_append_and_truncate
+cmd: ./42sh -c "echo -n ok >> file_test; echo -n salut > file_test; cat -e < file_test; rm file_test";
+stdout: "salut"
+status: 0
+---
+name: c_redir_big_io
+cmd: ./42sh -c "echo salut 88>/dev/stdout";
+stdout: "salut 88\n"
+status: 0
+---
+name: c_redir_empty_error
+cmd: ./42sh -c "echo salut 2>/dev/stdout";
+stdout: "salut\n"
+status: 0
+---
+name: c_redir_noclobber_off
+cmd: ./42sh -c "echo salut >| /dev/stderr";
+stderr: "salut\n"
+status: 0
+---
+name: c_redir_and_stderr
+cmd: ./42sh -c "echo test 2>/dev/null >&2";
+stderr: ""
+status: 0
+---
+name: c_redir_and_stderr
+cmd: ./42sh -c "echo test 5>/dev/stderr >&5";
+stderr: "test\n"
+status: 0
+---
+name: c_redir_and_same
+cmd: ./42sh -c "echo test >&1";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_same1
+cmd: ./42sh -c "echo test 0>&0";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_same2
+cmd: ./42sh -c "echo test 2>&2";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_same3
+cmd: ./42sh -c "echo test 0>&0 2>&2 >&1";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_hard
+cmd: ./42sh -c "echo adrien tes trop beau 4>file_test >&4; cat < file_test; rm file_test";
+stdout: "adrien tes trop beau\n"
+status: 0
+---
+name: c_redir_and_hard2
+cmd: ./42sh -c "echo COUILLE 4>file_test 2>&4 >&2; cat 8<file_test <&8; rm file_test";
+stdout: "COUILLE\n"
+status: 0
 
