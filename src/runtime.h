@@ -6,7 +6,6 @@
  * all the global data needed during the runtime
  *
  */
-
 struct runtime
 {
     int last_status; // is the return of the last execution

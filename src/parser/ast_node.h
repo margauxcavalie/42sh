@@ -11,9 +11,12 @@ enum ast_type
     AST_SIMPLE_CMD,
     AST_CMD_LIST,
     AST_IF,
+    AST_PIPELINE,
     AST_WHILE,
     AST_REDIR,
     AST_FOR,
+    AST_NEG,
+    AST_OPERATOR,
 };
 
 struct print_context

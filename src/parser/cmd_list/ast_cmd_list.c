@@ -40,11 +40,6 @@ int ast_cmd_list_exec(struct ast_node *ast, struct runtime *rt)
     if (v->size == 0) // Vector is empty
         return 0;
 
-    if (!v || v->size == 0) // Vector is empty or non-existent
-    { // usually impossible since a command list must have at least 1 command
-        return 1;
-    }
-
     for (size_t i = 0; i < v->size - 1; i++)
     {
         ast_node_exec(v->data[i], rt);

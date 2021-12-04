@@ -3,6 +3,7 @@
 #include <parser/cmd_list/rules_cmd_list.h>
 #include <parser/for/rules_for.h>
 #include <parser/if/rules_if.h>
+#include <parser/pipeline/rule_pipeline.h>
 #include <parser/simple_cmd/rules_simple_cmd.h>
 #include <parser/while_until/rules_while_until.h>
 #include <stdio.h> // DELETE
