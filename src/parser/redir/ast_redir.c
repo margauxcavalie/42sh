@@ -42,7 +42,7 @@ void ast_redir_print(struct ast_node *ast, struct print_context pc)
     printf(" %d%s %s", ast_redir->fd, redir_op, ast_redir->file);
 }
 
-int ast_redir_exec(struct ast_node *ast)
+int ast_redir_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_redir *ast_redir = (struct ast_redir *)ast;
 
@@ -52,7 +52,7 @@ int ast_redir_exec(struct ast_node *ast)
     if (file_fd == -1)
         return 0;
 
-    int status = ast_node_exec(ast_redir->child);
+    int status = ast_node_exec(ast_redir->child, rt);
     fflush(stdout);
 
     dup2(saved_fd, ast_redir->fd);

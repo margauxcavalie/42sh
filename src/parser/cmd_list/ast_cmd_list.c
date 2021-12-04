@@ -33,24 +33,19 @@ void ast_cmd_list_print(struct ast_node *ast, struct print_context pc)
     ast_node_print_rec(v->data[v->size - 1], pc);
 }
 
-int ast_cmd_list_exec(struct ast_node *ast)
+int ast_cmd_list_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_cmd_list *ast_cmd_list = (struct ast_cmd_list *)ast;
     struct vector *v = ast_cmd_list->ast_list;
     if (v->size == 0) // Vector is empty
         return 0;
 
-    if (!v || v->size == 0) // Vector is empty or non-existent
-    { // usually impossible since a command list must have at least 1 command
-        return 1;
-    }
-
     for (size_t i = 0; i < v->size - 1; i++)
     {
-        ast_node_exec(v->data[i]);
+        ast_node_exec(v->data[i], rt);
     }
 
-    int last_return_code = ast_node_exec(v->data[v->size - 1]);
+    int last_return_code = ast_node_exec(v->data[v->size - 1], rt);
     return last_return_code;
 }
 

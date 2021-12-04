@@ -52,10 +52,12 @@ void ast_node_print(void *ptr)
     printf("\n");
 }
 
-int ast_node_exec(void *ptr)
+int ast_node_exec(void *ptr, struct runtime *rt)
 {
     if (ptr == NULL)
         return 0;
     struct ast_node *ast = ptr;
-    return (*(ast->node_exec))(ast);
+    int status = (*(ast->node_exec))(ast, rt);
+    runtime_set_status(rt, status);
+    return status;
 }

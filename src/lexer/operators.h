@@ -5,7 +5,11 @@ enum op_type
     OP_UNKNOWN,
     OP_SEMICOLON,
     OP_LINEFEED,
-    OP_REDIR
+    OP_REDIR,
+    OP_PIPE,
+    OP_NEG,
+    OP_OR,
+    OP_AND,
 };
 
 enum redir_type
@@ -31,5 +35,6 @@ struct op_data
     union
     {
         struct redir_data redir_data;
+        void *null;
     } data;
 };

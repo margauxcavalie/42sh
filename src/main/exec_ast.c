@@ -2,6 +2,7 @@
 #include <lexer/lexer.h>
 #include <parser/parser.h>
 #include <prelexer/prelexer.h>
+#include <runtime.h>
 #include <stdio.h>
 
 int main(int argc, char *argv[])
@@ -13,6 +14,9 @@ int main(int argc, char *argv[])
 
     struct ast_node *ast = NULL;
     enum parser_status status = parse(&ast, &lexer);
+
+    // Runtime struct
+    struct runtime *rt = runtime_init();
 
     if (status == PARSER_OK)
     {
@@ -29,11 +33,12 @@ int main(int argc, char *argv[])
     }
     else
     {
-        int return_code = ast_node_exec(ast);
+        int return_code = ast_node_exec(ast, rt);
         printf("Exited with status code %d\n", return_code);
         ast_node_free(ast);
     }
 
     lexer_free(lexer);
+    runtime_free(rt);
     return 0;
 }
