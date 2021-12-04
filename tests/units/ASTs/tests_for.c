@@ -83,7 +83,9 @@ Test(ast_for, exec_test_concret)
     cr_redirect_stdout();
     (*(ast->base.node_exec))((struct ast_node *)ast, rt);
     fflush(stdout);
-    cr_assert_stdout_eq_str("saint bernard\nsaint bernard\nsaint bernard\nsaint bernard\nsaint bernard\nsaint bernard\n");
+    cr_assert_stdout_eq_str(
+        "saint bernard\nsaint bernard\nsaint bernard\nsaint bernard\nsaint "
+        "bernard\nsaint bernard\n");
 
     // free
     (*(ast->base.node_free))((struct ast_node *)ast);

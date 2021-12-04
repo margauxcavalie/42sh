@@ -8,14 +8,10 @@
 #include <utils/vec.h>
 
 // initializes the lookup table
-const struct pretoken_operator ops[] = { { "\n", 1 },
-                                         { ";", 1 },
-                                         { ">", 1 },
-                                         { "<", 1 },
-                                         { "!", 1 },
-                                         { "&&", 2 },
-                                         { "||", 2 },
-                                         { "|", 1 }, };
+const struct pretoken_operator ops[] = {
+    { "\n", 1 }, { ";", 1 },  { ">", 1 },  { "<", 1 },
+    { "!", 1 },  { "&&", 2 }, { "||", 2 }, { "|", 1 },
+};
 #define nb_ops 8
 
 static bool is_operator(const char *str)
@@ -191,7 +187,8 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     {
         struct pretoken_operator pretok_op = ops[i];
         // check if '!' is followed by a space
-        if ((!strcmp(pretok_op.str, "!")) && (!strncmp(pretok_op.str, str, pretok_op.len)))
+        if ((!strcmp(pretok_op.str, "!"))
+            && (!strncmp(pretok_op.str, str, pretok_op.len)))
         {
             if (!strncmp(str + 1, " ", 1))
             {

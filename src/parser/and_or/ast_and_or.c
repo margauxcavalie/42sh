@@ -26,7 +26,7 @@ int ast_and_or_exec(struct ast_node *ast, struct runtime *rt)
     struct ast_and_or *ast_and_or = (struct ast_and_or *)ast;
     if (ast_and_or->type == OP_AND)
     {
-        int rc_and = ast_node_exec(ast_and_or->left, rt); 
+        int rc_and = ast_node_exec(ast_and_or->left, rt);
         if (!rc_and)
             return ast_node_exec(ast_and_or->right, rt);
         else

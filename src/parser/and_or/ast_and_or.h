@@ -1,7 +1,7 @@
 #pragma once
 
-#include <parser/ast_node.h>
 #include <lexer/operators.h>
+#include <parser/ast_node.h>
 
 struct ast_and_or
 {

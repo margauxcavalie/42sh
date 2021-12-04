@@ -1,8 +1,8 @@
 #include "rule_pipeline.h"
 
 #include <lexer/lexer.h>
-#include <parser/simple_cmd/ast_simple_cmd.h>
 #include <parser/negation/ast_negation.h>
+#include <parser/simple_cmd/ast_simple_cmd.h>
 #include <stdlib.h>
 #include <vector/vector.h>
 
