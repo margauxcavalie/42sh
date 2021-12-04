@@ -105,3 +105,39 @@ stdout: "false\nOK\nrugby"
 name: if_dash_e
 cmd: ./42sh -c "if false; echo 'coucou\\n'; then echo -e 'O'K\\\n; fi; if true; then echo -ne '\\nyes'; fi"
 stdout: "coucou\\n\nOK\n\n\nyes"
+---
+name: for_empty
+cmd: ./42sh -c "for elt; do echo coucou; done"
+stdout: ""
+---
+name: for_empty_unexistent_command
+cmd: ./42sh -c "for elt; do e coucou; done"
+stdout: ""
+---
+name: for_valid_exemple
+cmd: ./42sh -c "for elt in 1 2 3; do echo coucou; done"
+stdout: "coucou\ncoucou\ncoucou\n"
+---
+name: for_valid_exemple_without_linefeeds
+cmd: ./42sh -c "for elt in 1 2 3; do echo -n 'coucou '; done"
+stdout: "coucou coucou coucou "
+---
+name: for_non_existent_command
+cmd: ./42sh -c "for elt in 1 2 ; do e 'coucou '; done"
+stderr: "42sh: command not found: e\n42sh: command not found: e\n"
+---
+name: for_single_quotes
+cmd: ./42sh -c "for elt in '1 2 3 '; do echo triple croche; done"
+stdout: "triple croche\n"
+---
+name: for_without_word
+cmd: ./42sh -c "for in; do echo triple croche; done"
+stdout: ""
+---
+name: for_un_peu_hard
+cmd: ./42sh -c "for do in then done; do echo f; done"
+stdout: "f\nf\n"
+---
+name: for_future_hard
+cmd: ./42sh -c "for do in for do in echo done; do echo hello; done"
+stdout: "hello\nhello\nhello\nhello\nhello\n"

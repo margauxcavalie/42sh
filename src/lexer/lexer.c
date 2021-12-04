@@ -39,11 +39,12 @@ static enum rw_type match_rw_type(struct pretoken *new_pretoken)
 {
     // initalizes the lookup table
     struct matching_rw lookup_table[] = {
-        { "if", 2, RW_IF },      { "then", 4, RW_THEN },
-        { "elif", 4, RW_ELIF },  { "else", 4, RW_ELSE },
-        { "fi", 2, RW_FI },      { "while", 5, RW_WHILE },
-        { "do", 2, RW_DO },      { "done", 4, RW_DONE },
-        { "until", 5, RW_UNTIL }
+        { "if", 2, RW_IF },       { "then", 4, RW_THEN },
+        { "elif", 4, RW_ELIF },   { "else", 4, RW_ELSE },
+        { "fi", 2, RW_FI },       { "while", 5, RW_WHILE },
+        { "do", 2, RW_DO },       { "done", 4, RW_DONE },
+        { "until", 5, RW_UNTIL }, { "for", 3, RW_FOR },
+        { "in", 2, RW_IN }
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
     size_t count = 0;
@@ -106,10 +107,23 @@ struct token *get_next_token(struct lexer *lexer)
         {
             bool is_rw = false;
             if (current_line_index == 0) // first token of the command
+            {
                 is_rw = true;
+                lexer->last_rw = rw_type;
+            }
             /* TODO && prevtok different than case, for, in*/
-            else if (previus_token->type == TOKEN_RW)
+            else if ((previus_token->type == TOKEN_RW)
+                     && (lexer->last_rw != RW_FOR) && (lexer->last_rw != RW_IN))
+            {
                 is_rw = true;
+                lexer->last_rw = rw_type;
+            }
+            // last RW was a FOR and we're at the third position
+            else if ((lexer->last_rw == RW_FOR) && (current_line_index == 2))
+            {
+                is_rw = true;
+                lexer->last_rw = rw_type;
+            }
             // TODO other tests in future implementation (for, case)
 
             if (is_rw == true) // the word is a RW

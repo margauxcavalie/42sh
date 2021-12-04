@@ -11,6 +11,7 @@ enum rw_type
     RW_WHILE,
     RW_DO,
     RW_DONE,
-    RW_UNTIL
-
+    RW_UNTIL,
+    RW_FOR,
+    RW_IN
 };
