@@ -14,10 +14,30 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
     struct matching_op lookup_table[] = {
         { ";", 1, .data = { OP_SEMICOLON } },
         { "\n", 1, .data = { OP_LINEFEED } },
-        { "<", 1, .data = { OP_REDIR, .data.redir_type = REDIR_LESS } },
-        { ">", 1, .data = { OP_REDIR, .data.redir_type = REDIR_GREAT } }
+        { "<", 1,
+          .data = { OP_REDIR,
+                    .data.redir_data = { REDIR_LESS, STDIN_FILENO } } },
+        { ">", 1,
+          .data = { OP_REDIR,
+                    .data.redir_data = { REDIR_GREAT, STDOUT_FILENO } } },
+        { ">>", 2,
+          .data = { OP_REDIR,
+                    .data.redir_data = { REDIR_DGREAT, STDOUT_FILENO } } },
+        { ">|", 2,
+          .data = { OP_REDIR,
+                    .data.redir_data = { REDIR_CLOBBER, STDOUT_FILENO } } },
+        { "<>", 2,
+          .data = { OP_REDIR,
+                    .data.redir_data = { REDIR_LESSGREAT, STDIN_FILENO } } },
+        { ">&", 2,
+          .data = { OP_REDIR,
+                    .data.redir_data = { REDIR_GREATAND, STDOUT_FILENO } } },
+        { "<&", 2,
+          .data = { OP_REDIR,
+                    .data.redir_data = { REDIR_LESSAND, STDIN_FILENO } } }
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
+
     size_t count = 0;
     while (count < lt_size)
     {

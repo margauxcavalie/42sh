@@ -1,11 +1,23 @@
 #include "rules_simple_cmd.h"
 
 #include <lexer/lexer.h>
+#include <parser/redir/ast_redir.h>
 #include <parser/redir/rules_redir.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "ast_simple_cmd.h"
+
+static void set_child(struct ast_node *parent, struct ast_node *child)
+{
+    if (parent->type == AST_REDIR)
+    {
+        struct ast_redir *ast = (struct ast_redir *)parent;
+        ast_redir_set_child(ast, child);
+    }
+    else
+        errx(1, "parser: prefix behaviour unknown");
+}
 
 /**
  * @brief (temporary version)
@@ -76,12 +88,23 @@ enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
     struct ast_simple_cmd *ast_simple_cmd = ast_simple_cmd_init();
     *ast = (struct ast_node *)ast_simple_cmd;
 
+    struct ast_node *ast_cur = (struct ast_node *)ast_simple_cmd;
+    ast = &ast_cur;
+
+    struct ast_node *last_parent_ast = NULL;
+
     size_t prefix_count = 0;
     while (true)
     {
         enum parser_status status = parse_rule_prefix(ast, lexer);
         if (status != PARSER_OK)
             break;
+        if (last_parent_ast == NULL)
+            *saved_ast = *ast;
+        else
+            set_child(last_parent_ast, *ast);
+        last_parent_ast = *ast;
+        *ast = (struct ast_node *)ast_simple_cmd;
         prefix_count += 1;
     }
 
@@ -102,6 +125,16 @@ enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
         {
             ast_simple_cmd = ast_simple_cmd_add_param(ast_simple_cmd, word);
             free(word);
+        }
+        else // if there is a redirection
+        {
+            if (last_parent_ast == NULL)
+                *saved_ast = *ast;
+            else
+                set_child(last_parent_ast, *ast);
+            last_parent_ast = *ast;
+            *ast = (struct ast_node *)ast_simple_cmd;
+            prefix_count += 1;
         }
     }
 

@@ -17,8 +17,10 @@ enum parser_status parse_rule_redirection(struct ast_node **ast,
 
     struct ast_redir *ast_redir = ast_redir_init();
 
+    bool custom_fd = false; // true if the user enter a custom ionumber
     if (is_ionumber(lexer_peek(*lexer)))
     {
+        custom_fd = true;
         struct token *tok = lexer_pop(*lexer);
         ast_redir_set_fd(ast_redir, tok->data.io_number);
         token_free(tok);
@@ -27,7 +29,10 @@ enum parser_status parse_rule_redirection(struct ast_node **ast,
     if (!is_op(lexer_peek(*lexer), OP_REDIR))
         goto error;
     struct token *tok_op = lexer_pop(*lexer);
-    ast_redir_set_type(ast_redir, tok_op->data.op_data.data.redir_type);
+    ast_redir_set_type(ast_redir, tok_op->data.op_data.data.redir_data.type);
+    if (custom_fd == false)
+        ast_redir_set_fd(ast_redir,
+                         tok_op->data.op_data.data.redir_data.default_fd);
     token_free(tok_op);
 
     if (!is_word(lexer_peek(*lexer)))

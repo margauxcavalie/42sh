@@ -7,12 +7,11 @@
 #include <utils/alloc.h>
 #include <utils/vec.h>
 
-// initializes the lookup table
-const struct pretoken_operator ops[] = { { "\n", 1 },
-                                         { ";", 1 },
-                                         { ">", 1 },
-                                         { "<", 1 } };
-#define nb_ops 4
+// initializes the lookup table (by decending order (size))
+const struct pretoken_operator ops[] = { { ">&", 2 }, { "<&", 2 }, { ">>", 2 },
+                                         { ">|", 2 }, { "<>", 2 }, { "\n", 1 },
+                                         { ";", 1 },  { ">", 1 },  { "<", 1 } };
+#define nb_ops 9
 
 static bool is_operator(const char *str)
 {
@@ -249,7 +248,7 @@ struct pretoken_vector *prelexify(char const *input)
 
 void print_pretoken_list(struct pretoken_vector *vec)
 {
-    char *pretoken_type_str[] = { "OP", "WORD", "EOF" };
+    char *pretoken_type_str[] = { "OP", "WORD", "IO", "EOF" };
     printf("Pretoken list: [");
     for (size_t i = 0; i < vec->size; i++)
     {
