@@ -14,6 +14,8 @@ enum ast_type
     AST_PIPELINE,
     AST_WHILE,
     AST_REDIR,
+    AST_NEG,
+    AST_OPERATOR,
 };
 
 struct print_context

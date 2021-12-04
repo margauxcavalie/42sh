@@ -2,14 +2,16 @@
 
 #include <lexer/lexer.h>
 #include <parser/simple_cmd/ast_simple_cmd.h>
+#include <parser/and_or/rule_and_or.h>
+#include <parser/and_or/ast_and_or.h>
 #include <stdlib.h>
 #include <vector/vector.h>
 
 #include "ast_cmd_list.h"
 
 /**
- * @brief (temporary version)
- * list: command (';' command)* [';']
+ * @brief temporary
+ * list: and_or (';' and_or)* [';']
  * @return
  */
 enum parser_status parse_rule_command_list(struct ast_node **ast,
@@ -22,7 +24,7 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
     *ast = (struct ast_node *)ast_list; // attach ast_list to ast
 
     struct ast_node *ast_child = NULL;
-    enum parser_status status = parse_rule_cmd(&ast_child, lexer); // command
+    enum parser_status status = parse_rule_and_or(&ast_child, lexer); // command
     ast_cmd_list_add_ast(ast_list, ast_child);
     if (status != PARSER_OK)
         goto error;
@@ -31,7 +33,7 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
     {
         struct token *tok = lexer_pop(*lexer);
         token_free(tok);
-        enum parser_status status = parse_rule_cmd(&ast_child, lexer);
+        enum parser_status status = parse_rule_and_or(&ast_child, lexer);
         if (status != PARSER_OK)
             break;
         ast_cmd_list_add_ast(ast_list, ast_child);
@@ -76,7 +78,7 @@ error:
 
 /**
  * @brief (temporary version)
- * compound_list: ('\n')* command (compound_sep command)* [compound_sep]
+ * compound_list: ('\n')* and_or (compound_sep and_or)* [compound_sep]
  * @return
  */
 enum parser_status parse_rule_compound_list(struct ast_node **ast,
@@ -93,7 +95,7 @@ enum parser_status parse_rule_compound_list(struct ast_node **ast,
     *ast = (struct ast_node *)ast_list; // attach ast_list to ast
 
     struct ast_node *ast_child = NULL;
-    enum parser_status status = parse_rule_cmd(&ast_child, lexer); // command
+    enum parser_status status = parse_rule_and_or(&ast_child, lexer); // command
     ast_cmd_list_add_ast(ast_list, ast_child);
     if (status != PARSER_OK)
         goto error;
@@ -101,7 +103,7 @@ enum parser_status parse_rule_compound_list(struct ast_node **ast,
     // (compound_separator command)* [compound_separator]
     while (parse_rule_compound_separator(lexer) == PARSER_OK)
     {
-        enum parser_status status = parse_rule_cmd(&ast_child, lexer);
+        enum parser_status status = parse_rule_and_or(&ast_child, lexer);
         if (status != PARSER_OK)
             break;
         ast_cmd_list_add_ast(ast_list, ast_child);
