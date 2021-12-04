@@ -1,9 +1,9 @@
-#include "rule_operator.h"
+#include "rule_and_or.h"
 
 #include <lexer/lexer.h>
 #include <parser/pipeline/rule_pipeline.h>
 
-#include "ast_operator.h"
+#include "ast_and_or.h"
 
 /**
  * @brief and_or: pipeline (('&&'|'||') ('\n')* pipeline)*
@@ -12,7 +12,7 @@
  * @param lexer
  * @return enum parser_status
  */
-enum parser_status parse_rule_operator(struct ast_node **ast,
+enum parser_status parse_rule_and_or(struct ast_node **ast,
                                        struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
@@ -23,18 +23,18 @@ enum parser_status parse_rule_operator(struct ast_node **ast,
 
     while ((is_op(lexer_peek(*lexer), OP_AND) || (is_op(lexer_peek(*lexer), OP_OR))))
     {
-        struct ast_operator *ast_operator = NULL;
+        struct ast_and_or *ast_and_or = NULL;
         if (is_op(lexer_peek(*lexer), OP_AND))
         {
-            ast_operator = ast_operator_init(OP_AND);
-            ast_operator->left = *ast;
-            *ast = (struct ast_node *)ast_operator;
+            ast_and_or = ast_and_or_init(OP_AND);
+            ast_and_or->left = *ast;
+            *ast = (struct ast_node *)ast_and_or;
         }
         else if (is_op(lexer_peek(*lexer), OP_OR))
         {
-            ast_operator = ast_operator_init(OP_OR);
-            ast_operator->left = *ast;
-            *ast = (struct ast_node *)ast_operator;
+            ast_and_or = ast_and_or_init(OP_OR);
+            ast_and_or->left = *ast;
+            *ast = (struct ast_node *)ast_and_or;
         }
 
         struct token *tok = lexer_pop(*lexer);
@@ -46,7 +46,7 @@ enum parser_status parse_rule_operator(struct ast_node **ast,
             token_free(tok);
         }
 
-        enum parser_status status = parse_rule_pipeline(&ast_operator->right, lexer);
+        enum parser_status status = parse_rule_pipeline(&ast_and_or->right, lexer);
         if (status != PARSER_OK)
             goto error;
     }
