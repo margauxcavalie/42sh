@@ -8,6 +8,8 @@ enum op_type
     OP_REDIR,
     OP_PIPE,
     OP_NEG,
+    OP_OR,
+    OP_AND,
 };
 
 enum redir_type

@@ -12,9 +12,11 @@ const struct pretoken_operator ops[] = { { "\n", 1 },
                                          { ";", 1 },
                                          { ">", 1 },
                                          { "<", 1 },
-                                         { "|", 1 },
-                                         { "!", 1 } };
-#define nb_ops 6
+                                         { "!", 1 },
+                                         { "&&", 2 },
+                                         { "||", 2 },
+                                         { "|", 1 }, };
+#define nb_ops 8
 
 static bool is_operator(const char *str)
 {
@@ -200,9 +202,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
             }
             else
             {
-                struct pretoken *new = pretoken_new(
-                    PRETOKEN_ERROR, NULL, 0);
-                return new;
+                break;
             }
         }
         if (!strncmp(pretok_op.str, str, pretok_op.len))
