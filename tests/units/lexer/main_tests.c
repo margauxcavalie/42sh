@@ -242,7 +242,7 @@ Test(lexer, simple_ionumber)
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
     cr_assert_eq(tok->data.op_data.type, OP_REDIR);
-    cr_assert_eq(tok->data.op_data.data.redir_type, REDIR_GREAT);
+    cr_assert_eq(tok->data.op_data.data.redir_data.type, REDIR_GREAT);
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -265,7 +265,7 @@ Test(lexer, simple_ionumber2)
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
     cr_assert_eq(tok->data.op_data.type, OP_REDIR);
-    cr_assert_eq(tok->data.op_data.data.redir_type, REDIR_GREAT);
+    cr_assert_eq(tok->data.op_data.data.redir_data.type, REDIR_GREAT);
     token_free(tok);
 
     tok = lexer_pop(lexer);
@@ -288,7 +288,7 @@ Test(lexer, false_ionumber)
     tok = lexer_pop(lexer);
     cr_assert_eq(tok->type, TOKEN_OP);
     cr_assert_eq(tok->data.op_data.type, OP_REDIR);
-    cr_assert_eq(tok->data.op_data.data.redir_type, REDIR_GREAT);
+    cr_assert_eq(tok->data.op_data.data.redir_data.type, REDIR_GREAT);
     token_free(tok);
 
     tok = lexer_pop(lexer);

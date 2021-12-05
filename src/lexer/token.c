@@ -57,7 +57,7 @@ bool is_ionumber(struct token *tok)
 {
     if (tok->type != TOKEN_IONUMBER)
         return false;
-    return false;
+    return true;
 }
 
 bool is_rw(struct token *tok, enum rw_type rw_type)

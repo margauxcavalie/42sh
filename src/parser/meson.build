@@ -6,6 +6,7 @@ subdir('negation')
 subdir('and_or')
 subdir('while_until')
 subdir('redir')
+subdir('for')
 
 all_sources += files('parser.c')
 all_sources += files('ast_node.c')
