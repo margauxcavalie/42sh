@@ -96,3 +96,135 @@ name: hard tricky single quote
 cmd: ./42sh -c "echo ''salut''"
 stdout: |
   salut
+---
+name: simple pipeline
+cmd: ./42sh -c "echo salut | echo ok"
+stdout: |
+  ok
+---
+name: pipeline no spaces
+cmd: ./42sh -c "echo salut|echo ok"
+stdout: |
+  ok
+---
+name: pipeline tr
+cmd: ./42sh -c "echo salut | tr a o"
+stdout: |
+  solut
+---
+name: pipeline tr multiple
+cmd: ./42sh -c "echo salut | tr a o | tr s c | tr l d | tr u e | tr t d"
+stdout: |
+  coded
+---
+name: pipeline tr multiple strange
+cmd: ./42sh -c "echo salut | tr a o| tr s c|tr l d | tr u e |tr t d"
+stdout: |
+  coded
+---
+name: pipeline cat
+cmd: ./42sh -c "echo salut | cat -e"
+stdout: |
+  salut$
+---
+name: pipeline echoooooos
+cmd: ./42sh -c "echo salut | echo ok | echo ko | echo false | echo true | echo almost | echo almost almost | echo finally"
+stdout: |
+  finally
+---
+name: pipeline if
+cmd: ./42sh -c "if echo salut | tr a o; then echo ok; else echo ko; fi"
+stdout: |
+  solut
+  ok
+status: 0
+---
+name: pipeline if long
+cmd: ./42sh -c "if echo salut | tr a o | tr s c | tr l d | tr u e | tr t d; then echo ok; else echo ko; fi"
+stdout: |
+  coded
+  ok
+status: 0
+---
+name: pipeline neg
+cmd: ./42sh -c "! echo salut | cat -e"
+stdout: |
+  salut$
+status: 1
+---
+name: pipeline neg 2
+cmd: ./42sh -c "! echo salut | false"
+status: 0
+---
+name: pipeline neg space before
+cmd: ./42sh -c "       ! echo salut | cat -e"
+stdout: |
+  salut$
+status: 1
+---
+name: pipeline if neg
+cmd: ./42sh -c "if ! echo salut | tr a o; then echo ok; else echo ko; fi"
+stdout: |
+  solut
+  ko
+status: 0
+---
+name: pipeline neg without pipe 1
+cmd: ./42sh -c "\!"
+stderr: |
+  42sh: command not found: !
+status: 127
+---
+name: pipeline neg without pipe 0
+cmd: ./42sh -c ""
+status: 0
+---
+name: pipeline neg without pipe hard
+cmd: ./42sh -c "! echo ok"
+stdout: |
+  ok
+status: 1
+---
+name: pipeline neg without pipe hard
+cmd: ./42sh -c "! echo ok"
+stdout: |
+  ok
+status: 1
+---
+name: neg if
+cmd: ./42sh -c "! if echo true; then echo ok; else echo ko; fi"
+stdout: |
+  true
+  ok
+status: 1
+---
+name: and_or
+cmd: ./42sh -c "echo ok || echo ko && echo salut && echo bon || echo aaaa"
+stdout: |
+  ok
+  salut
+  bon
+status: 0
+---
+name: and_or neg
+cmd: ./42sh -c "! echo ok || echo ko && echo salut && echo bon || echo aaaa"
+stdout: |
+  ok
+  ko
+  salut
+  bon
+status: 0
+---
+name: and_or neg everywhere
+cmd: ./42sh -c "! echo ok || ! echo ko && ! echo salut && echo bon || ! echo aaaa"
+stdout: |
+  ok
+  ko
+  aaaa
+status: 1
+---
+name: two neg
+cmd: ./42sh -c "\! \!"
+stderr: |
+  42sh: command not found: !
+status: 127
