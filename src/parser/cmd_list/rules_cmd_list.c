@@ -1,9 +1,9 @@
 #include "rules_cmd_list.h"
 
 #include <lexer/lexer.h>
-#include <parser/simple_cmd/ast_simple_cmd.h>
-#include <parser/and_or/rule_and_or.h>
 #include <parser/and_or/ast_and_or.h>
+#include <parser/and_or/rule_and_or.h>
+#include <parser/simple_cmd/ast_simple_cmd.h>
 #include <stdlib.h>
 #include <vector/vector.h>
 

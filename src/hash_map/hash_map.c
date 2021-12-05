@@ -12,6 +12,9 @@ static struct pair_list *list_replace_key(struct pair_list *l, char *key,
     {
         if (strcmp(l->key, key) == 0)
         {
+            char *tmp = l->value;
+            free(tmp);
+            free(key);
             l->value = value;
             return l;
         }

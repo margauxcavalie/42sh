@@ -13,7 +13,7 @@
  * @return enum parser_status
  */
 enum parser_status parse_rule_and_or(struct ast_node **ast,
-                                       struct lexer **lexer)
+                                     struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
@@ -21,7 +21,8 @@ enum parser_status parse_rule_and_or(struct ast_node **ast,
     if (status != PARSER_OK)
         goto error;
 
-    while ((is_op(lexer_peek(*lexer), OP_AND) || (is_op(lexer_peek(*lexer), OP_OR))))
+    while ((is_op(lexer_peek(*lexer), OP_AND)
+            || (is_op(lexer_peek(*lexer), OP_OR))))
     {
         struct ast_and_or *ast_and_or = NULL;
         if (is_op(lexer_peek(*lexer), OP_AND))
@@ -40,13 +41,14 @@ enum parser_status parse_rule_and_or(struct ast_node **ast,
         struct token *tok = lexer_pop(*lexer);
         token_free(tok);
 
-         while (is_op(lexer_peek(*lexer), OP_LINEFEED)) // ('\n')*
+        while (is_op(lexer_peek(*lexer), OP_LINEFEED)) // ('\n')*
         {
             struct token *tok = lexer_pop(*lexer);
             token_free(tok);
         }
 
-        enum parser_status status = parse_rule_pipeline(&ast_and_or->right, lexer);
+        enum parser_status status =
+            parse_rule_pipeline(&ast_and_or->right, lexer);
         if (status != PARSER_OK)
             goto error;
     }
