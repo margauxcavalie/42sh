@@ -146,7 +146,7 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
         }
         else // add the char to the token and proceed to the next one
         {
-            if (str[counter] == '\\')
+            if (str[counter] == '\\') // skip if backslash
             {
                 if (str[counter + 1] != '\0' && str[counter + 1] != EOF)
                 {
