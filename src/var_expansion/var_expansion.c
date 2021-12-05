@@ -250,7 +250,7 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error)
                     counter += 1;
                 }
             }
-            //printf("%c\n", str[counter]);
+            // printf("%c\n", str[counter]);
             vec_push(vec, str[counter]);
             counter += 1;
         }
@@ -269,7 +269,7 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error)
         {
             if (*error)
             {
-                //printf("eeeeeeeeeeeeeeeeeeeeeeeeeeeeerror\n");
+                // printf("eeeeeeeeeeeeeeeeeeeeeeeeeeeeerror\n");
                 vec_destroy(vec);
                 free(vec);
                 return NULL;
@@ -282,7 +282,7 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error)
             printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");*/
             continue;
         }
-        //printf("word != NULL\n");
+        // printf("word != NULL\n");
         size_t word_size = strlen(word);
         for (size_t i = 0; i < word_size; i++)
         {

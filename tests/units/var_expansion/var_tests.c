@@ -591,8 +591,9 @@ Test(expand_all_string, random_example)
     // test code
     char *var = "char *var = ${var} $ $$ yo dfs {dsfsd  wr echo for;; \n $ok   "
                 "\\${ok  drfdesfs ;";
-    char *expected = "char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
-                     "${ok  drfdesfs ;";
+    char *expected =
+        "char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
+        "${ok  drfdesfs ;";
     char *res = expand_all_string(hash_map, var, &error);
     cr_assert_eq(error, 0);
     cr_assert(strcmp(res, expected) == 0);
