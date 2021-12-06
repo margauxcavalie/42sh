@@ -1,4 +1,5 @@
 #pragma once
+#include <stdbool.h>
 #include <var_expansion/var_expansion.h>
 
 /**
@@ -11,6 +12,9 @@ struct runtime
 {
     int last_status; // is the return of the last execution
     struct hash_map *hash_map;
+    int loops_to_break;
+    int loops_count;
+    bool encountered_continue;
 };
 
 struct runtime *runtime_init();

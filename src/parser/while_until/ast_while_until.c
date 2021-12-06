@@ -62,12 +62,17 @@ int ast_while_exec(struct ast_node *ast, struct runtime *rt)
     struct ast_while_until *ast_while = (struct ast_while_until *)ast;
     if (ast_while->condition)
     {
+        rt->loops_count += 1;
         while (!ast_node_exec(ast_while->condition, rt)) // if it returns 0
         {
             if (ast_while->body)
                 ast_node_exec(ast_while->body, rt);
         }
+
+        rt->loops_count -= 1;
+        rt->encountered_continue = false;
     }
+
     return 0;
 }
 
@@ -76,12 +81,17 @@ int ast_until_exec(struct ast_node *ast, struct runtime *rt)
     struct ast_while_until *ast_until = (struct ast_while_until *)ast;
     if (ast_until->condition)
     {
+        rt->loops_count += 1;
         while (ast_node_exec(ast_until->condition, rt)) // if it returns 0
         {
             if (ast_until->body)
                 ast_node_exec(ast_until->body, rt);
         }
+
+        rt->loops_count -= 1;
+        rt->encountered_continue = false;
     }
+
     return 0;
 }
 

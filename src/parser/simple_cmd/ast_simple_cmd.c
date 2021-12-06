@@ -50,7 +50,7 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
 
     // Check if the command is a builtin
     bool is_builtin = false;
-    int status = exec_builtin(ast_simple_cmd, &is_builtin);
+    int status = exec_builtin(ast_simple_cmd, &is_builtin, rt);
     if (is_builtin)
         return status;
 

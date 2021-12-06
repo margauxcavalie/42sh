@@ -18,7 +18,7 @@ void ast_for_free(struct ast_node *ast)
 }
 
 /**
- * @brief NOT FINISHED
+ * @brief Prints the content of the AST
  */
 void ast_for_print(struct ast_node *ast, struct print_context pc)
 {
@@ -47,17 +47,24 @@ void ast_for_print(struct ast_node *ast, struct print_context pc)
 }
 
 /**
- * @brief NOT FINISHED
+ * @brief Executes the body of the for
  */
 int ast_for_exec(struct ast_node *ast, struct runtime *rt)
 {
+    rt->loops_count += 1;
     struct ast_for *ast_for = (struct ast_for *)ast;
     size_t c;
-    for (c = ast_for->advancement; c < ast_for->condition->size; c++)
+    for (c = 0; c < ast_for->condition->size; c++)
     {
         ast_node_exec(ast_for->body, rt);
+        if (rt->loops_to_break != 0)
+            break;
+        rt->encountered_continue = false;
     }
 
+    if (rt->loops_to_break > 0)
+        rt->loops_to_break -= 1;
+    rt->loops_count -= 1;
     return 0;
 }
 

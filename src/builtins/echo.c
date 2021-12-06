@@ -34,7 +34,8 @@ static char *replace_opt_e(int size, const char *src)
     return dest;
 }
 
-int builtin_echo(int argc, char **argv)
+int builtin_echo(int argc, char **argv,
+                 __attribute__((unused)) struct runtime *rt)
 {
     bool opt_state = true;
 

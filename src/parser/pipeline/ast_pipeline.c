@@ -60,8 +60,11 @@ static int ast_pipeline_exec_child(struct vector *v, struct runtime *rt)
         last_return_code = WEXITSTATUS(wstatus);
     }
     last_return_code = ast_node_exec(v->data[v->size - 1], rt);
-    dup2(save_stdin, STDIN_FILENO);
-    close(pipefds[0]);
+    if (v->size > 1)
+    {
+        dup2(save_stdin, STDIN_FILENO);
+        close(pipefds[0]);
+    }
     close(save_stdin);
     return last_return_code;
 }

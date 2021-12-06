@@ -1,5 +1,6 @@
 #include "ast_cmd_list.h"
 
+#include <parser/simple_cmd/ast_simple_cmd.h>
 #include <stdio.h>
 #include <utils/alloc.h>
 #include <vector/vector.h>

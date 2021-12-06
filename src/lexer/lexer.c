@@ -137,6 +137,7 @@ struct token *get_next_token(struct lexer *lexer)
             {
                 is_rw = true;
                 lexer->last_rw = rw_type;
+                lexer->line_index = 1;
             }
             // last RW was a FOR and we're at the third position
             else if ((lexer->last_rw == RW_FOR) && (current_line_index == 2))
