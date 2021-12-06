@@ -229,8 +229,45 @@ stderr: |
   42sh: command not found: !
 status: 127
 ---
-name: cd not found
-cmd: ./42sh -c "cd ..; cd ddsaasdoc sadfsdf"
-stderr: |
-  42sh: cd: can't cd to ddsaasdoc
-status: 2
+name: command block simple
+cmd: ./42sh -c "{ echo salut }"
+stdout: |
+  salut
+status: 0
+---
+name: command block simple with semi colon
+cmd: ./42sh -c "{ echo salut; }"
+stdout: |
+  salut
+status: 0
+---
+name: command block multiple
+cmd: ./42sh -c "{ echo salut; echo bonjour; echo aurevoir; echo bye }"
+stdout: |
+  salut
+  bonjour
+  aurevoir
+  bye
+status: 0
+---
+name: command block and pipe
+cmd: ./42sh -c "{ echo salut } | tr a o"
+stdout: |
+  solut
+status: 0
+---
+name: command block and pipe multiple
+cmd: ./42sh -c "{ echo salut; echo lala; echo lucas; echo 42sh } | tr a o"
+stdout: |
+  solut
+  lolo
+  lucos
+  42sh
+status: 0
+---
+name: command block and pipe
+cmd: ./42sh -c "{ echo salut } | tr a o; { echo bonjour; } | tr o a"
+stdout: |
+  solut
+  banjaur
+status: 0
