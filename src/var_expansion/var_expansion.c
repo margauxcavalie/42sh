@@ -1,5 +1,6 @@
 #include "var_expansion.h"
 
+#include <ctype.h>
 #include <hash_map/hash_map.h>
 #include <lexer/token.h>
 #include <utils/alloc.h>
@@ -36,7 +37,7 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value,
 {
     return hash_map_insert(hash_map, key, value, updated);
 }
-
+#include <stdio.h>
 /**
  * @brief
  * $ is a separator if not in first place here
@@ -46,11 +47,16 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value,
  */
 static bool is_separator(char c, int count)
 {
+    //printf("%c\n", c);
     bool res = true;
     if (count <= 1)
-        res = c == '\0' || c == '\t' || c == ' ';
+    {
+        res = !isalnum(c) && c != '$' && c != '{' && c != '_';
+    }
     else
-        res = c == '\0' || c == '\t' || c == ' ' || c == '$';
+    {
+        res = !isalnum(c) && c != '_';
+    }
     return res;
 }
 
@@ -58,17 +64,31 @@ static size_t varlen(char *var, size_t *counter)
 {
     size_t res = 0;
     size_t count = 1;
+    if (isdigit(var[count]))
+    {
+        res ++;
+        count++;
+        *counter += count;
+        return res;
+    }
     while (var[count] && !is_separator(var[count], count))
     {
-        // printf("%c\n", var[count]);
+        //printf("%c\n", var[count]);
         if (var[count] == '{')
         {
             count++;
-            continue;
-        }
-        if (var[count] == '}')
-        {
-            count++;
+            while (var[count] && var[count] != '}')
+            {
+                //printf("%c\n", var[count]);
+                count++;
+                res++;
+            }
+            if (var[count] == '}')
+            {
+                count++;
+                *counter += count;
+                return res;
+            }
             break;
         }
         count++;
@@ -153,8 +173,9 @@ int check_all_brackets(char *str)
  */
 char *build_key(char *var, int *error, size_t *counter)
 {
-    if (var[0] && (var[1] == '\0' || var[1] == ' ')) // if single $
+    if (var[0] && (is_separator(var[1], 0))) // if single $
     {
+        *counter += 1;
         return NULL;
     }
     int type = check_brackets(var);
@@ -277,7 +298,6 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error)
             /*printf("$ will be added\n");
             printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");*/
             vec_push(vec, '$');
-            counter++;
             /*printf("$ added\n");
             printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");*/
             continue;

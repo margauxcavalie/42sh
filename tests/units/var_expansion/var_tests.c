@@ -11,7 +11,7 @@ Test(build_key, single_dollar)
     char *key = build_key(var, &error, &size);
     cr_assert_eq(key, NULL);
     cr_assert_eq(error, 0);
-    cr_assert_eq(size, 0);
+    cr_assert_eq(size, 1);
     free(key);
 }
 
@@ -26,6 +26,18 @@ Test(build_key, dbl_dollar)
     cr_assert_eq(size, 2);
     free(key);
 }
+/*
+Test(build_key, dbl_dollar_quotes)
+{
+    char *var = "${$2}";
+    int error = 0;
+    size_t size = 0;
+    char *key = build_key(var, &error, &size);
+    cr_assert(strcmp(key, "$") == 0);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 4);
+    free(key);
+}*/
 
 Test(build_key, quadruple_dollar)
 {
@@ -87,6 +99,18 @@ Test(build_key, simple_key_brackets_noise_behind)
     free(key);
 }
 
+Test(build_key, simple_key_brackets_noise)
+{
+    char *var = "$key{pouet}";
+    int error = 0;
+    size_t size = 0;
+    char *key = build_key(var, &error, &size);
+    cr_assert(strcmp(key, "key") == 0);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 4);
+    free(key);
+}
+
 Test(build_key, simple_key_error)
 {
     char *var = "${key";
@@ -98,16 +122,53 @@ Test(build_key, simple_key_error)
     cr_assert_eq(size, 0);
 }
 
-/*Test(build_key, simple_key_var_is_not_a_name)
+Test(build_key, simple_key_var_is_not_a_name)
 {
     char *var = "$;";
     int error = 0;
     size_t size = 0;
     char *key = build_key(var, &error, &size);
-    cr_assert_eq(error, 1);
-    cr_assert_eq(key, NULL);
-    cr_assert_eq(size, 0);
-}*/
+    cr_assert_eq(NULL, key);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 1);
+}
+
+Test(build_key, simple_key_var_is_not_a_name2)
+{
+    char *var = "$;23";
+    int error = 0;
+    size_t size = 0;
+    char *key = build_key(var, &error, &size);
+    cr_assert_eq(NULL, key);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 1);
+}
+
+Test(build_key, simple_key_underscore)
+{
+    char *var = "$_23";
+    int error = 0;
+    size_t size = 0;
+    char *key = build_key(var, &error, &size);
+    cr_assert(strcmp(key, "_23") == 0);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 4);
+    free(key);
+}
+
+Test(build_key, simple_key_begin_with_numb)
+{
+    char *var = "$2_23";
+    int error = 0;
+    size_t size = 0;
+    char *key = build_key(var, &error, &size);
+    //printf("%s\n", key);
+    cr_assert(strcmp(key, "2") == 0);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 2);
+    free(key);
+}
+
 
 Test(var_expansion, no_var)
 {
@@ -174,7 +235,7 @@ Test(var_expansion, dollar_alone)
     size_t size = 0;
     cr_assert_eq(expand_var(hash_map, var, &error, &size), NULL);
     cr_assert_eq(error, 0);
-    cr_assert_eq(size, 0);
+    cr_assert_eq(size, 1);
     hash_map_free(hash_map);
 }
 
@@ -613,7 +674,7 @@ Test(expand_all_string, random_example)
     hash_map_free(hash_map);
 }
 
-/*Test(expand_all_string, random_example2)
+Test(expand_all_string, random_example2)
 {
     int error = 0;
     struct hash_map *hash_map = var_hash_map_init();
@@ -635,13 +696,13 @@ Test(expand_all_string, random_example)
     var_hash_map_insert(hash_map, key2, value2, &updated);
     // test code
     char *var = "char *var = ${var} $ $$ yo dfs {dsfsd  wr echo for;; \n $ok   "
-                "\\${ok $; drfdesfs ;a";
+                "\\${ok $; $23 drfdesfs ;a";
     char *expected =
         "char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
-        "${ok $; drfdesfs ;a";
+        "${ok $; 3 drfdesfs ;a";
     char *res = expand_all_string(hash_map, var, &error);
     cr_assert_eq(error, 0);
     cr_assert(strcmp(res, expected) == 0);
     free(res);
     hash_map_free(hash_map);
-}*/
+}
