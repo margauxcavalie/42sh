@@ -5,7 +5,8 @@
 /**
  * @brief implementation of cd builtin command with '-' option only
  */
-int builtin_cd(int argc, char **argv)
+int builtin_cd(int argc, char **argv,
+               __attribute__((unused)) struct runtime *rt)
 {
     // handle zero argument or the ~ argument
     if ((argc == 1) || (!strncmp(*(argv + 1), "~", 1)))

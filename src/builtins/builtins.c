@@ -3,9 +3,10 @@
 int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin,
                  struct runtime *rt)
 {
-    struct matching_builtin our_builtins[] = {
-        { "echo", &builtin_echo }, { "continue", &builtin_continue }, { "cd", &builtin_cd }
-    };
+    struct matching_builtin our_builtins[] = { { "echo", &builtin_echo },
+                                               { "continue",
+                                                 &builtin_continue },
+                                               { "cd", &builtin_cd } };
     size_t size = sizeof(our_builtins) / sizeof(struct matching_builtin);
 
     for (size_t i = 0; i < size; i++)
