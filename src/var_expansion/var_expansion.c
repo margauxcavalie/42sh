@@ -47,7 +47,7 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value,
  */
 static bool is_separator(char c, int count)
 {
-    //printf("%c\n", c);
+    // printf("%c\n", c);
     bool res = true;
     if (count <= 1)
     {
@@ -66,20 +66,20 @@ static size_t varlen(char *var, size_t *counter)
     size_t count = 1;
     if (isdigit(var[count]))
     {
-        res ++;
+        res++;
         count++;
         *counter += count;
         return res;
     }
     while (var[count] && !is_separator(var[count], count))
     {
-        //printf("%c\n", var[count]);
+        // printf("%c\n", var[count]);
         if (var[count] == '{')
         {
             count++;
             while (var[count] && var[count] != '}')
             {
-                //printf("%c\n", var[count]);
+                // printf("%c\n", var[count]);
                 count++;
                 res++;
             }

@@ -162,13 +162,12 @@ Test(build_key, simple_key_begin_with_numb)
     int error = 0;
     size_t size = 0;
     char *key = build_key(var, &error, &size);
-    //printf("%s\n", key);
+    // printf("%s\n", key);
     cr_assert(strcmp(key, "2") == 0);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 2);
     free(key);
 }
-
 
 Test(var_expansion, no_var)
 {
