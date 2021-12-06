@@ -12,8 +12,8 @@ const struct pretoken_operator ops[] = { { ">&", 2 }, { "<&", 2 }, { ">>", 2 },
                                          { "&&", 2 }, { "||", 2 }, { "|", 1 },
                                          { ">|", 2 }, { "<>", 2 }, { "\n", 1 },
                                          { ";", 1 },  { ">", 1 },  { "<", 1 },
-                                         { "!", 1 } };
-#define nb_ops 13
+                                         { "!", 1 },  { "{", 1 },  { "}", 1 } };
+#define nb_ops 15
 
 static bool is_operator(const char *str)
 {

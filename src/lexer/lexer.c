@@ -38,7 +38,9 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
         { "!", 1, .data = { OP_NEG, .data.null = NULL } },
         { "||", 2, .data = { OP_OR, .data.null = NULL } },
         { "&&", 2, .data = { OP_AND, .data.null = NULL } },
-        { "|", 1, .data = { OP_PIPE, .data.null = NULL } }
+        { "|", 1, .data = { OP_PIPE, .data.null = NULL } },
+        { "{", 1, .data = { OP_LBRACE, .data.null = NULL } },
+        { "}", 1, .data = { OP_RBRACE, .data.null = NULL } }
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
 

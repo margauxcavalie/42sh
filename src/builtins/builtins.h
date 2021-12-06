@@ -18,3 +18,4 @@ int builtin_echo(int argc, char **argv,
 int builtin_continue(int argc, char **argv, struct runtime *rt);
 int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin,
                  struct runtime *rt);
+int builtin_cd(int argc, char **argv);
