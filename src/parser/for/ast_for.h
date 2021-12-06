@@ -5,9 +5,8 @@
 struct ast_for
 {
     struct ast_node base; // not a pointer
-    struct vector *condition;
+    struct vector *list;
     struct ast_node *body;
-    size_t advancement;
     char *var_name;
 };
 

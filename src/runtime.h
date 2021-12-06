@@ -10,7 +10,7 @@
 struct runtime
 {
     int last_status; // is the return of the last execution
-    struct hash_map *hash_map;
+    struct hash_map *variables;
 };
 
 struct runtime *runtime_init();

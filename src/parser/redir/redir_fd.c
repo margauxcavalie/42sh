@@ -112,14 +112,11 @@ static bool open_file_out(const char *path, int *file_fd, int flags,
     return true;
 }
 
-int redir_in_out(struct ast_redir *ast_redir, int *saved_fd, bool *is_file,
+int redir_in_out(struct ast_redir *ast_redir, char *path, int *saved_fd,
                  bool noclobber)
 {
     int fd = ast_redir->fd;
-    char *path = ast_redir->file;
     enum redir_type type = ast_redir->type;
-
-    *is_file = true;
 
     int file_fd;
     bool success = false;
@@ -142,7 +139,6 @@ int redir_in_out(struct ast_redir *ast_redir, int *saved_fd, bool *is_file,
             return -1;
         }
         file_fd = dup(fd_target);
-        *is_file = false;
         success = true;
     }
     else

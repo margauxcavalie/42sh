@@ -1,4 +1,5 @@
 #include <criterion/criterion.h>
+#include <stdio.h>
 #include <string.h>
 #include <var_expansion/var_expansion.h>
 
@@ -96,6 +97,17 @@ Test(build_key, simple_key_error)
     cr_assert_eq(key, NULL);
     cr_assert_eq(size, 0);
 }
+
+/*Test(build_key, simple_key_var_is_not_a_name)
+{
+    char *var = "$;";
+    int error = 0;
+    size_t size = 0;
+    char *key = build_key(var, &error, &size);
+    cr_assert_eq(error, 1);
+    cr_assert_eq(key, NULL);
+    cr_assert_eq(size, 0);
+}*/
 
 Test(var_expansion, no_var)
 {
@@ -590,13 +602,46 @@ Test(expand_all_string, random_example)
     var_hash_map_insert(hash_map, key2, value2, &updated);
     // test code
     char *var = "char *var = ${var} $ $$ yo dfs {dsfsd  wr echo for;; \n $ok   "
-                "\\${ok  drfdesfs ;";
+                "\\${ok  drfdesfs ;a";
     char *expected =
         "char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
-        "${ok  drfdesfs ;";
+        "${ok  drfdesfs ;a";
     char *res = expand_all_string(hash_map, var, &error);
     cr_assert_eq(error, 0);
     cr_assert(strcmp(res, expected) == 0);
     free(res);
     hash_map_free(hash_map);
 }
+
+/*Test(expand_all_string, random_example2)
+{
+    int error = 0;
+    struct hash_map *hash_map = var_hash_map_init();
+    // setup the var ok manually var=ok
+    char *key = malloc(sizeof(char) * 4);
+    char *tmp = "var";
+    char *value = malloc(sizeof(char) * 3);
+    char *tmp2 = "ok";
+    strcpy(key, tmp);
+    strcpy(value, tmp2);
+    char *key2 = malloc(sizeof(char) * 2);
+    char *tmp21 = "$";
+    char *value2 = malloc(sizeof(char) * 15);
+    char *tmp22 = "JesuisunDollar";
+    strcpy(key2, tmp21);
+    strcpy(value2, tmp22);
+    bool updated = false;
+    var_hash_map_insert(hash_map, key, value, &updated);
+    var_hash_map_insert(hash_map, key2, value2, &updated);
+    // test code
+    char *var = "char *var = ${var} $ $$ yo dfs {dsfsd  wr echo for;; \n $ok   "
+                "\\${ok $; drfdesfs ;a";
+    char *expected =
+        "char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
+        "${ok $; drfdesfs ;a";
+    char *res = expand_all_string(hash_map, var, &error);
+    cr_assert_eq(error, 0);
+    cr_assert(strcmp(res, expected) == 0);
+    free(res);
+    hash_map_free(hash_map);
+}*/

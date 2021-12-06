@@ -6,13 +6,13 @@ struct runtime *runtime_init()
 {
     struct runtime *new = xmalloc(sizeof(struct runtime));
     new->last_status = 0;
-    new->hash_map = var_hash_map_init();
+    new->variables = var_hash_map_init();
     return new;
 }
 
 void runtime_free(struct runtime *rt)
 {
-    hash_map_free(rt->hash_map);
+    hash_map_free(rt->variables);
     free(rt);
 }
 

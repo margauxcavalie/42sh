@@ -2,6 +2,7 @@
 
 #include <builtins/builtins.h>
 #include <err.h>
+#include <expansion/expansion.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -39,6 +40,29 @@ void ast_simple_cmd_print(struct ast_node *ast, struct print_context pc)
     printf("%s", str);
 }
 
+static struct vector *expands_simple_cmd_argv(struct ast_simple_cmd *ast,
+                                              struct runtime *rt)
+{
+    struct vector *new = vector_init(ast->params->size);
+    for (size_t i = 0; i < ast->params->size; i++)
+    {
+        struct vector *expanded_word = expands_word(ast->params->data[i], rt);
+        if (expanded_word == NULL)
+        {
+            warnx("Expansion: unmacthed quotes (tmp)");
+            vector_apply_on_elts(new, &free);
+            vector_destroy(new);
+            return NULL;
+        }
+        for (size_t j = 0; j < expanded_word->size; j++)
+        {
+            vector_append(new, expanded_word->data[j]);
+        }
+        vector_destroy(expanded_word); // do not destroy items
+    }
+    return new;
+}
+
 int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
 {
     rt->last_status = rt->last_status + 1 - 1; // TMP
@@ -48,25 +72,38 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
     if (ast_simple_cmd->params->size == 0)
         return 0;
 
+    // expands command arguments
+    struct vector *args_expended = expands_simple_cmd_argv(ast_simple_cmd, rt);
+    if (args_expended == NULL)
+    {
+        return 2;
+    }
+
     // Check if the command is a builtin
     bool is_builtin = false;
-    int status = exec_builtin(ast_simple_cmd, &is_builtin);
+    int status = exec_builtin(args_expended, &is_builtin);
     if (is_builtin)
+    {
+        // free expanded words vector
+        vector_apply_on_elts(args_expended, &free);
+        vector_destroy(args_expended);
         return status;
+    }
 
     pid_t pid = fork();
     if (pid == -1)
         return 1;
     if (pid == 0) // child
     {
-        size_t params_size = ast_simple_cmd->params->size;
+        size_t params_size = args_expended->size;
         char **params_cast = zalloc(sizeof(char *) * (params_size + 1));
         for (size_t i = 0; i < params_size; i++)
         {
-            params_cast[i] = ast_simple_cmd->params->data[i];
+            params_cast[i] = args_expended->data[i];
         }
 
         int e = execvp(params_cast[0], params_cast);
+
         if (e == -1)
             errx(127, "command not found: %s", params_cast[0]);
         return 127; // never executed
@@ -75,6 +112,9 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
     {
         int wstatus;
         waitpid(pid, &wstatus, 0);
+        // free expanded words vector
+        vector_apply_on_elts(args_expended, &free);
+        vector_destroy(args_expended);
         return WEXITSTATUS(wstatus);
     }
 }

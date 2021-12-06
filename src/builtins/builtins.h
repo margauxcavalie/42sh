@@ -14,4 +14,4 @@ struct matching_builtin
 };
 
 int builtin_echo(int argc, char **argv);
-int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin);
+int exec_builtin(struct vector *argv, bool *is_builtin);

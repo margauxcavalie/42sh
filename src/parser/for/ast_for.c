@@ -1,5 +1,7 @@
 #include "ast_for.h"
 
+#include <err.h>
+#include <expansion/expansion.h>
 #include <stdio.h>
 #include <utils/alloc.h>
 #include <vector/vector.h>
@@ -12,8 +14,8 @@ void ast_for_free(struct ast_node *ast)
     struct ast_for *ast_for = (struct ast_for *)ast;
     if (ast_for->var_name)
         free(ast_for->var_name);
-    vector_apply_on_elts(ast_for->condition, &free);
-    vector_destroy(ast_for->condition);
+    vector_apply_on_elts(ast_for->list, &free);
+    vector_destroy(ast_for->list);
     ast_node_free(ast_for->body);
 }
 
@@ -31,9 +33,9 @@ void ast_for_print(struct ast_node *ast, struct print_context pc)
     printf("%s ", ast_for->var_name); // mandatory word
     ast_node_print_indent(pc.indent); // add indent
     printf("} in { ");
-    for (size_t i = 0; i < ast_for->condition->size; i++)
+    for (size_t i = 0; i < ast_for->list->size; i++)
     {
-        char *temp = ast_for->condition->data[i];
+        char *temp = ast_for->list->data[i];
         printf("%s ", temp);
     }
     ast_node_print_indent(pc.indent); // add indent
@@ -46,17 +48,46 @@ void ast_for_print(struct ast_node *ast, struct print_context pc)
     printf("};");
 }
 
+static struct vector *expands_for_list(struct ast_for *ast, struct runtime *rt)
+{
+    struct vector *new = vector_init(ast->list->size);
+    for (size_t i = 0; i < ast->list->size; i++)
+    {
+        struct vector *expanded_word = expands_word(ast->list->data[i], rt);
+        if (expanded_word == NULL)
+        {
+            warnx("Expansion: unmacthed quotes (tmp)");
+            vector_destroy(new);
+            return NULL;
+        }
+        for (size_t j = 0; j < expanded_word->size; j++)
+        {
+            vector_append(new, expanded_word->data[j]);
+        }
+        vector_destroy(expanded_word); // do not destroy items
+    }
+    return new;
+}
+
 /**
  * @brief NOT FINISHED
  */
 int ast_for_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_for *ast_for = (struct ast_for *)ast;
-    size_t c;
-    for (c = ast_for->advancement; c < ast_for->condition->size; c++)
+
+    struct vector *expanded_list = expands_for_list(ast_for, rt);
+    if (expanded_list == NULL)
+        return 2;
+
+    for (size_t c = 0; c < expanded_list->size; c++)
     {
+        // SET variable
         ast_node_exec(ast_for->body, rt);
     }
+
+    vector_apply_on_elts(expanded_list, &free);
+    vector_destroy(expanded_list);
 
     return 0;
 }
@@ -76,9 +107,8 @@ struct ast_for *ast_for_init()
     base->node_print = &ast_for_print;
     base->node_exec = &ast_for_exec;
 
-    new_ast->condition = vector_init(5);
+    new_ast->list = vector_init(5);
     new_ast->body = NULL;
-    new_ast->advancement = 0;
     new_ast->var_name = NULL;
     return new_ast;
 }
@@ -89,7 +119,7 @@ struct ast_for *ast_for_init()
 void ast_for_add_word(struct ast_for *ast, char *word)
 {
     char *elt = strdup(word);
-    ast->condition = vector_append(ast->condition, elt);
+    ast->list = vector_append(ast->list, elt);
 }
 
 void ast_for_set_body(struct ast_for *ast, struct ast_node *body)

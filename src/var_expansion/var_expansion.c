@@ -4,7 +4,7 @@
 #include <lexer/token.h>
 #include <utils/alloc.h>
 #include <utils/vec.h>
-#define HASH_MAP_SIZE 16
+#define HASH_MAP_SIZE 32
 
 /**
  * @brief init the hash_map storing our variables

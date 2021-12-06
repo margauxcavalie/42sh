@@ -14,22 +14,22 @@ status: 0
 ---
 name: c_quotes_fail
 cmd: ./42sh -c "echo ' '    '  "
-stderr: "42sh: Syntax error\n"
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
 status: 2
 ---
 name: c_quotes_fail2
 cmd: ./42sh -c "' '  ;  '  "
-stderr: "42sh: Syntax error\n"
+stderr: "42sh: command not found:  \n42sh: Expansion: unmacthed quotes (tmp)\n"
 status: 2
 ---
 name: c_quotes_fail3
 cmd: ./42sh -c "echo ' '    '  echo world"
-stderr: "42sh: Syntax error\n"
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
 status: 2
 ---
 name: c_quotes_fail4
 cmd: ./42sh -c "echo '  "
-stderr: "42sh: Syntax error\n"
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
 status: 2
 ---
 name: c_quotes_fail5
@@ -153,7 +153,7 @@ status: 0
 ---
 name: c_testbackslash4
 cmd: ./42sh -c "\'echo'"
-stderr: "42sh: Syntax error\n"
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
 status: 2
 ---
 name: c_testbackslash5

@@ -1,7 +1,10 @@
 #include "ast_redir.h"
 
+#include <err.h>
+#include <expansion/expansion.h>
 #include <stdio.h>
 #include <utils/alloc.h>
+#include <vector/vector.h>
 
 #include "redir_fd.h"
 
@@ -42,15 +45,42 @@ void ast_redir_print(struct ast_node *ast, struct print_context pc)
     printf(" %d%s %s", ast_redir->fd, redir_op, ast_redir->file);
 }
 
+static char *expands_redir_path(struct ast_redir *ast, struct runtime *rt)
+{
+    struct vector *expanded_word = expands_word(ast->file, rt);
+    if (expanded_word == NULL)
+    {
+        warnx("Expansion: unmacthed quotes (tmp)");
+        return NULL;
+    }
+    if (expanded_word->size != 1)
+    {
+        warnx("%s: ambiguous redirect", ast->file);
+        vector_apply_on_elts(expanded_word, &free);
+        vector_destroy(expanded_word);
+        return NULL;
+    }
+    char *new = expanded_word->data[0];
+    vector_destroy(expanded_word); // do not destroy items
+    return new;
+}
+
 int ast_redir_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_redir *ast_redir = (struct ast_redir *)ast;
 
+    char *path_expanded = expands_redir_path(ast_redir, rt);
+    if (path_expanded == NULL)
+        return 2;
+
     int saved_fd;
-    bool is_file;
-    int file_fd = redir_in_out(ast_redir, &saved_fd, &is_file, false); // TODO
+    int file_fd =
+        redir_in_out(ast_redir, path_expanded, &saved_fd, false); // TODO
     if (file_fd == -1)
-        return 0;
+    {
+        free(path_expanded);
+        return 2;
+    }
 
     int status = ast_node_exec(ast_redir->child, rt);
     fflush(stdout);
@@ -58,6 +88,7 @@ int ast_redir_exec(struct ast_node *ast, struct runtime *rt)
     dup2(saved_fd, ast_redir->fd);
     close(saved_fd);
     close(file_fd);
+    free(path_expanded);
     return status;
 }
 

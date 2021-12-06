@@ -8,6 +8,7 @@ subdir('builtins')
 subdir('main')
 subdir('hash_map')
 subdir('var_expansion')
+subdir('expansion')
 
 all_sources += files('runtime.c')
 
