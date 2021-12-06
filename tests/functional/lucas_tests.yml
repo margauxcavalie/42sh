@@ -228,3 +228,39 @@ cmd: ./42sh -c "\! \!"
 stderr: |
   42sh: command not found: !
 status: 127
+---
+name: cd dot dot
+cmd: ./42sh -c "cd ..; pwd"
+stdout: |
+  /home/lucas/Documents/ING1/42sh
+status: 0
+---
+name: cd multiple args
+cmd: ./42sh -c "cd ..; cd doc sadfsdf; pwd;"
+stdout: |
+  /home/lucas/Documents/ING1/42sh/doc
+status: 0
+---
+name: cd not found
+cmd: ./42sh -c "cd ..; cd ddsaasdoc sadfsdf"
+stderr: |
+  42sh: cd: can't cd to ddsaasdoc
+status: 2
+---
+name: cd minus
+cmd: ./42sh -c "cd ..; cd doc; cd -"
+stdout: |
+  /home/lucas/Documents/ING1/42sh
+status: 0
+---
+name: cd long path
+cmd: ./42sh -c "cd ..; cd src/parser/and_or; pwd"
+stdout: |
+  /home/lucas/Documents/ING1/42sh/src/parser/and_or
+status: 0
+---
+name: cd dot
+cmd: ./42sh -c "cd ..; cd .; pwd"
+stdout: |
+  /home/lucas/Documents/ING1/42sh
+status: 0
