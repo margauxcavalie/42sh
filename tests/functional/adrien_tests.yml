@@ -213,3 +213,14 @@ name: c_redir_and_hard2
 cmd: ./42sh -c "echo COUILLE 4>file_test 2>&4 >&2; cat 8<file_test <&8; rm file_test";
 stdout: "COUILLE\n"
 status: 0
+---
+name: c_redir_shell_cmd_empty_error
+cmd: ./42sh -c "if true; then echo salut; fi 2>/dev/stdout";
+stdout: "salut\n"
+status: 0
+---
+name: c_redir_shell_cmd_double_redif
+cmd: ./42sh -c "if echo test; then ls plouf; fi 2>/dev/stdout >&2";
+stdout: "ls: cannot access 'plouf': No such file or directory\ntest\n"
+status: 2
+
