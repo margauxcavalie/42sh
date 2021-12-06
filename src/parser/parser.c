@@ -4,11 +4,10 @@
 #include <parser/for/rules_for.h>
 #include <parser/if/rules_if.h>
 #include <parser/pipeline/rule_pipeline.h>
-#include <parser/redir/rules_redir.h>
 #include <parser/redir/ast_redir.h>
+#include <parser/redir/rules_redir.h>
 #include <parser/simple_cmd/rules_simple_cmd.h>
 #include <parser/while_until/rules_while_until.h>
-
 
 static enum parser_status handle_parse_error(enum parser_status status,
                                              struct ast_node **ast)
@@ -74,7 +73,7 @@ enum parser_status parse_rule_cmd(struct ast_node **ast, struct lexer **lexer)
         if (status != PARSER_OK)
             goto error;
         struct ast_node *ast_shell_cmd = *ast;
-        
+
         struct ast_node **saved_ast = ast;
 
         struct ast_node *ast_cur = *ast;
