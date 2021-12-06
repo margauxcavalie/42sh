@@ -19,10 +19,11 @@ static enum parser_status handle_parse_error(enum parser_status status,
 
 /**
  * @brief temporary version
- * shell_command: rule_if
+ * shell_command: '{' compound_list '}'
+ *          | rule_for
  *          | rule_while
  *          | rule_until
- *          | rule_for
+ *          | rule_if
  *
  * @return enum parser_status
  */
@@ -31,7 +32,24 @@ enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
-    enum parser_status status = parse_rule_if(ast, lexer);
+    struct token *tok = lexer_peek(*lexer);
+    if (is_op(tok, OP_LBRACE)) // '{'
+    {
+        token_free(lexer_pop(*lexer));
+        enum parser_status status = parse_rule_compound_list(ast, lexer);
+        if (status != PARSER_OK)
+            goto error;
+        struct token *tok = lexer_peek(*lexer);
+        if (is_op(tok, OP_RBRACE)) // '}'
+        {
+            token_free(lexer_pop(*lexer));
+            lexer_free_without_pretokens(saved_lexer);
+            return PARSER_OK;
+        }
+        goto error;
+    }
+
+    enum parser_status status = parse_rule_for(ast, lexer);
     if (status != PARSER_OK)
     {
         status = parse_rule_while(ast, lexer);
@@ -40,7 +58,7 @@ enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
             status = parse_rule_until(ast, lexer);
             if (status != PARSER_OK)
             {
-                status = parse_rule_for(ast, lexer);
+                status = parse_rule_if(ast, lexer);
                 if (status != PARSER_OK)
                     goto error;
             }
