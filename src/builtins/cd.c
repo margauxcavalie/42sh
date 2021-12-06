@@ -1,6 +1,5 @@
 #include <builtins/builtins.h>
 #include <err.h>
-#include <limits.h>
 #include <stdio.h>
 
 /**
@@ -17,8 +16,8 @@ int builtin_cd(int argc, char **argv)
             warnx("cd: HOME not set");
             return 2;
         }
-        char curr_dir[PATH_MAX];
-        if (getcwd(curr_dir, PATH_MAX) == NULL)
+        char curr_dir[4096];
+        if (getcwd(curr_dir, 4096) == NULL)
             return 2;
         if (chdir(home_dir) != 0)
             return 2;
@@ -34,8 +33,8 @@ int builtin_cd(int argc, char **argv)
             warnx("cd: OLDPWD not set");
             return 2;
         }
-        char curr_dir[PATH_MAX];
-        if (getcwd(curr_dir, PATH_MAX) == NULL)
+        char curr_dir[4096];
+        if (getcwd(curr_dir, 4096) == NULL)
             return 2;
         if (chdir(oldpwd) != 0)
             return 2;
@@ -43,8 +42,8 @@ int builtin_cd(int argc, char **argv)
         printf("%s\n", oldpwd);
         return 0;
     }
-    char curr_dir[PATH_MAX];
-    if (getcwd(curr_dir, PATH_MAX) == NULL)
+    char curr_dir[4096];
+    if (getcwd(curr_dir, 4096) == NULL)
         return 2;
     setenv("OLDPWD", curr_dir, 1);
     int rc = chdir(*(argv + 1));
