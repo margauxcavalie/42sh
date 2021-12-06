@@ -213,4 +213,3 @@ name: c_redir_and_hard2
 cmd: ./42sh -c "echo COUILLE 4>file_test 2>&4 >&2; cat 8<file_test <&8; rm file_test";
 stdout: "COUILLE\n"
 status: 0
-
