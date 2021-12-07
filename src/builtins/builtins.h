@@ -20,3 +20,4 @@ int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin,
                  struct runtime *rt);
 int builtin_cd(int argc, char **argv,
                __attribute__((unused)) struct runtime *rt);
+int builtin_break(int argc, char **argv, struct runtime *rt);

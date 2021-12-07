@@ -187,3 +187,45 @@ name: continue_several_loops_hard
 cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; continue 1; echo chapeau; done; echo salut; done"
 stdout: "coucou\ncoucou\nsalut\ncoucou\ncoucou\nsalut\n"
 status: 0
+---
+name: break_several_loops_hard
+cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; break 1; echo chapeau; done; echo salut; done"
+stdout: "coucou\nsalut\ncoucou\nsalut\n"
+status: 0
+---
+name: break_in_for
+cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; break; echo salut; done"
+stdout: "coucou\n"
+status: 0
+---
+name: break_in_for_negative
+cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; break -6; echo salut; done"
+stdout: "coucou\n"
+stderr: "42sh: break: Illegal number: -6\n"
+status: 2
+---
+name: break_in_for_ineffective
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; echo salut; break; done"
+stdout: "coucou\nsalut\n"
+status: 0
+---
+name: break_in_for_char
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; echo salut; break oula; done"
+stdout: "coucou\nsalut\n"
+stderr: "42sh: break: Illegal number: oula\n"
+status: 2
+---
+name: break_several_loops
+cmd: ./42sh -c "for elt in 1 2; do if true; then echo coucou; break; fi; echo salut; done"
+stdout: "coucou\n"
+status: 0
+---
+name: break_several_loops2
+cmd: ./42sh -c "for elt in 1 2; do break 2; if true; then echo coucou; fi; echo salut; done"
+stdout: ""
+status: 0
+---
+name: break_several_loops3
+cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; break 2; done; echo salut; done"
+stdout: "coucou\n"
+status: 0
