@@ -20,7 +20,7 @@ void ast_for_free(struct ast_node *ast)
 }
 
 /**
- * @brief NOT FINISHED
+ * @brief Prints the content of the AST
  */
 void ast_for_print(struct ast_node *ast, struct print_context pc)
 {
@@ -70,10 +70,11 @@ static struct vector *expands_for_list(struct ast_for *ast, struct runtime *rt)
 }
 
 /**
- * @brief NOT FINISHED
+ * @brief Executes the body of the for
  */
 int ast_for_exec(struct ast_node *ast, struct runtime *rt)
 {
+    rt->loops_count += 1;
     struct ast_for *ast_for = (struct ast_for *)ast;
 
     struct vector *expanded_list = expands_for_list(ast_for, rt);
@@ -84,11 +85,17 @@ int ast_for_exec(struct ast_node *ast, struct runtime *rt)
     {
         // SET variable
         ast_node_exec(ast_for->body, rt);
+        if (rt->loops_to_break != 0)
+            break;
+        rt->encountered_continue = false;
     }
 
     vector_apply_on_elts(expanded_list, &free);
     vector_destroy(expanded_list);
 
+    if (rt->loops_to_break > 0)
+        rt->loops_to_break -= 1;
+    rt->loops_count -= 1;
     return 0;
 }
 

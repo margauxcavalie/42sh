@@ -10,6 +10,8 @@ enum op_type
     OP_NEG,
     OP_OR,
     OP_AND,
+    OP_LBRACE,
+    OP_RBRACE,
 };
 
 enum redir_type

@@ -7,6 +7,9 @@ struct runtime *runtime_init()
     struct runtime *new = xmalloc(sizeof(struct runtime));
     new->last_status = 0;
     new->variables = var_hash_map_init();
+    new->loops_to_break = 0;
+    new->loops_count = 0;
+    new->encountered_continue = false;
     return new;
 }
 
