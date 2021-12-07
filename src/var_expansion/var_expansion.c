@@ -27,17 +27,24 @@ struct hash_map *var_hash_map_init(void)
  * @param hash_map
  * @param key name of the var
  * @param value value inside
- * @param updated true if the key was already assiociated with an old value and
- * was updated
  * @return true
  * @return false
  */
-bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value,
-                         bool *updated)
+bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 {
-    return hash_map_insert(hash_map, key, value, updated);
+    return hash_map_insert(hash_map, key, value, free);
 }
-#include <stdio.h>
+
+/**
+ * @brief free an hash map full of variables
+ * 
+ * @param hash_map 
+ */
+void var_hash_map_free(struct hash_map *hash_map)
+{
+    hash_map_free(hash_map, free);
+}
+
 /**
  * @brief
  * $ is a separator if not in first place here
