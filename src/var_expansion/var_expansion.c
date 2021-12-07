@@ -1,10 +1,11 @@
 #include "var_expansion.h"
 
+#include <ctype.h>
 #include <hash_map/hash_map.h>
 #include <lexer/token.h>
 #include <utils/alloc.h>
 #include <utils/vec.h>
-#define HASH_MAP_SIZE 16
+#define HASH_MAP_SIZE 32
 
 /**
  * @brief init the hash_map storing our variables
@@ -26,15 +27,22 @@ struct hash_map *var_hash_map_init(void)
  * @param hash_map
  * @param key name of the var
  * @param value value inside
- * @param updated true if the key was already assiociated with an old value and
- * was updated
  * @return true
  * @return false
  */
-bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value,
-                         bool *updated)
+bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 {
-    return hash_map_insert(hash_map, key, value, updated);
+    return hash_map_insert(hash_map, key, value, free);
+}
+
+/**
+ * @brief free an hash map full of variables
+ *
+ * @param hash_map
+ */
+void var_hash_map_free(struct hash_map *hash_map)
+{
+    hash_map_free(hash_map, free);
 }
 
 /**
@@ -46,29 +54,78 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value,
  */
 static bool is_separator(char c, int count)
 {
+    // printf("%c\n", c);
     bool res = true;
     if (count <= 1)
-        res = c == '\0' || c == '\t' || c == ' ';
+    {
+        res = !isalnum(c) && c != '$' && c != '{' && c != '_';
+    }
     else
-        res = c == '\0' || c == '\t' || c == ' ' || c == '$';
+    {
+        res = !isalnum(c) && c != '_';
+    }
     return res;
 }
 
+/**
+ * @brief
+ *
+ */
+int check_valid_substitution(char *str, size_t count)
+{
+    int res = 1;
+    if ((str[0] == '$' || isdigit(str[0])) && count > 3)
+    {
+        return 0;
+    }
+    for (size_t i = 0; str[i] != '}'; i++)
+    {
+        res = res && !is_separator(str[i], i);
+    }
+    return res;
+}
+
+/**
+ * @brief len of a var behind a $
+ *
+ * @param var
+ * @param counter
+ * @return size_t
+ */
 static size_t varlen(char *var, size_t *counter)
 {
     size_t res = 0;
     size_t count = 1;
+    if (isdigit(var[count]))
+    {
+        res++;
+        count++;
+        *counter += count;
+        return res;
+    }
     while (var[count] && !is_separator(var[count], count))
     {
         // printf("%c\n", var[count]);
         if (var[count] == '{')
         {
             count++;
-            continue;
-        }
-        if (var[count] == '}')
-        {
-            count++;
+            size_t dep = count;
+            while (var[count] && var[count] != '}')
+            {
+                // printf("%c\n", var[count]);
+                count++;
+                res++;
+            }
+            if (var[count] == '}')
+            {
+                if (check_valid_substitution(var + dep, count) == 0)
+                {
+                    return 0;
+                }
+                count++;
+                *counter += count;
+                return res;
+            }
             break;
         }
         count++;
@@ -153,8 +210,9 @@ int check_all_brackets(char *str)
  */
 char *build_key(char *var, int *error, size_t *counter)
 {
-    if (var[0] && (var[1] == '\0' || var[1] == ' ')) // if single $
+    if (var[0] && (is_separator(var[1], 0))) // if single $
     {
+        *counter += 1;
         return NULL;
     }
     int type = check_brackets(var);
@@ -231,35 +289,40 @@ static int can_be_escaped(char c)
  * @param var
  * @return char*
  */
-char *expand_all_string(struct hash_map *hash_map, char *str, int *error)
+char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
+                        size_t *counter)
 {
-    size_t counter = 0;
+    if (str[0] != '\"')
+    {
+        *error = 1;
+        return NULL;
+    }
+    size_t count = 1; // skip the first \"
     // init the vec
     struct vec *vec = xmalloc(sizeof(struct vec));
     vec_init(vec);
-    while (str[counter] != '\0')
+    while (str[count] != '\0' && str[count] != '\"')
     {
         // skip until we find a $
-        while (str[counter] != '\0' && str[counter] != '$')
+        while (str[count] != '\0' && str[count] != '\"' && str[count] != '$')
         {
-            if (str[counter] == '\\') // skip if backslash
+            if (str[count] == '\\') // skip if backslash
             {
-                if (str[counter + 1] != '\0'
-                    && can_be_escaped(str[counter + 1]))
+                if (str[count + 1] != '\0' && can_be_escaped(str[count + 1]))
                 {
-                    counter += 1;
+                    count += 1;
                 }
             }
             // printf("%c\n", str[counter]);
-            vec_push(vec, str[counter]);
-            counter += 1;
+            vec_push(vec, str[count]);
+            count += 1;
         }
-        if (str[counter] == '\0')
+        if (str[count] == '\0' || str[count] == '\"')
         {
             break;
         }
         // else it's a word
-        char *word = expand_var(hash_map, str + counter, error, &counter);
+        char *word = expand_var(hash_map, str + count, error, &count);
         /*printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
         if (word != NULL)
             printf("%s\n", word);
@@ -277,7 +340,6 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error)
             /*printf("$ will be added\n");
             printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");*/
             vec_push(vec, '$');
-            counter++;
             /*printf("$ added\n");
             printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");*/
             continue;
@@ -292,7 +354,16 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error)
         // printf("%s\n", vec_cstring(vec));
         // printf("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n");
     }
+    if (str[count] == '\0')
+    {
+        *error = 1;
+        vec_destroy(vec);
+        free(vec);
+        return NULL;
+    }
+    count++;
     char *res = vec_cstring(vec); // get the string
+    *counter += count;
     /*printf("ccccccccccccccccccccccccccccccccccccc\n");
     printf("%s\n", res);
     printf("ccccccccccccccccccccccccccccccccccccc\n");*/

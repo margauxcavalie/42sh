@@ -1,7 +1,7 @@
 #include <builtins/builtins.h>
+#include <stdio.h>
 
-int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin,
-                 struct runtime *rt)
+int exec_builtin(struct vector *argv, bool *is_builtin, struct runtime *rt)
 {
     struct matching_builtin our_builtins[] = { { "echo", &builtin_echo },
                                                { "continue",
@@ -12,13 +12,13 @@ int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin,
 
     for (size_t i = 0; i < size; i++)
     {
-        if (!strcmp(ast->params->data[0], our_builtins[i].cmd))
+        if (!strcmp(argv->data[0], our_builtins[i].cmd))
         {
-            size_t params_size = ast->params->size;
+            size_t params_size = argv->size;
             char **params_cast = zalloc(sizeof(char *) * (params_size + 1));
             for (size_t i = 0; i < params_size; i++)
             {
-                params_cast[i] = ast->params->data[i];
+                params_cast[i] = argv->data[i];
             }
             *is_builtin = true;
             int result =

@@ -2,16 +2,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <utils/alloc.h>
 
 struct vector *vector_init(size_t n)
 {
     // WILL NOT BE 0
-    struct vector *new = malloc(sizeof(struct vector));
+    struct vector *new = xmalloc(sizeof(struct vector));
     if (!new)
         return NULL;
     new->size = 0;
     new->capacity = n;
-    new->data = malloc(sizeof(void *) * n);
+    new->data = xmalloc(sizeof(void *) * n);
     if (!new->data)
     {
         free(new);
@@ -34,7 +35,7 @@ struct vector *vector_resize(struct vector *v, size_t n)
     // VECTOR NOT NULL and N > 0
     if (n == v->size)
         return v;
-    void **tmp = realloc(v->data, sizeof(void *) * n);
+    void **tmp = xrealloc(v->data, sizeof(void *) * n);
     if (!tmp)
         return NULL;
     v->data = tmp;

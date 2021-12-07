@@ -121,8 +121,7 @@ struct token *get_next_token(struct lexer *lexer)
 
         enum rw_type rw_type = RW_UNKNOWN;
         // 'if' -> RW_IF; 'word' -> RW_UNKNOWN
-        if (new_pretoken->is_quoted == 0)
-            rw_type = match_rw_type(new_pretoken);
+        rw_type = match_rw_type(new_pretoken);
 
         // if the syntax matches the one of a reserved word
         if (rw_type != RW_UNKNOWN)

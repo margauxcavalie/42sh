@@ -5,15 +5,17 @@
 #include <string.h>
 #include <utils/alloc.h>
 
+// TODO
 static struct pair_list *list_replace_key(struct pair_list *l, char *key,
-                                          char *value)
+                                          void *value,
+                                          void (*free_value)(void *))
 {
     while (l)
     {
         if (strcmp(l->key, key) == 0)
         {
-            char *tmp = l->value;
-            free(tmp);
+            void *tmp = l->value;
+            free_value(tmp);
             free(key);
             l->value = value;
             return l;
@@ -23,7 +25,7 @@ static struct pair_list *list_replace_key(struct pair_list *l, char *key,
     return NULL;
 }
 
-static struct pair_list *pair_list_init(char *key, char *value)
+static struct pair_list *pair_list_init(char *key, void *value)
 {
     struct pair_list *list = xmalloc(sizeof(struct pair_list));
     if (!list)
@@ -57,14 +59,14 @@ struct hash_map *hash_map_init(size_t size)
  *
  * @param list
  */
-static void free_pair_list(struct pair_list *list)
+static void free_pair_list(struct pair_list *list, void (*free_value)(void *))
 {
     while (list)
     {
         struct pair_list *tmp = list;
         list = list->next;
         free(tmp->key);
-        free(tmp->value);
+        free_value(tmp->value);
         free(tmp);
     }
 }
@@ -74,13 +76,13 @@ static void free_pair_list(struct pair_list *list)
  *
  * @param hash_map
  */
-void hash_map_free(struct hash_map *hash_map)
+void hash_map_free(struct hash_map *hash_map, void (*free_value)(void *))
 {
     if (hash_map == NULL || hash_map->data == NULL)
         return;
     for (size_t i = 0; i < hash_map->size; i++)
     {
-        free_pair_list(hash_map->data[i]);
+        free_pair_list(hash_map->data[i], free_value);
     }
     free(hash_map->data);
     free(hash_map);
@@ -92,11 +94,11 @@ void hash_map_free(struct hash_map *hash_map)
  * @param list
  * @param key
  * @param value
- * @param updated_key
  * @return struct pair_list*
  */
 static struct pair_list *pair_list_insert(struct pair_list *list, char *key,
-                                          char *value, bool *updated_key)
+                                          void *value,
+                                          void (*free_value)(void *))
 {
     struct pair_list *elt = pair_list_init(key, value);
     if (!elt)
@@ -105,24 +107,18 @@ static struct pair_list *pair_list_insert(struct pair_list *list, char *key,
     }
     if (!list)
     {
-        if (updated_key)
-            *updated_key = false;
         return elt;
     }
     else
     {
-        struct pair_list *tmp = list_replace_key(list, key, value);
+        struct pair_list *tmp = list_replace_key(list, key, value, free_value);
         if (tmp)
         {
-            if (updated_key)
-                *updated_key = true;
             free(elt);
             return list;
         }
         else
         {
-            if (updated_key)
-                *updated_key = false;
             elt->next = list;
             return elt;
         }
@@ -135,12 +131,11 @@ static struct pair_list *pair_list_insert(struct pair_list *list, char *key,
  * @param hash_map
  * @param key
  * @param value
- * @param updated true if the key was already assiociated with an old value
  * @return true
  * @return false
  */
-bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
-                     bool *updated)
+bool hash_map_insert(struct hash_map *hash_map, char *key, void *value,
+                     void (*free_value)(void *))
 {
     if (hash_map == NULL || hash_map->size == 0 || hash_map->data == NULL)
     {
@@ -154,12 +149,12 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
     hash_value = hash_value % hash_map->size;
     // printf("checkpoint :\n");
     hash_map->data[hash_value] =
-        pair_list_insert(hash_map->data[hash_value], key, value, updated);
+        pair_list_insert(hash_map->data[hash_value], key, value, free_value);
     // printf("checkpoint :\n");
     return true;
 }
 
-static char *get_pair_list(const struct pair_list *list, char *key)
+static void *get_pair_list(const struct pair_list *list, char *key)
 {
     while (list)
     {
@@ -177,7 +172,7 @@ static char *get_pair_list(const struct pair_list *list, char *key)
  * @param key
  * @return const char* or NULL if key not found
  */
-char *hash_map_get(const struct hash_map *hash_map, char *key)
+void *hash_map_get(const struct hash_map *hash_map, char *key)
 {
     size_t hash_value = hash(key);
     if (hash_map == NULL || hash_map->size == 0 || hash_map->data == NULL)

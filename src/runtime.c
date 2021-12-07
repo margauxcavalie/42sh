@@ -6,7 +6,7 @@ struct runtime *runtime_init()
 {
     struct runtime *new = xmalloc(sizeof(struct runtime));
     new->last_status = 0;
-    new->hash_map = var_hash_map_init();
+    new->variables = var_hash_map_init();
     new->loops_to_break = 0;
     new->loops_count = 0;
     new->encountered_continue = false;
@@ -15,7 +15,7 @@ struct runtime *runtime_init()
 
 void runtime_free(struct runtime *rt)
 {
-    hash_map_free(rt->hash_map);
+    hash_map_free(rt->variables, free);
     free(rt);
 }
 

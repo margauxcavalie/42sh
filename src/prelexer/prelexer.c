@@ -96,6 +96,7 @@ static bool skip_quotes(const char *str, int *counter, char c)
     }
     if (str[*counter] == '\0')
         return false;
+    //*counter += 1;
     // printf("end : %c\n", str[*counter]);
     return true;
 }
@@ -103,7 +104,7 @@ static bool skip_quotes(const char *str, int *counter, char c)
 /**
  *  @brief returns the first word found in str
  */
-static char *get_word(const char *str, size_t *size, int *is_quoted)
+static char *get_word(const char *str, size_t *size)
 {
     int counter = 0;
     // init the vec
@@ -117,13 +118,11 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
         if (str[counter] == '\'')
         {
             // mark the quotes
-            *is_quoted = 1;
             c = '\'';
         }
         if (str[counter] == '\"')
         {
             // mark the dbl quotes
-            *is_quoted = 2;
             c = '\"';
         }
         if (c != 0)
@@ -131,18 +130,17 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
             int tmp = counter;
             if (skip_quotes(str, &counter, c) == false)
             {
-                // ERROR: quote is not paired
-                vec_destroy(curr_token);
-                free(curr_token);
-                return NULL;
+                // add the quoted content to the curr token
+                for (int i = tmp; i < counter; i++)
+                    vec_push(curr_token, str[i]);
             }
             else
             {
                 // add the quoted content to the curr token
-                for (int i = tmp + 1; i < counter; i++)
+                for (int i = tmp; i <= counter; i++)
                     vec_push(curr_token, str[i]);
+                counter += 1;
             }
-            counter += 1;
         }
         else // add the char to the token and proceed to the next one
         {
@@ -150,9 +148,9 @@ static char *get_word(const char *str, size_t *size, int *is_quoted)
             {
                 if (str[counter + 1] != '\0' && str[counter + 1] != EOF)
                 {
+                    vec_push(curr_token, str[counter]);
                     counter += 1;
                     vec_push(curr_token, str[counter]);
-                    *is_quoted = 1;
                 }
             }
             else
@@ -228,8 +226,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     struct pretoken_operator *operators_cpy =
         xmalloc(sizeof(struct pretoken_operator) * nb_ops);
     memcpy(operators_cpy, ops, sizeof(struct pretoken_operator) * nb_ops);
-    int is_quoted = 0;
-    char *word = get_word(str, size, &is_quoted);
+    char *word = get_word(str, size);
     if (word == NULL)
     {
         struct pretoken *new = pretoken_new(PRETOKEN_ERROR, NULL, 0);
@@ -238,7 +235,6 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     }
     size_t word_size = strlen(word);
     struct pretoken *new = pretoken_new(PRETOKEN_WORD, word, word_size);
-    new->is_quoted = is_quoted; // 0: no quotes, 1 single quotes, 2 dbl quotes
     free(word);
     free(operators_cpy);
     return new;

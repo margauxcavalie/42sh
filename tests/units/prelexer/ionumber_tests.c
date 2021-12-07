@@ -61,7 +61,7 @@ Test(prelexify, simple_ionumber_but_quoted)
     struct pretoken_vector *vec = prelexify(input);
     cr_assert_eq(vec->size, 3);
 
-    cr_assert_str_eq(vec->data[0]->str, "1");
+    cr_assert_str_eq(vec->data[0]->str, "''1");
     cr_assert_str_eq(vec->data[1]->str, ">");
 
     cr_assert_eq(vec->data[0]->type, PRETOKEN_WORD);
