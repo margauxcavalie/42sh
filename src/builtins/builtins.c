@@ -1,8 +1,7 @@
 #include <builtins/builtins.h>
 #include <stdio.h>
 
-int exec_builtin(struct vector *argv, bool *is_builtin,
-                 struct runtime *rt)
+int exec_builtin(struct vector *argv, bool *is_builtin, struct runtime *rt)
 {
     struct matching_builtin our_builtins[] = { { "echo", &builtin_echo },
                                                { "continue",
