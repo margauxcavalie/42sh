@@ -16,7 +16,7 @@ struct matching_builtin
 int builtin_echo(int argc, char **argv,
                  __attribute__((unused)) struct runtime *rt);
 int builtin_continue(int argc, char **argv, struct runtime *rt);
-int exec_builtin(struct ast_simple_cmd *ast, bool *is_builtin,
+int exec_builtin(struct vector *argv, bool *is_builtin,
                  struct runtime *rt);
 int builtin_cd(int argc, char **argv,
                __attribute__((unused)) struct runtime *rt);

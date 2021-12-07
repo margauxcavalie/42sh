@@ -81,7 +81,7 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
 
     // Check if the command is a builtin
     bool is_builtin = false;
-    int status = exec_builtin(ast_simple_cmd, &is_builtin, rt);
+    int status = exec_builtin(args_expended, &is_builtin, rt);
     if (is_builtin)
     {
         // free expanded words vector
