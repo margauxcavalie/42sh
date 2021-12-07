@@ -11,7 +11,7 @@
 struct runtime
 {
     int last_status; // is the return of the last execution
-    //struct hash_map *variables;
+    // struct hash_map *variables;
     int loops_to_break;
     int loops_count;
     bool encountered_continue;

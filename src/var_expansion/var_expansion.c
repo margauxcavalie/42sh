@@ -3,9 +3,9 @@
 #include <ctype.h>
 #include <hash_map/hash_map.h>
 #include <lexer/token.h>
+#include <stdlib.h>
 #include <utils/alloc.h>
 #include <utils/vec.h>
-#include <stdlib.h>
 #define HASH_MAP_SIZE 32
 
 static bool is_a_spec_char(char c)
@@ -219,8 +219,7 @@ char *build_key(char *var, int *error, size_t *counter)
  * @param var
  * @return char*
  */
-char *expand_var(char *var, int *error,
-                 size_t *counter)
+char *expand_var(char *var, int *error, size_t *counter)
 {
     if (var == NULL || var[0] != '$')
     {
@@ -258,8 +257,7 @@ static int can_be_escaped(char c)
  * @param var
  * @return char*
  */
-char *expand_all_string(char *str, int *error,
-                        size_t *counter)
+char *expand_all_string(char *str, int *error, size_t *counter)
 {
     if (str[0] != '\"')
     {
