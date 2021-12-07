@@ -691,7 +691,8 @@ Test(expand_all_string, back_slash2)
     char *value2 = malloc(sizeof(char) * 15);
     char *tmp22 = "JesuisunDollar";
     strcpy(key2, tmp21);
-    strcpy(value2, tmp22);;
+    strcpy(value2, tmp22);
+    ;
     var_hash_map_insert(hash_map, key, value);
     var_hash_map_insert(hash_map, key2, value2);
     // test code

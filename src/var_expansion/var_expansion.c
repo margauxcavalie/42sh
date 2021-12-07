@@ -37,8 +37,8 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 
 /**
  * @brief free an hash map full of variables
- * 
- * @param hash_map 
+ *
+ * @param hash_map
  */
 void var_hash_map_free(struct hash_map *hash_map)
 {

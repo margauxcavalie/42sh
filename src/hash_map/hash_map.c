@@ -5,9 +5,10 @@
 #include <string.h>
 #include <utils/alloc.h>
 
-//TODO
+// TODO
 static struct pair_list *list_replace_key(struct pair_list *l, char *key,
-                                          void *value, void (*free_value)(void *))
+                                          void *value,
+                                          void (*free_value)(void *))
 {
     while (l)
     {
@@ -96,7 +97,8 @@ void hash_map_free(struct hash_map *hash_map, void (*free_value)(void *))
  * @return struct pair_list*
  */
 static struct pair_list *pair_list_insert(struct pair_list *list, char *key,
-                                          void *value, void (*free_value)(void *))
+                                          void *value,
+                                          void (*free_value)(void *))
 {
     struct pair_list *elt = pair_list_init(key, value);
     if (!elt)
@@ -132,7 +134,8 @@ static struct pair_list *pair_list_insert(struct pair_list *list, char *key,
  * @return true
  * @return false
  */
-bool hash_map_insert(struct hash_map *hash_map, char *key, void *value, void (*free_value)(void *))
+bool hash_map_insert(struct hash_map *hash_map, char *key, void *value,
+                     void (*free_value)(void *))
 {
     if (hash_map == NULL || hash_map->size == 0 || hash_map->data == NULL)
     {
