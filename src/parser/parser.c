@@ -2,13 +2,13 @@
 
 #include <parser/cmd_list/rules_cmd_list.h>
 #include <parser/for/rules_for.h>
+#include <parser/function/rule_function.h>
 #include <parser/if/rules_if.h>
 #include <parser/pipeline/rule_pipeline.h>
 #include <parser/redir/ast_redir.h>
 #include <parser/redir/rules_redir.h>
 #include <parser/simple_cmd/rules_simple_cmd.h>
 #include <parser/while_until/rules_while_until.h>
-#include <parser/function/rule_function.h>
 
 enum parser_status get_error_status(struct token *tok)
 {

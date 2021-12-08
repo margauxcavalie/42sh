@@ -1,7 +1,7 @@
 #pragma once
+#include <hash_map_function/hash_map_function.h>
 #include <stdbool.h>
 #include <var_expansion/var_expansion.h>
-#include <hash_map_function/hash_map_function.h>
 
 /**
  *
