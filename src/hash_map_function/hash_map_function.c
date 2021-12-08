@@ -1,15 +1,15 @@
 #include "hash_map_function.h"
 
+#include <parser/ast_node.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <parser/ast_node.h>
 #include <utils/alloc.h>
 
 // TODO
-static struct pair_list_function *list_replace_key(struct pair_list_function *l, char *key,
-                                          void *value,
-                                          void (*free_value)(struct ast_node *))
+static struct pair_list_function *
+list_replace_key(struct pair_list_function *l, char *key, void *value,
+                 void (*free_value)(struct ast_node *))
 {
     while (l)
     {
@@ -28,7 +28,8 @@ static struct pair_list_function *list_replace_key(struct pair_list_function *l,
 
 static struct pair_list_function *pair_list_init(char *key, void *value)
 {
-    struct pair_list_function *list = xmalloc(sizeof(struct pair_list_function));
+    struct pair_list_function *list =
+        xmalloc(sizeof(struct pair_list_function));
     if (!list)
         return NULL;
     list->key = key;
@@ -45,7 +46,8 @@ static struct pair_list_function *pair_list_init(char *key, void *value)
  */
 struct hash_map_function *hash_map_func_init(size_t size)
 {
-    struct hash_map_function *hash_map = xmalloc(sizeof(struct hash_map_function));
+    struct hash_map_function *hash_map =
+        xmalloc(sizeof(struct hash_map_function));
     if (!hash_map)
         return NULL;
     hash_map->data = zalloc(size * sizeof(struct pair_list_function));
@@ -60,7 +62,8 @@ struct hash_map_function *hash_map_func_init(size_t size)
  *
  * @param list
  */
-static void free_pair_list(struct pair_list_function *list, void (*free_value)(struct ast_node *))
+static void free_pair_list(struct pair_list_function *list,
+                           void (*free_value)(struct ast_node *))
 {
     while (list)
     {
@@ -77,7 +80,8 @@ static void free_pair_list(struct pair_list_function *list, void (*free_value)(s
  *
  * @param hash_map
  */
-void hash_map_func_free(struct hash_map_function *hash_map, void (*free_value)(struct ast_node *))
+void hash_map_func_free(struct hash_map_function *hash_map,
+                        void (*free_value)(struct ast_node *))
 {
     if (hash_map == NULL || hash_map->data == NULL)
         return;
@@ -97,9 +101,9 @@ void hash_map_func_free(struct hash_map_function *hash_map, void (*free_value)(s
  * @param value
  * @return struct pair_list_function*
  */
-static struct pair_list_function *pair_list_insert(struct pair_list_function *list, char *key,
-                                          void *value,
-                                          void (*free_value)(struct ast_node *))
+static struct pair_list_function *
+pair_list_insert(struct pair_list_function *list, char *key, void *value,
+                 void (*free_value)(struct ast_node *))
 {
     struct pair_list_function *elt = pair_list_init(key, value);
     if (!elt)
@@ -112,7 +116,8 @@ static struct pair_list_function *pair_list_insert(struct pair_list_function *li
     }
     else
     {
-        struct pair_list_function *tmp = list_replace_key(list, key, value, free_value);
+        struct pair_list_function *tmp =
+            list_replace_key(list, key, value, free_value);
         if (tmp)
         {
             free(elt);
@@ -135,8 +140,8 @@ static struct pair_list_function *pair_list_insert(struct pair_list_function *li
  * @return true
  * @return false
  */
-bool hash_map_func_insert(struct hash_map_function *hash_map, char *key, void *value,
-                     void (*free_value)(struct ast_node *))
+bool hash_map_func_insert(struct hash_map_function *hash_map, char *key,
+                          void *value, void (*free_value)(struct ast_node *))
 {
     if (hash_map == NULL || hash_map->size == 0 || hash_map->data == NULL)
     {
@@ -184,7 +189,8 @@ void *hash_map_func_get(const struct hash_map_function *hash_map, char *key)
     return get_pair_list(hash_map->data[hash_value], key);
 }
 
-static struct pair_list_function *list_find_pred(struct pair_list_function *l, char *key)
+static struct pair_list_function *list_find_pred(struct pair_list_function *l,
+                                                 char *key)
 {
     while (l->next)
     {
@@ -195,8 +201,8 @@ static struct pair_list_function *list_find_pred(struct pair_list_function *l, c
     return NULL;
 }
 
-static struct pair_list_function *remove_pair_list(struct pair_list_function *list, char *key,
-                                          bool *res)
+static struct pair_list_function *
+remove_pair_list(struct pair_list_function *list, char *key, bool *res)
 {
     struct pair_list_function *tmp;
     if (list == NULL)

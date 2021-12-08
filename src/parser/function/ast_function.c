@@ -1,8 +1,8 @@
 #include "ast_function.h"
 
+#include <hash_map_function/hash_map_function.h>
 #include <stdio.h>
 #include <utils/alloc.h>
-#include <hash_map_function/hash_map_function.h>
 
 void ast_function_free(struct ast_node *ast)
 {
@@ -22,9 +22,10 @@ void ast_function_print(struct ast_node *ast, struct print_context pc)
 int ast_function_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_function *ast_function = (struct ast_function *)ast;
-    
+
     // store function in hash table
-    bool res = hash_map_func_insert(rt->functions, ast_function->name, ast, &ast_function_free);
+    bool res = hash_map_func_insert(rt->functions, ast_function->name, ast,
+                                    &ast_function_free);
     return (res == true) ? 0 : 1;
 }
 

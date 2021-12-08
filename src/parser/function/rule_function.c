@@ -7,16 +7,15 @@
 
 #include "ast_function.h"
 
-
 /**
  * @brief funcdec: WORD '(' ')' ('\n')* shell_command
- * 
- * @param ast 
- * @param lexer 
- * @return enum parser_status 
+ *
+ * @param ast
+ * @param lexer
+ * @return enum parser_status
  */
 enum parser_status parse_rule_funcdec(struct ast_node **ast,
-                                     struct lexer **lexer)
+                                      struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
     enum parser_status status = PARSER_OK;
@@ -45,7 +44,7 @@ enum parser_status parse_rule_funcdec(struct ast_node **ast,
     }
     token_free(lexer_pop(*lexer));
 
-    while(is_op(lexer_peek(*lexer), OP_LINEFEED))
+    while (is_op(lexer_peek(*lexer), OP_LINEFEED))
     {
         token_free(lexer_pop(*lexer));
     }
@@ -56,7 +55,7 @@ enum parser_status parse_rule_funcdec(struct ast_node **ast,
     status = parse_rule_shell_cmd(&(ast_function->child), lexer);
     if (status != PARSER_OK)
         goto error;
-    
+
     lexer_free_without_pretokens(saved_lexer);
     return PARSER_OK;
 
