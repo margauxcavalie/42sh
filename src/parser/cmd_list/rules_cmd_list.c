@@ -33,7 +33,7 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
     {
         struct token *tok = lexer_pop(*lexer);
         token_free(tok);
-        enum parser_status status = parse_rule_and_or(&ast_child, lexer);
+        status = parse_rule_and_or(&ast_child, lexer);
         if (status != PARSER_OK)
             break;
         ast_cmd_list_add_ast(ast_list, ast_child);
@@ -44,7 +44,7 @@ enum parser_status parse_rule_command_list(struct ast_node **ast,
 error:
     restore_lexer(lexer, saved_lexer);
     ast_node_free_detach(ast);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }
 
 /**
@@ -56,10 +56,13 @@ static enum parser_status parse_rule_compound_separator(struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
+    enum parser_status status;
+
     // check if ';' or '\n'
     if (!(is_op(lexer_peek(*lexer), OP_SEMICOLON))
         && (!(is_op(lexer_peek(*lexer), OP_LINEFEED))))
     {
+        status = get_error_status(lexer_peek(*lexer));
         goto error;
     }
 
@@ -73,7 +76,7 @@ static enum parser_status parse_rule_compound_separator(struct lexer **lexer)
     return PARSER_OK;
 error:
     restore_lexer(lexer, saved_lexer);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }
 
 /**
@@ -114,5 +117,5 @@ enum parser_status parse_rule_compound_list(struct ast_node **ast,
 error:
     restore_lexer(lexer, saved_lexer);
     ast_node_free_detach(ast);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }

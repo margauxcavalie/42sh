@@ -47,8 +47,7 @@ enum parser_status parse_rule_and_or(struct ast_node **ast,
             token_free(tok);
         }
 
-        enum parser_status status =
-            parse_rule_pipeline(&ast_and_or->right, lexer);
+        status = parse_rule_pipeline(&ast_and_or->right, lexer);
         if (status != PARSER_OK)
             goto error;
     }
@@ -59,5 +58,5 @@ enum parser_status parse_rule_and_or(struct ast_node **ast,
 error:
     restore_lexer(lexer, saved_lexer);
     ast_node_free_detach(ast);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }
