@@ -8,6 +8,44 @@
 #include <utils/vec.h>
 #define HASH_MAP_SIZE 32
 
+/**
+ * @brief init the hash_map storing our variables
+ *
+ * @return struct hash_map*
+ */
+struct hash_map *var_hash_map_init(void)
+{
+    struct hash_map *hash_map = hash_map_init(HASH_MAP_SIZE);
+    return hash_map;
+}
+
+/**
+ * @brief insert a new pair value / key in the hash map
+ * key pair syntax : var=true
+ * key : var
+ * value : true
+ * => $(var) = true
+ * @param hash_map
+ * @param key name of the var
+ * @param value value inside
+ * @return true
+ * @return false
+ */
+bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
+{
+    return hash_map_insert(hash_map, key, value, free);
+}
+
+/**
+ * @brief free an hash map full of variables
+ *
+ * @param hash_map
+ */
+void var_hash_map_free(struct hash_map *hash_map)
+{
+    hash_map_free(hash_map, free);
+}
+
 static bool is_a_spec_char(char c)
 {
     bool res = c == '$' || c == '@' || c == '?' || c == '*' || c == '#';
@@ -219,7 +257,8 @@ char *build_key(char *var, int *error, size_t *counter)
  * @param var
  * @return char*
  */
-char *expand_var(char *var, int *error, size_t *counter)
+char *expand_var(struct hash_map *hash_map, char *var, int *error,
+                 size_t *counter)
 {
     if (var == NULL || var[0] != '$')
     {
@@ -228,7 +267,7 @@ char *expand_var(char *var, int *error, size_t *counter)
     char *key = build_key(var, error, counter);
     if (key == NULL)
         return NULL;
-    char *value = getenv(key);
+    char *value = hash_map_get(hash_map, key);
     free(key);
     if (value == NULL)
         return "";
@@ -257,7 +296,8 @@ static int can_be_escaped(char c)
  * @param var
  * @return char*
  */
-char *expand_all_string(char *str, int *error, size_t *counter)
+char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
+                        size_t *counter)
 {
     if (str[0] != '\"')
     {
@@ -289,7 +329,7 @@ char *expand_all_string(char *str, int *error, size_t *counter)
             break;
         }
         // else it's a word
-        char *word = expand_var(str + count, error, &count);
+        char *word = expand_var(hash_map, str + count, error, &count);
         /*printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
         if (word != NULL)
             printf("%s\n", word);

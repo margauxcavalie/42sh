@@ -10,12 +10,13 @@ struct runtime *runtime_init()
     new->loops_to_break = 0;
     new->loops_count = 0;
     new->encountered_continue = false;
+    new->variables = var_hash_map_init();
     return new;
 }
 
 void runtime_free(struct runtime *rt)
 {
-    // hash_map_free(rt->variables, free);
+    hash_map_free(rt->variables, free);
     free(rt);
 }
 
