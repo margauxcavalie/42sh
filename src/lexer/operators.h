@@ -12,6 +12,8 @@ enum op_type
     OP_AND,
     OP_LBRACE,
     OP_RBRACE,
+    OP_LPARENTHESE,
+    OP_RPARENTHESE
 };
 
 enum redir_type

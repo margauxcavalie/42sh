@@ -7,6 +7,7 @@ subdir('vector')
 subdir('builtins')
 subdir('main')
 subdir('hash_map')
+subdir('hash_map_function')
 subdir('var_expansion')
 subdir('expansion')
 
