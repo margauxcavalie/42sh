@@ -36,6 +36,7 @@ static enum error cstream_readline_read(struct cstream *base_cs, int *c)
         if ((err = interruptible_readline(prompt, &cs->current_line)))
             return err;
         str = cs->current_line;
+        cs->line_start = false;
         cs->line_position = 0;
     }
 
@@ -43,7 +44,7 @@ static enum error cstream_readline_read(struct cstream *base_cs, int *c)
     {
         free(str);
         cs->current_line = NULL;
-        *c = '\0'; // MAYBE ERROR
+        *c = '\n'; // MAYBE ERROR
         return NO_ERROR;
     }
 

@@ -34,12 +34,12 @@ status: 2
 ---
 name: c_quotes_fail5
 cmd: ./42sh -c "'if' true; then echo hello; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_quotes_fail6
 cmd: ./42sh -c "''if true; then echo hello; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if
@@ -73,62 +73,62 @@ status: 0
 ---
 name: c_if_error1
 cmd: ./42sh -c "if true; then fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error2
 cmd: ./42sh -c "if fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error3
 cmd: ./42sh -c "if fi;"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error4
 cmd: ./42sh -c "if true; then ; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error5
 cmd: ./42sh -c "if true; then echo fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: end of file unexpected\n"
 status: 2
 ---
 name: c_if_error6
 cmd: ./42sh -c "if true; then echo oui; fi; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error7
 cmd: ./42sh -c "if true then ; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error8
 cmd: ./42sh -c "if true then fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: end of file unexpected\n"
 status: 2
 ---
 name: c_if_error9
 cmd: ./42sh -c "if true; then echo oui;else ;echo oui ;fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error10
 cmd: ./42sh -c "if true; then echo oui;else then echo oui;fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error11
 cmd: ./42sh -c "if true; then echo oui;else echo oui; fi; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_if_error12
 cmd: ./42sh -c "if true; then echo oui;elif; echo oui; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_ifchiant
@@ -138,12 +138,12 @@ status: 0
 ---
 name: c_testbackslash
 cmd: ./42sh -c "if\"\" echo hello; then true; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_testbackslash2
 cmd: ./42sh -c "\if echo hello; then true; fi"
-stderr: "42sh: unexpected token\n"
+stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
 ---
 name: c_testbackslash3

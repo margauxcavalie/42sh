@@ -1,5 +1,4 @@
 #include <err.h>
-#include <getopt.h>
 #include <io/cstream.h>
 #include <lexer/lexer.h>
 #include <parser/parser.h>
@@ -14,16 +13,8 @@
  * \brief Parse the command line arguments
  * \return A character stream
  */
-static struct cstream *parse_args(int argc, char *argv[], char **to_free,
-                                  bool *pretty_print)
+static struct cstream *parse_args(int argc, char *argv[])
 {
-    if (argc >= 2
-        && strcmp(argv[1], "--pretty-print") == 0) // temporary it's ugly
-    {
-        *pretty_print = true;
-        argc -= 1;
-    }
-
     // If launched without argument, read the standard input
     if (argc == 1)
     {
@@ -35,7 +26,7 @@ static struct cstream *parse_args(int argc, char *argv[], char **to_free,
     // 42sh FILENAME
     if (argc == 2)
     {
-        FILE *fp = fopen(argv[1 + *pretty_print], "r");
+        FILE *fp = fopen(argv[1], "r");
         if (fp == NULL)
         {
             warn("failed to open input file");
@@ -45,63 +36,63 @@ static struct cstream *parse_args(int argc, char *argv[], char **to_free,
         return cstream_file_create(fp, /* fclose_on_free */ true);
     }
 
-    if (argc >= 3 && (!(strcmp(argv[1 + *pretty_print], "-c"))))
+    if (argc == 3 && strcmp(argv[1], "-c") == 0)
     {
-        char *str =
-            zalloc(sizeof(char) * (strlen(argv[2 + *pretty_print]) + 2));
-        strcpy(str, argv[2 + *pretty_print]);
-        str[strlen(argv[2 + *pretty_print])] = '\n';
-        struct cstream *machin = cstream_string_create(str);
-        *to_free = str;
-        return machin;
+        return cstream_string_create(argv[2]);
     }
 
-    fprintf(stderr, "Usage: %s [OPTIONS] [SCRIPT] [ARGUMENTS]\n", argv[0]);
+    fprintf(stderr, "Usage: %s [COMMAND]\n", argv[0]);
     return NULL;
 }
 
-static void execution(const char *script, struct runtime *rt, bool pretty_print)
+static void print_parser_error(enum parser_status status)
 {
-    struct pretoken_vector *pretoken = prelexify(script);
-    if (pretoken == NULL)
-        errx(2, "Syntax error");
+    if (status == PARSER_UNEXPECTED_TOKEN)
+        warnx("Syntax error: Unexpected token");
+    else if (status == PARSER_UNTERMINATED_QUOTES)
+        warnx("Syntax error: Unterminated quoted string");
+    else if (status == PARSER_UNEXPECTED_EOF)
+        warnx("Syntax error: end of file unexpected");
+    else
+        warnx("Syntax error: unknown error");
+}
+
+static int try_parse(struct ast_node **ast, struct vec *line, bool end)
+{
+    const char *str = vec_cstring(line);
+    struct pretoken_vector *pretoken = prelexify(str);
 
     struct lexer *lexer = lexer_new(pretoken);
-    struct ast_node *ast = NULL;
-    enum parser_status status = parse(&ast, &lexer);
+    enum parser_status status = parse(ast, &lexer);
+    lexer_free(lexer);
 
+    if (status == PARSER_OK)
+        return 0;
+    if (end == false && status == PARSER_UNEXPECTED_EOF)
+        return 1;
+    print_parser_error(status);
+    return 2;
+}
+
+static void execution(struct ast_node *ast, struct runtime *rt)
+{
     int return_code = 0;
-    if (status == PARSER_UNEXPECTED_TOKEN)
-    {
-        return_code = 2;
-    }
-    else
-    {
-        if (pretty_print)
-            ast_node_print(ast);
-        else
-            return_code = ast_node_exec(ast, rt);
-        ast_node_free(ast);
-    }
-
+    return_code = ast_node_exec(ast, rt);
     // set the last return code
     runtime_set_status(rt, return_code);
-    lexer_free(lexer);
 }
 
 /**
- * \brief Read and exec until EOF
+ * \brief Read and print lines on newlines until EOF
  * \return An error code
  */
-static int runtime(struct cstream *cs, bool pretty_print)
+enum error read_print_loop(struct cstream *cs, struct vec *line,
+                           struct runtime *rt)
 {
-    struct vec vec;
-    vec_init(&vec);
-
-    // Runtime struct
-    struct runtime *rt = runtime_init();
-
     enum error err;
+
+    const struct cstream_type *type = cs->type;
+
     while (true)
     {
         // Read the next character
@@ -109,52 +100,87 @@ static int runtime(struct cstream *cs, bool pretty_print)
         if ((err = cstream_pop(cs, &c)))
             return err;
 
+        // If the end of file was reached, stop right there
         if (c == EOF)
-        {
-            vec_push(&vec, '\0');
             break;
-        }
 
-        vec_push(&vec, c);
-
-        if (c == '\0')
+        // If a newline was met, print the line
+        if (c == '\n')
         {
-            execution(vec.data, rt, pretty_print);
-            // restore vector
-            vec_reset(&vec);
+            struct ast_node *ast = NULL;
+            int e = try_parse(&ast, line, false);
+            if (e == 0) // PARSER_OK
+            {
+                execution(ast, rt);
+                vec_reset(line);
+                if (type->interactive)
+                    type->reset(cs);
+            }
+            else if (e == 1)
+            {
+                vec_push(line, c);
+            }
+            else if (e == 2)
+            {
+                runtime_set_status(rt, 2);
+                vec_reset(line);
+                if (!type->interactive)
+                    break;
+                else
+                    type->reset(cs);
+            }
+            ast_node_free(ast);
+            continue;
         }
+
+        // Otherwise, add the character to the line
+        vec_push(line, c);
     }
 
-    execution(vec.data, rt, pretty_print);
+    if (line->size > 0)
+    {
+        struct ast_node *ast = NULL;
+        int e = try_parse(&ast, line, true);
+        if (e == 0) // PARSER_OK
+            execution(ast, rt);
+        else if (e == 2)
+            runtime_set_status(rt, 2);
+        ast_node_free(ast);
+    }
 
-    vec_destroy(&vec);
-
-    int status_code = rt->last_status;
-    runtime_free(rt);
-    return status_code;
+    return NO_ERROR;
 }
 
 int main(int argc, char *argv[])
 {
+    // Runtime initialisation
+    struct runtime *rt = runtime_init();
     int rc;
-    bool pretty_print = false;
-    char *to_free = NULL;
 
     // Parse command line arguments and get an input stream
     struct cstream *cs;
-    if ((cs = parse_args(argc, argv, &to_free, &pretty_print)) == NULL)
+    if ((cs = parse_args(argc, argv)) == NULL)
     {
-        rc = 1;
+        runtime_set_status(rt, 1);
         goto err_parse_args;
     }
 
-    rc = runtime(cs, pretty_print); // return code
+    // Create a vector to hold the current line
+    struct vec line;
+    vec_init(&line);
 
-    // err_loop:
-    if (to_free != NULL) // éventuellement faire quelque chose de plus propre
-        free(to_free);
-    cstream_string_free(cs);
+    // Run the test loop
+    if (read_print_loop(cs, &line, rt) != NO_ERROR)
+    {
+        runtime_set_status(rt, 1);
+        goto err_loop;
+    }
 
+err_loop:
+    cstream_free(cs);
+    vec_destroy(&line);
 err_parse_args:
+    rc = rt->last_status;
+    runtime_free(rt);
     return rc;
 }

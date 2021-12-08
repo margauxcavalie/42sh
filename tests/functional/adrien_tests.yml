@@ -223,4 +223,128 @@ name: c_redir_shell_cmd_double_redif
 cmd: ./42sh -c "if echo test; then ls plouf; fi 2>/dev/stdout >&2";
 stdout: "ls: cannot access 'plouf': No such file or directory\ntest\n"
 status: 2
-
+---
+name: c_eof_unexpected
+cmd: ./42sh -c "if";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected2
+cmd: ./42sh -c "for test in a";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected3
+cmd: ./42sh -c "echo |";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected4
+cmd: ./42sh -c "echo &&  ";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected5
+cmd: ./42sh -c "echo ||    ";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected6
+cmd: ./42sh -c "for test in";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected7
+cmd: ./42sh -c "for test";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected8
+cmd: ./42sh -c "for test in a;";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected9
+cmd: ./42sh -c "for test in a; do"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected10
+cmd: ./42sh -c "for test in a; do echo tezt; ls"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected11
+cmd: ./42sh -c "for test in a; do echo tezt; ls; "
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected12
+cmd: ./42sh -c "while"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected13
+cmd: ./42sh -c "while echo test;"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected14
+cmd: ./42sh -c "while echo test; do echo"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected15
+cmd: ./42sh -c "until"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected16
+cmd: ./42sh -c "until echo test;"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected17
+cmd: ./42sh -c "until echo test; do echo"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected18
+cmd: ./42sh -c "if true;"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected19
+cmd: ./42sh -c "if true; then"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected20
+cmd: ./42sh -c "if true; then echo test"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected21
+cmd: ./42sh -c "if true; then echo; elif"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected22
+cmd: ./42sh -c "if true; then echo; else"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected23
+cmd: ./42sh -c "if true; then echo; elif true; then"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected24
+cmd: ./42sh -c "if true; then echo; elif true; then echo; "
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected25
+cmd: ./42sh -c "if true; then echo; elif true; then echo; else ls"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
