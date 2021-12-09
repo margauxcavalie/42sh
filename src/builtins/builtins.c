@@ -7,7 +7,7 @@ int exec_builtin(struct vector *argv, bool *is_builtin, struct runtime *rt)
                                                { "continue",
                                                  &builtin_continue },
                                                { "cd", &builtin_cd },
-                                               { "break", &builtin_break } };
+                                               { "break", &builtin_break }, { "exit", &builtin_exit } };
     size_t size = sizeof(our_builtins) / sizeof(struct matching_builtin);
 
     for (size_t i = 0; i < size; i++)

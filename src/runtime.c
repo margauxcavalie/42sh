@@ -12,6 +12,7 @@ struct runtime *runtime_init()
     new->loops_to_break = 0;
     new->loops_count = 0;
     new->encountered_continue = false;
+    new->encountered_exit = false;
     return new;
 }
 
