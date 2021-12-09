@@ -113,8 +113,11 @@ enum error read_print_loop(struct cstream *cs, struct vec *line,
             {
                 execution(ast, rt);
                 vec_reset(line);
+                ast_node_free(ast);
                 if (type->interactive)
                     type->reset(cs);
+                if (rt->encountered_exit == true)
+                    break;
             }
             else if (e == 1)
             {
@@ -129,7 +132,6 @@ enum error read_print_loop(struct cstream *cs, struct vec *line,
                 else
                     type->reset(cs);
             }
-            ast_node_free(ast);
             continue;
         }
 
