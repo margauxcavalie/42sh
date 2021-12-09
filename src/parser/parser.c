@@ -129,7 +129,6 @@ error:
     return status;
 }
 
-
 /**
  * @brief temporary version
  * input: list '\n'
