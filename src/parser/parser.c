@@ -9,6 +9,7 @@
 #include <parser/redir/rules_redir.h>
 #include <parser/simple_cmd/rules_simple_cmd.h>
 #include <parser/while_until/rules_while_until.h>
+#include <parser/subshell/ast_subshell.h>
 
 enum parser_status get_error_status(struct token *tok)
 {
@@ -28,6 +29,7 @@ static enum parser_status handle_parse_error(enum parser_status status,
 /**
  * @brief temporary version
  * shell_command: '{' compound_list '}'
+ *          | '(' compound_list ')'
  *          | rule_for
  *          | rule_while
  *          | rule_until
@@ -57,6 +59,27 @@ enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
             return PARSER_OK;
         }
         status = get_error_status(tok);
+        goto error;
+    }
+
+    if (is_op(tok, OP_LPARENTHESE)) // '('
+    {
+        token_free(lexer_pop(*lexer));
+        struct ast_subshell *ast_subshell = ast_subshell_init();
+        status = parse_rule_compound_list(ast, lexer);
+        if (status != PARSER_OK)
+            goto error;
+        struct token *tok = lexer_peek(*lexer);
+        if (is_op(tok, OP_RPARENTHESE)) // ')'
+        {
+            token_free(lexer_pop(*lexer));
+            ast_subshell_set_body(ast_subshell, *ast);
+            *ast = (struct ast_node *)ast_subshell;
+            lexer_free_without_pretokens(saved_lexer);
+            return PARSER_OK;
+        }
+        status = get_error_status(tok);
+        ast_subshell_free(&(ast_subshell->base));
         goto error;
     }
 

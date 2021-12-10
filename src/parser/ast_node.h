@@ -18,6 +18,7 @@ enum ast_type
     AST_NEG,
     AST_OPERATOR,
     AST_FUNCTION,
+    AST_SUBSHELL,
 };
 
 struct print_context

@@ -8,6 +8,7 @@ subdir('function')
 subdir('while_until')
 subdir('redir')
 subdir('for')
+subdir('subshell')
 
 all_sources += files('parser.c')
 all_sources += files('ast_node.c')
