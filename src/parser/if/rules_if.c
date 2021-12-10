@@ -59,9 +59,11 @@ static enum parser_status parse_rule_else_clause(struct ast_node **ast,
         if (status != PARSER_OK)
             goto error_elif;
 
-        parse_rule_else_clause(&ast_elif_else, lexer);
+        status = parse_rule_else_clause(&ast_elif_else, lexer);
         // Set else_body
         ast_if_set_else(ast_if, ast_elif_else);
+        if (status == PARSER_UNEXPECTED_EOF)
+            goto error_elif;
 
         lexer_free_without_pretokens(saved_lexer);
         return PARSER_OK;

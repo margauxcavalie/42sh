@@ -47,6 +47,8 @@ void ast_node_print_indent(int indent)
 // Do not use that
 void ast_node_print(void *ptr)
 {
+    if (ptr == NULL)
+        return;
     struct print_context pc = { 0 };
     ast_node_print_rec(ptr, pc);
     printf("\n");
