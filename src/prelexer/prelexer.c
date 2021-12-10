@@ -8,12 +8,12 @@
 #include <utils/vec.h>
 
 // initializes the lookup table (by decending order (size))
-const struct pretoken_operator ops[] = { { ">&", 2 }, { "<&", 2 }, { ">>", 2 },
-                                         { "&&", 2 }, { "||", 2 }, { "|", 1 },
-                                         { ">|", 2 }, { "<>", 2 }, { "\n", 1 },
-                                         { ";", 1 },  { ">", 1 },  { "<", 1 },
-                                         { "!", 1 },  { "{", 1 },  { "}", 1 } };
-#define nb_ops 15
+const struct pretoken_operator ops[] = {
+    { ">&", 2 }, { "<&", 2 }, { ">>", 2 }, { "&&", 2 }, { "||", 2 }, { "|", 1 },
+    { ">|", 2 }, { "<>", 2 }, { "\n", 1 }, { ";", 1 },  { ">", 1 },  { "<", 1 },
+    { "!", 1 },  { "{", 1 },  { "}", 1 },  { "(", 1 },  { ")", 1 },  { "#", 1 }
+};
+#define nb_ops 18
 
 static bool is_operator(const char *str)
 {
@@ -27,6 +27,20 @@ static bool is_operator(const char *str)
         i++;
     }
     return false;
+}
+
+size_t get_index_of_op(const char *str)
+{
+    size_t i = 0;
+    while (i < nb_ops)
+    {
+        if (!strncmp(ops[i].str, str, ops[i].len))
+        {
+            return i;
+        }
+        i++;
+    }
+    return 0;
 }
 
 static bool is_separator(char c)
@@ -77,6 +91,28 @@ void append_pretoken_list(struct pretoken_vector *vec,
     }
     vec->data[vec->size] = pretoken;
     vec->size += 1;
+}
+
+/**
+ * @brief skip until a line finished
+ * return token EOF or NEWLINE
+ */
+static struct pretoken *skip_comment(const char *str, size_t *size)
+{
+    while (str[*size] != '\0' && str[*size] != '\n')
+    {
+        *size += 1;
+    }
+    if (str[*size] == '\n')
+    {
+        size_t op_index = get_index_of_op("\n");
+        return pretoken_new(PRETOKEN_OPERATOR, ops[op_index].str,
+                            ops[op_index].len);
+    }
+    else
+    {
+        return pretoken_new(PRETOKEN_EOF, NULL, 0);
+    }
 }
 
 /**
@@ -192,6 +228,10 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
             if (!strncmp(str + 1, " ", 1))
             {
                 *size += pretok_op.len;
+                if (strcmp(pretok_op.str, "#") == 0) // if is a comment
+                {
+                    return skip_comment(str, size);
+                }
                 struct pretoken *new = pretoken_new(
                     PRETOKEN_OPERATOR, pretok_op.str, pretok_op.len);
                 return new;
@@ -205,6 +245,10 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
         {
             // if we found an operator
             *size += pretok_op.len;
+            if (strcmp(pretok_op.str, "#") == 0) // if is a comment
+            {
+                return skip_comment(str, size);
+            }
             struct pretoken *new =
                 pretoken_new(PRETOKEN_OPERATOR, pretok_op.str, pretok_op.len);
             return new;

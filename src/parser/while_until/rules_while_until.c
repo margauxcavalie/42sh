@@ -16,24 +16,29 @@ enum parser_status parse_rule_do_group(struct ast_node **ast,
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
+    enum parser_status status;
+
     if (is_rw(lexer_peek(*lexer), RW_DO) == true)
     {
         token_free(lexer_pop(*lexer));
-        enum parser_status status = parse_rule_compound_list(ast, lexer);
+        status = parse_rule_compound_list(ast, lexer);
         if (status != PARSER_OK)
             goto error;
 
         if (is_rw(lexer_peek(*lexer), RW_DONE) == false)
+        {
+            status = get_error_status(lexer_peek(*lexer));
             goto error;
+        }
         token_free(lexer_pop(*lexer));
 
         lexer_free_without_pretokens(saved_lexer);
         return PARSER_OK;
     }
-
+    status = get_error_status(lexer_peek(*lexer));
 error:
     restore_lexer(lexer, saved_lexer);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }
 /**
  * @brief
@@ -44,6 +49,8 @@ enum parser_status parse_rule_while(struct ast_node **ast, struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
+    enum parser_status status;
+
     struct ast_while_until *ast_while = ast_while_init();
     *ast = (struct ast_node *)ast_while; // attach AST_while to AST
 
@@ -51,11 +58,13 @@ enum parser_status parse_rule_while(struct ast_node **ast, struct lexer **lexer)
     struct ast_node *ast_while_body = NULL;
 
     if (is_rw(lexer_peek(*lexer), RW_WHILE) == false)
+    {
+        status = get_error_status(lexer_peek(*lexer));
         goto error;
+    }
     token_free(lexer_pop(*lexer));
 
-    enum parser_status status =
-        parse_rule_compound_list(&ast_while_condition, lexer);
+    status = parse_rule_compound_list(&ast_while_condition, lexer);
     // Set the condition
     ast_while_until_set_condition(ast_while, ast_while_condition);
     if (status != PARSER_OK)
@@ -72,7 +81,7 @@ enum parser_status parse_rule_while(struct ast_node **ast, struct lexer **lexer)
 error:
     restore_lexer(lexer, saved_lexer);
     ast_node_free_detach(ast);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }
 
 /**
@@ -84,6 +93,8 @@ enum parser_status parse_rule_until(struct ast_node **ast, struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
+    enum parser_status status;
+
     struct ast_while_until *ast_until = ast_until_init();
     *ast = (struct ast_node *)ast_until; // attach AST_while to AST
 
@@ -91,11 +102,13 @@ enum parser_status parse_rule_until(struct ast_node **ast, struct lexer **lexer)
     struct ast_node *ast_until_body = NULL;
 
     if (is_rw(lexer_peek(*lexer), RW_UNTIL) == false)
+    {
+        status = get_error_status(lexer_peek(*lexer));
         goto error;
+    }
     token_free(lexer_pop(*lexer));
 
-    enum parser_status status =
-        parse_rule_compound_list(&ast_until_condition, lexer);
+    status = parse_rule_compound_list(&ast_until_condition, lexer);
     // Set the condition
     ast_while_until_set_condition(ast_until, ast_until_condition);
     if (status != PARSER_OK)
@@ -112,5 +125,5 @@ enum parser_status parse_rule_until(struct ast_node **ast, struct lexer **lexer)
 error:
     restore_lexer(lexer, saved_lexer);
     ast_node_free_detach(ast);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }
