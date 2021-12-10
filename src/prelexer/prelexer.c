@@ -126,8 +126,13 @@ static bool skip_quotes(const char *str, int *counter, char c, int *not_ended)
     while (str[*counter] != '\0' && str[*counter] != c)
     {
         // printf("char : %c\n", str[*counter]);
-        // if (str[*counter] == '\0')
-        //    return false;
+        if (c == '"' && str[*counter] == '\\')
+            *counter += 1;
+        if (str[*counter] == '\0')
+        {
+            *not_ended = 1;
+            return false;
+        }
         *counter += 1;
     }
     if (str[*counter] == '\0')
@@ -185,12 +190,14 @@ static char *get_word(const char *str, size_t *size, int *not_ended)
         {
             if (str[counter] == '\\') // skip if backslash
             {
-                if (str[counter + 1] != '\0' && str[counter + 1] != EOF)
-                {
                     vec_push(curr_token, str[counter]);
                     counter += 1;
+                    if (str[counter] == '\0')
+                    {
+                        *not_ended = 1;
+                        break;
+                    }
                     vec_push(curr_token, str[counter]);
-                }
             }
             else
             {

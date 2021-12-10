@@ -106,17 +106,24 @@ enum error read_print_loop(struct cstream *cs, struct vec *line,
     enum error err;
 
     const struct cstream_type *type = cs->type;
-
+    int prev = 0;
     while (true)
     {
         // Read the next character
         int c;
         if ((err = cstream_pop(cs, &c)))
             return err;
-
         // If the end of file was reached, stop right there
         if (c == EOF)
             break;
+
+        // if /n is escaped
+        if (prev % 2 == 1 && c == '\n')
+        {
+            line->size -= 1;
+            prev = 0;
+            continue;
+        }
 
         // If a newline was met, print the line
         if (c == '\n')
@@ -146,11 +153,16 @@ enum error read_print_loop(struct cstream *cs, struct vec *line,
                 else
                     type->reset(cs);
             }
+            prev = c;
             continue;
         }
 
         // Otherwise, add the character to the line
         vec_push(line, c);
+        if (c == '\\')
+            prev += 1;
+        else
+            prev = 0;
     }
 
     if (line->size > 0)
