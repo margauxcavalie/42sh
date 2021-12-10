@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
             printf("OP ");
         if (token->type == TOKEN_IONUMBER)
             printf("IO ");
+        if (token->type == TOKEN_ASSIGNEMENT_WORD)
+            printf("AW ");
         token_free(token);
         token = lexer_pop(lexer);
     }

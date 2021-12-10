@@ -13,6 +13,15 @@ struct token *token_new_word(char *word, size_t len)
     return new;
 }
 
+struct token *token_new_assignement_word(char *word, size_t len)
+{
+    struct token *new = zalloc(sizeof(struct token));
+    new->type = TOKEN_ASSIGNEMENT_WORD;
+    new->data.word = zalloc(sizeof(char) * (len + 1));
+    strncpy(new->data.word, word, len);
+    return new;
+}
+
 struct token *token_new_rw(enum rw_type type)
 {
     struct token *new = zalloc(sizeof(struct token));
@@ -71,14 +80,21 @@ bool is_rw(struct token *tok, enum rw_type rw_type)
 
 bool is_word(struct token *tok)
 {
-    if (tok->type != TOKEN_WORD)
+    if (tok->type != TOKEN_WORD && tok->type != TOKEN_ASSIGNEMENT_WORD)
+        return false;
+    return true;
+}
+
+bool is_assignement_word(struct token *tok)
+{
+    if (tok->type != TOKEN_ASSIGNEMENT_WORD)
         return false;
     return true;
 }
 
 void token_free(struct token *token)
 {
-    if (token->type == TOKEN_WORD)
+    if (token->type == TOKEN_WORD || token->type == TOKEN_ASSIGNEMENT_WORD)
         free(token->data.word);
     free(token);
 }

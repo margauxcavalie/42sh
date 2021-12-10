@@ -1,6 +1,8 @@
 #include "rules_simple_cmd.h"
 
 #include <lexer/lexer.h>
+#include <parser/declaration_variable/ast_dv.h>
+#include <parser/declaration_variable/rules_dv.h>
 #include <parser/redir/ast_redir.h>
 #include <parser/redir/rules_redir.h>
 #include <stdlib.h>
@@ -15,21 +17,34 @@ static void set_child(struct ast_node *parent, struct ast_node *child)
         struct ast_redir *ast = (struct ast_redir *)parent;
         ast_redir_set_child(ast, child);
     }
+    else if (parent->type == AST_DV)
+    {
+        struct ast_dv *ast = (struct ast_dv *)parent;
+        ast_dv_set_child(ast, child);
+    }
     else
         errx(1, "parser: prefix behaviour unknown");
 }
 
 /**
  * @brief (temporary version)
- * prefix: redirection
+ * prefix: declaration_variable
+ *       | redirection
  * @return
  */
-enum parser_status parse_rule_prefix(struct ast_node **ast,
-                                     struct lexer **lexer)
+static enum parser_status parse_rule_prefix(struct ast_node **ast,
+                                            struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
-    enum parser_status status = parse_rule_redirection(ast, lexer);
+    enum parser_status status = parse_rule_dv(ast, lexer);
+    if (status == PARSER_OK)
+    {
+        lexer_free_without_pretokens(saved_lexer);
+        return PARSER_OK;
+    }
+
+    status = parse_rule_redirection(ast, lexer);
     if (status != PARSER_OK)
         goto error;
 
@@ -46,8 +61,8 @@ error:
  *        | redirection
  * @return
  */
-enum parser_status parse_rule_element(struct ast_node **ast, char **word,
-                                      struct lexer **lexer)
+static enum parser_status parse_rule_element(struct ast_node **ast, char **word,
+                                             struct lexer **lexer)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
@@ -134,7 +149,7 @@ enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
                 set_child(last_parent_ast, *ast);
             last_parent_ast = *ast;
             *ast = (struct ast_node *)ast_simple_cmd;
-            prefix_count += 1;
+            // prefix_count += 1;
         }
     }
 

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <utils/alloc.h>
+#include <var_expansion/var_expansion.h>
 
 static struct op_data match_op_type(struct pretoken *new_pretoken)
 {
@@ -154,6 +155,16 @@ struct token *get_next_token(struct lexer *lexer)
                 return rw_token;
             }
         }
+
+        // the token matches the syntax if an assignement word
+        if (check_assignement_word(new_pretoken->str))
+        {
+            size_t word_size = strlen(new_pretoken->str);
+            struct token *word_token =
+                token_new_assignement_word(new_pretoken->str, word_size);
+            return word_token;
+        }
+
         // The token is a simple word
         size_t word_size = strlen(new_pretoken->str);
         struct token *word_token = token_new_word(new_pretoken->str, word_size);

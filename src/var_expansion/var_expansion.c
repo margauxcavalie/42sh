@@ -75,10 +75,10 @@ static bool is_separator(char c, int count)
 }
 
 /**
- * @brief
+ * @brief check if str subsitued is a valid substitution
  *
  */
-int check_valid_substitution(char *str, size_t count)
+static int check_valid_substitution(char *str, size_t count)
 {
     int res = 1;
     if ((is_a_spec_char(str[0]) || isdigit(str[0])) && count > 3)
@@ -247,7 +247,7 @@ char *build_key(char *var, int *error, size_t *counter)
         return res;
     }
 }
-#include <stdio.h>
+
 /**
  * @brief return the value associated to this var,
  * key pair syntax : var=true,
@@ -376,4 +376,52 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
     printf("ccccccccccccccccccccccccccccccccccccc\n");*/
     free(vec); // free the vec preserving the str
     return res;
+}
+
+/**
+ * @brief check if the str matches the syntax of a name
+ *
+ * @param str
+ * @return bool
+ */
+static bool check_valid_name(char *str)
+{
+    bool res = true;
+    if ((is_a_spec_char(str[0]) || isdigit(str[0])))
+    {
+        return false;
+    }
+    for (size_t i = 0; str[i] != '='; i++)
+    {
+        res = res && !is_separator(str[i], i);
+    }
+    return res;
+}
+
+/**
+ * @brief check if the syntax is one of an assignement word
+ *
+ * @param word
+ * @return true
+ * @return false
+ */
+bool check_assignement_word(char *word)
+{
+    struct vec *vec = xmalloc(sizeof(struct vec));
+    vec_init(vec);
+    size_t i = 0;
+    for (; word[i] && word[i] != '='; i++)
+    {
+        vec_push(vec, word[i]);
+    }
+    // check if the syntax matches var=
+    if (i > 0 && word[i] == '=' && check_valid_name(word))
+    {
+        vec_destroy(vec);
+        free(vec);
+        return true;
+    }
+    vec_destroy(vec);
+    free(vec);
+    return false;
 }

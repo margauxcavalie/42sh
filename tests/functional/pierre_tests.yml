@@ -185,3 +185,23 @@ name: c_testbackslash10
 cmd: ./42sh -c "echo \if"
 stdout: "if\n"
 status: 0
+---
+name: c_testvar1
+cmd: ./42sh -c 'var=hello; echo "$var"'
+stdout: "hello\n"
+status: 0
+---
+name: c_testvar2
+cmd: ./42sh -c 'var=hello; echo "$var"; var=salut; echo "$var"'
+stdout: "hello\nsalut\n"
+status: 0
+---
+name: c_testvar3
+cmd: ./42sh -c 'var=hello; echo "$va"'
+stdout: "\n"
+status: 0
+---
+name: c_testvar4
+cmd: ./42sh -c ' echo "$var";var=hello;'
+stdout: "\n"
+status: 0
