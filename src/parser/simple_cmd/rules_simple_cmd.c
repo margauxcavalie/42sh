@@ -138,7 +138,6 @@ enum parser_status parse_rule_simple_cmd(struct ast_node **ast,
                 set_child(last_parent_ast, *ast);
             last_parent_ast = *ast;
             *ast = (struct ast_node *)ast_simple_cmd;
-            prefix_count += 1;
         }
     }
 
