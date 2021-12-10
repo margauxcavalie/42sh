@@ -190,14 +190,14 @@ static char *get_word(const char *str, size_t *size, int *not_ended)
         {
             if (str[counter] == '\\') // skip if backslash
             {
-                    vec_push(curr_token, str[counter]);
-                    counter += 1;
-                    if (str[counter] == '\0')
-                    {
-                        *not_ended = 1;
-                        break;
-                    }
-                    vec_push(curr_token, str[counter]);
+                vec_push(curr_token, str[counter]);
+                counter += 1;
+                if (str[counter] == '\0')
+                {
+                    *not_ended = 1;
+                    break;
+                }
+                vec_push(curr_token, str[counter]);
             }
             else
             {

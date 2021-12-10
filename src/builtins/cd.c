@@ -2,7 +2,6 @@
 #include <err.h>
 #include <stdio.h>
 
-
 /**
  * @brief implementation of cd builtin command with '-' option only
  */
