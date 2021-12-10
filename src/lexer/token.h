@@ -88,4 +88,3 @@ bool is_fname(struct token *tok);
  * \brief Check if the token is a assignement word
  */
 bool is_assignement_word(struct token *tok);
-
