@@ -20,7 +20,7 @@ void ast_subshell_free(struct ast_node *ast)
  */
 void ast_subshell_print(struct ast_node *ast, struct print_context pc)
 {
-    //struct print_context new_pc = { pc.indent + 1 };
+    // struct print_context new_pc = { pc.indent + 1 };
 
     struct ast_subshell *ast_subshell = (struct ast_subshell *)ast;
     ast_node_print_indent(pc.indent); // add indent
@@ -40,10 +40,8 @@ int ast_subshell_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_subshell *ast_subshell = (struct ast_subshell *)ast;
 
-    printf("before pid: %d\n", getpid());
     int exit_code = 666;
     pid_t pid = fork();
-    printf("new pid : %d\n", getpid());
     if (pid == -1)
         return 1;
     if (pid == 0) // child
@@ -55,7 +53,7 @@ int ast_subshell_exec(struct ast_node *ast, struct runtime *rt)
     {
         int wstatus;
         waitpid(pid, &wstatus, 0);
-        if (WEXITSTATUS(wstatus) == 127)
+        if ((exit_code = WEXITSTATUS(wstatus)) == 127)
             errx(1, "unexpected error in subshell");
     }
 
