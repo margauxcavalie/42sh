@@ -13,6 +13,7 @@ enum token_type
     TOKEN_FNAME,
     TOKEN_IONUMBER,
     TOKEN_OP,
+    TOKEN_ASSIGNEMENT_WORD,
     TOKEN_EOF
 };
 
@@ -45,6 +46,10 @@ struct token *token_new_ionumber(int number);
  */
 struct token *token_new_op(struct op_data op_data);
 /**
+ * \brief Allocate a new token assignement_word
+ */
+struct token *token_new_assignement_word(char *word, size_t len);
+/**
  * \brief Allocate a new token EOF
  */
 struct token *token_new_eof(void);
@@ -72,8 +77,15 @@ bool is_word(struct token *tok);
  * \brief Check if the token is a ionumber
  */
 bool is_ionumber(struct token *tok);
+
 /**
  * @brief Check if the token is a fname
  *
  */
 bool is_fname(struct token *tok);
+
+/**
+ * \brief Check if the token is a assignement word
+ */
+bool is_assignement_word(struct token *tok);
+

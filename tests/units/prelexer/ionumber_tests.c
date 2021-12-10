@@ -9,8 +9,9 @@
 
 Test(prelexify, simple_ionumber)
 {
+    int i = 0;
     char *input = "1>";
-    struct pretoken_vector *vec = prelexify(input);
+    struct pretoken_vector *vec = prelexify(input, &i);
     cr_assert_eq(vec->size, 3);
 
     cr_assert_str_eq(vec->data[0]->str, "1");
@@ -25,8 +26,9 @@ Test(prelexify, simple_ionumber)
 
 Test(prelexify, simple_ionumber2)
 {
+    int i = 0;
     char *input = "1<";
-    struct pretoken_vector *vec = prelexify(input);
+    struct pretoken_vector *vec = prelexify(input, &i);
     cr_assert_eq(vec->size, 3);
 
     cr_assert_str_eq(vec->data[0]->str, "1");
@@ -41,8 +43,9 @@ Test(prelexify, simple_ionumber2)
 
 Test(prelexify, false_ionumber1)
 {
+    int i = 0;
     char *input = "11>";
-    struct pretoken_vector *vec = prelexify(input);
+    struct pretoken_vector *vec = prelexify(input, &i);
     cr_assert_eq(vec->size, 3);
 
     cr_assert_str_eq(vec->data[0]->str, "11");
@@ -57,8 +60,9 @@ Test(prelexify, false_ionumber1)
 
 Test(prelexify, simple_ionumber_but_quoted)
 {
+    int i = 0;
     char *input = "''1>";
-    struct pretoken_vector *vec = prelexify(input);
+    struct pretoken_vector *vec = prelexify(input, &i);
     cr_assert_eq(vec->size, 3);
 
     cr_assert_str_eq(vec->data[0]->str, "''1");
@@ -73,8 +77,9 @@ Test(prelexify, simple_ionumber_but_quoted)
 
 Test(prelexify, simple_ionumber_but_with_space)
 {
+    int i = 0;
     char *input = "1 >";
-    struct pretoken_vector *vec = prelexify(input);
+    struct pretoken_vector *vec = prelexify(input, &i);
     cr_assert_eq(vec->size, 3);
 
     cr_assert_str_eq(vec->data[0]->str, "1");

@@ -83,7 +83,10 @@ int ast_for_exec(struct ast_node *ast, struct runtime *rt)
 
     for (size_t c = 0; c < expanded_list->size; c++)
     {
-        // SET variable
+        char *var_name = strdup(ast_for->var_name);
+        char *value = strdup(expanded_list->data[c]);
+        var_hash_map_insert(rt->variables, var_name, value);
+
         ast_node_exec(ast_for->body, rt);
         if (rt->loops_to_break != 0)
             break;
@@ -96,6 +99,8 @@ int ast_for_exec(struct ast_node *ast, struct runtime *rt)
     if (rt->loops_to_break > 0)
         rt->loops_to_break -= 1;
     rt->loops_count -= 1;
+    if (rt->encountered_exit == true)
+        return rt->last_status;
     return 0;
 }
 

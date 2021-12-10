@@ -8,8 +8,9 @@
 
 Test(lexer, empty)
 {
+    int i = 0;
     char *s = "";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     cr_assert_eq(lexer->current_tok->type, TOKEN_EOF);
     lexer_free(lexer); // free vec inside
@@ -17,16 +18,18 @@ Test(lexer, empty)
 
 Test(lexer, spaces)
 {
+    int i = 0;
     char *s = "  \t  ";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     cr_assert_eq(lexer->current_tok->type, TOKEN_EOF);
     lexer_free(lexer); // free vec inside
 }
 Test(lexer, simple_word)
 {
+    int i = 0;
     char *s = "jesuisunmot";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -42,8 +45,9 @@ Test(lexer, simple_word)
 }
 Test(lexer, simple_word_big)
 {
+    int i = 0;
     char *s = "jesuisunquoshdfiuqsdhfiujqsdhfshdfjuqhdjkdhfjkqhfkjqsdhmot";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -61,8 +65,9 @@ Test(lexer, simple_word_big)
 }
 Test(lexer, simple_word_special_chars)
 {
+    int i = 0;
     char *s = "jqufk*-jq\r\rd\vhmot";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -77,8 +82,9 @@ Test(lexer, simple_word_special_chars)
 }
 Test(lexer, simple_rw_if)
 {
+    int i = 0;
     char *s = "if";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -94,8 +100,9 @@ Test(lexer, simple_rw_if)
 }
 Test(lexer, simple_op_semicolon)
 {
+    int i = 0;
     char *s = ";";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -111,8 +118,9 @@ Test(lexer, simple_op_semicolon)
 }
 Test(lexer, word_with_op)
 {
+    int i = 0;
     char *s = "salut\n";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -134,8 +142,9 @@ Test(lexer, word_with_op)
 
 Test(lexer, hard1)
 {
+    int i = 0;
     char *s = "if then; then fi\n fi";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -182,8 +191,9 @@ Test(lexer, hard1)
 
 Test(lexer, hard2)
 {
+    int i = 0;
     char *s = "if ok1; then ok2\n fi";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -229,8 +239,9 @@ Test(lexer, hard2)
 }
 Test(lexer, simple_ionumber)
 {
+    int i = 0;
     char *s = "1>";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -252,8 +263,9 @@ Test(lexer, simple_ionumber)
 }
 Test(lexer, simple_ionumber2)
 {
+    int i = 0;
     char *s = "8>";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 
@@ -275,8 +287,9 @@ Test(lexer, simple_ionumber2)
 }
 Test(lexer, false_ionumber)
 {
+    int i = 0;
     char *s = "88>";
-    struct pretoken_vector *vec = prelexify(s);
+    struct pretoken_vector *vec = prelexify(s, &i);
     struct lexer *lexer = lexer_new(vec);
     struct token *tok;
 

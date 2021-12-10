@@ -11,9 +11,9 @@
 const struct pretoken_operator ops[] = {
     { ">&", 2 }, { "<&", 2 }, { ">>", 2 }, { "&&", 2 }, { "||", 2 }, { "|", 1 },
     { ">|", 2 }, { "<>", 2 }, { "\n", 1 }, { ";", 1 },  { ">", 1 },  { "<", 1 },
-    { "!", 1 },  { "{", 1 },  { "}", 1 },  { "(", 1 },  { ")", 1 }
+    { "!", 1 },  { "{", 1 },  { "}", 1 },  { "(", 1 },  { ")", 1 },  { "#", 1 }
 };
-#define nb_ops 17
+#define nb_ops 18
 
 static bool is_operator(const char *str)
 {
@@ -27,6 +27,20 @@ static bool is_operator(const char *str)
         i++;
     }
     return false;
+}
+
+size_t get_index_of_op(const char *str)
+{
+    size_t i = 0;
+    while (i < nb_ops)
+    {
+        if (!strncmp(ops[i].str, str, ops[i].len))
+        {
+            return i;
+        }
+        i++;
+    }
+    return 0;
 }
 
 static bool is_separator(char c)
@@ -80,22 +94,47 @@ void append_pretoken_list(struct pretoken_vector *vec,
 }
 
 /**
+ * @brief skip until a line finished
+ * return token EOF or NEWLINE
+ */
+static struct pretoken *skip_comment(const char *str, size_t *size)
+{
+    while (str[*size] != '\0' && str[*size] != '\n')
+    {
+        *size += 1;
+    }
+    if (str[*size] == '\n')
+    {
+        size_t op_index = get_index_of_op("\n");
+        return pretoken_new(PRETOKEN_OPERATOR, ops[op_index].str,
+                            ops[op_index].len);
+    }
+    else
+    {
+        return pretoken_new(PRETOKEN_EOF, NULL, 0);
+    }
+}
+
+/**
  * @brief skip until a quote is found return an error if not
  *
  */
-static bool skip_quotes(const char *str, int *counter, char c)
+static bool skip_quotes(const char *str, int *counter, char c, int *not_ended)
 {
     // printf("dep : %c\n", str[*counter]);
     *counter += 1;
-    while (str[*counter] && str[*counter] != c)
+    while (str[*counter] != '\0' && str[*counter] != c)
     {
         // printf("char : %c\n", str[*counter]);
-        if (str[*counter] == '\0')
-            return false;
+        // if (str[*counter] == '\0')
+        //    return false;
         *counter += 1;
     }
     if (str[*counter] == '\0')
+    {
+        *not_ended = 1;
         return false;
+    }
     //*counter += 1;
     // printf("end : %c\n", str[*counter]);
     return true;
@@ -104,7 +143,7 @@ static bool skip_quotes(const char *str, int *counter, char c)
 /**
  *  @brief returns the first word found in str
  */
-static char *get_word(const char *str, size_t *size)
+static char *get_word(const char *str, size_t *size, int *not_ended)
 {
     int counter = 0;
     // init the vec
@@ -128,7 +167,7 @@ static char *get_word(const char *str, size_t *size)
         if (c != 0)
         {
             int tmp = counter;
-            if (skip_quotes(str, &counter, c) == false)
+            if (skip_quotes(str, &counter, c, not_ended) == false)
             {
                 // add the quoted content to the curr token
                 for (int i = tmp; i < counter; i++)
@@ -173,7 +212,8 @@ static char *get_word(const char *str, size_t *size)
  * @param str:
  * @param size:
  */
-struct pretoken *get_next_pretoken(const char *str, size_t *size)
+struct pretoken *get_next_pretoken(const char *str, size_t *size,
+                                   int *not_ended)
 {
     // skip all separators
     while (is_separator(str[0]) && str[0] != '\0')
@@ -192,6 +232,10 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
             if (!strncmp(str + 1, " ", 1))
             {
                 *size += pretok_op.len;
+                if (strcmp(pretok_op.str, "#") == 0) // if is a comment
+                {
+                    return skip_comment(str, size);
+                }
                 struct pretoken *new = pretoken_new(
                     PRETOKEN_OPERATOR, pretok_op.str, pretok_op.len);
                 return new;
@@ -205,6 +249,10 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
         {
             // if we found an operator
             *size += pretok_op.len;
+            if (strcmp(pretok_op.str, "#") == 0) // if is a comment
+            {
+                return skip_comment(str, size);
+            }
             struct pretoken *new =
                 pretoken_new(PRETOKEN_OPERATOR, pretok_op.str, pretok_op.len);
             return new;
@@ -226,7 +274,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     struct pretoken_operator *operators_cpy =
         xmalloc(sizeof(struct pretoken_operator) * nb_ops);
     memcpy(operators_cpy, ops, sizeof(struct pretoken_operator) * nb_ops);
-    char *word = get_word(str, size);
+    char *word = get_word(str, size, not_ended);
     if (word == NULL)
     {
         struct pretoken *new = pretoken_new(PRETOKEN_ERROR, NULL, 0);
@@ -240,15 +288,15 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size)
     return new;
 }
 
-struct pretoken_vector *prelexify(char const *input)
+struct pretoken_vector *prelexify(char const *input, int *not_ended)
 {
     struct pretoken_vector *vec = init_pretoken_list();
     size_t size = 0;
-    struct pretoken *pretok = get_next_pretoken(input, &size);
+    struct pretoken *pretok = get_next_pretoken(input, &size, not_ended);
     while (pretok->type != PRETOKEN_EOF && pretok->type != PRETOKEN_ERROR)
     {
         append_pretoken_list(vec, pretok);
-        pretok = get_next_pretoken(input + size, &size);
+        pretok = get_next_pretoken(input + size, &size, not_ended);
     }
     if (pretok->type == PRETOKEN_ERROR)
     {

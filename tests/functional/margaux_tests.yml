@@ -229,3 +229,74 @@ name: break_several_loops3
 cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; break 2; done; echo salut; done"
 stdout: "coucou\n"
 status: 0
+---
+name: exit
+cmd: ./42sh -c "exit"
+stdout: ""
+status: 0
+---
+name: exit_number
+cmd: ./42sh -c "exit 66"
+stdout: ""
+status: 66
+---
+name: exit_invalid
+cmd: ./42sh -c "exit -4"
+stderr: "42sh: exit: Illegal number: -4\n"
+status: 2
+---
+name: exit_invalid2
+cmd: ./42sh -c "exit coucou"
+stderr: "42sh: exit: Illegal number: coucou\n"
+status: 2
+---
+name: exit_in_for
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; exit 42; echo salut; done"
+stdout: "coucou\n"
+status: 42
+---
+name: exit_in_for_complicated
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; continue; exit 42; echo salut; done"
+stdout: "coucou\ncoucou\n"
+status: 0
+---
+name: exit_in_while_true
+cmd: ./42sh -c "while true; do echo coucou; exit 69; echo salut; done"
+stdout: "coucou\n"
+status: 69
+---
+name: exit_in_while_false
+cmd: ./42sh -c "while false; do echo coucou; exit 69; echo salut; done"
+stdout: ""
+status: 0
+---
+name: exit_in_until
+cmd: ./42sh -c "until false; do echo coucou; exit erreur; echo salut; done"
+stdout: "coucou\n"
+stderr: "42sh: exit: Illegal number: erreur\n"
+status: 2
+---
+name: subshell_echo
+cmd: ./42sh -c "(echo coucou)"
+stdout: "coucou\n"
+status: 0
+---
+name: subshell_syntax_error
+cmd: ./42sh -c "(echo coucou; then)"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: subshell_with_exit
+cmd: ./42sh -c "(echo coucou; exit 42; echo salut)"
+stdout: "coucou\n"
+status: 42
+---
+name: subshell_in_for
+cmd: ./42sh -c "(echo coucou; for elt in 1 2 3; do echo salut; done; exit 66)"
+stdout: "coucou\nsalut\nsalut\nsalut\n"
+status: 66
+---
+name: subshell_empty
+cmd: ./42sh -c "()"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2

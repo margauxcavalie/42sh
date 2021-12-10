@@ -47,6 +47,8 @@ void ast_node_print_indent(int indent)
 // Do not use that
 void ast_node_print(void *ptr)
 {
+    if (ptr == NULL)
+        return;
     struct print_context pc = { 0 };
     ast_node_print_rec(ptr, pc);
     printf("\n");
@@ -57,6 +59,9 @@ int ast_node_exec(void *ptr, struct runtime *rt)
     if (ptr == NULL)
         return 0;
     struct ast_node *ast = ptr;
+
+    if (rt->encountered_exit == true) // exit
+        return rt->last_status;
 
     if (rt->loops_to_break != 0 || rt->encountered_continue)
         return 0;

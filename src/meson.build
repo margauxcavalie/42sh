@@ -12,6 +12,7 @@ subdir('var_expansion')
 subdir('expansion')
 
 all_sources += files('runtime.c')
+all_sources += files('options.c')
 
 main_sources += files('42sh.c')
 
