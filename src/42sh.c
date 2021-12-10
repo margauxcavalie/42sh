@@ -59,7 +59,13 @@ static void print_parser_error(enum parser_status status)
 static int try_parse(struct ast_node **ast, struct vec *line, bool end)
 {
     const char *str = vec_cstring(line);
-    struct pretoken_vector *pretoken = prelexify(str);
+    int prelexify_continue = 0;
+    struct pretoken_vector *pretoken = prelexify(str, &prelexify_continue);
+    if (end == false && prelexify_continue)
+    {
+        free_pretoken_list(pretoken);
+        return 1;
+    }
 
     struct lexer *lexer = lexer_new(pretoken);
     enum parser_status status = parse(ast, &lexer);
