@@ -42,8 +42,8 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
         { "|", 1, .data = { OP_PIPE, .data.null = NULL } },
         { "{", 1, .data = { OP_LBRACE, .data.null = NULL } },
         { "}", 1, .data = { OP_RBRACE, .data.null = NULL } },
-        { "(", 1, .data = { OP_LBRACE, .data.null = NULL } },
-        { ")", 1, .data = { OP_LBRACE, .data.null = NULL } }
+        { "(", 1, .data = { OP_LPARENTHESE, .data.null = NULL } },
+        { ")", 1, .data = { OP_RPARENTHESE, .data.null = NULL } }
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_op);
 
@@ -84,13 +84,39 @@ static enum rw_type match_rw_type(struct pretoken *new_pretoken)
     return RW_UNKNOWN;
 }
 
+static bool check_fname(struct lexer *lexer)
+{
+    int res = false;
+    size_t i = lexer->pretoken_index - 1;
+    if (lexer->pretokens->size - i
+        < 3) // if true: 'fname' '(' ')' is not possible
+        return res;
+    if (lexer->pretokens->data[i]->type == PRETOKEN_WORD
+        && lexer->pretokens->data[i + 1]->type == PRETOKEN_OPERATOR
+        && !strncmp(lexer->pretokens->data[i + 1]->str, "(", 1)
+        && lexer->pretokens->data[i + 2]->type == PRETOKEN_OPERATOR
+        && !strncmp(lexer->pretokens->data[i + 2]->str, ")", 1))
+    {
+        return true;
+    }
+    return false;
+}
+
 struct token *get_next_token(struct lexer *lexer)
 {
     struct pretoken *new_pretoken =
         lexer->pretokens->data[lexer->pretoken_index];
     lexer->pretoken_index += 1;
 
-    if (new_pretoken->type == PRETOKEN_EOF)
+    if (new_pretoken->type == PRETOKEN_WORD && check_fname(lexer))
+    {
+        size_t fname_size = strlen(new_pretoken->str);
+        struct token *fname_token =
+            token_new_word(new_pretoken->str, fname_size);
+        fname_token->type = TOKEN_FNAME;
+        return fname_token;
+    }
+    else if (new_pretoken->type == PRETOKEN_EOF)
     {
         struct token *eof_token = token_new_eof();
         return eof_token;

@@ -23,9 +23,14 @@ int ast_function_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_function *ast_function = (struct ast_function *)ast;
 
+    if (ast_function->child == NULL)
+    {
+        return 0;
+    }
     // store function in hash table
-    bool res = hash_map_func_insert(rt->functions, ast_function->name, ast,
-                                    &ast_function_free);
+    bool res = hash_map_func_insert(rt->functions, ast_function->name,
+                                    ast_function->child, &ast_node_free);
+    ast_function->child = NULL;
     return (res == true) ? 0 : 1;
 }
 
@@ -42,7 +47,6 @@ struct ast_function *ast_function_init(char *name)
     base->node_exec = &ast_function_exec;
 
     new_ast->child = NULL;
-    new_ast->name = zalloc(sizeof(char) * 1024);
-    strcpy(new_ast->name, name);
+    new_ast->name = strdup(name);
     return new_ast;
 }
