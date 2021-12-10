@@ -7,9 +7,9 @@
 #include <utils/alloc.h>
 
 // TODO
-static struct pair_list_function *
-list_replace_key(struct pair_list_function *l, char *key, void *value,
-                 void (*free_value)(struct ast_node *))
+static struct pair_list_function *list_replace_key(struct pair_list_function *l,
+                                                   char *key, void *value,
+                                                   void (*free_value)(void *))
 {
     while (l)
     {
@@ -32,7 +32,7 @@ static struct pair_list_function *pair_list_init(char *key, void *value)
         xmalloc(sizeof(struct pair_list_function));
     if (!list)
         return NULL;
-    list->key = key;
+    list->key = strdup(key);
     list->value = value;
     list->next = NULL;
     return list;
@@ -63,7 +63,7 @@ struct hash_map_function *hash_map_func_init(size_t size)
  * @param list
  */
 static void free_pair_list(struct pair_list_function *list,
-                           void (*free_value)(struct ast_node *))
+                           void (*free_value)(void *))
 {
     while (list)
     {
@@ -81,7 +81,7 @@ static void free_pair_list(struct pair_list_function *list,
  * @param hash_map
  */
 void hash_map_func_free(struct hash_map_function *hash_map,
-                        void (*free_value)(struct ast_node *))
+                        void (*free_value)(void *))
 {
     if (hash_map == NULL || hash_map->data == NULL)
         return;
@@ -103,7 +103,7 @@ void hash_map_func_free(struct hash_map_function *hash_map,
  */
 static struct pair_list_function *
 pair_list_insert(struct pair_list_function *list, char *key, void *value,
-                 void (*free_value)(struct ast_node *))
+                 void (*free_value)(void *))
 {
     struct pair_list_function *elt = pair_list_init(key, value);
     if (!elt)
@@ -141,7 +141,7 @@ pair_list_insert(struct pair_list_function *list, char *key, void *value,
  * @return false
  */
 bool hash_map_func_insert(struct hash_map_function *hash_map, char *key,
-                          void *value, void (*free_value)(struct ast_node *))
+                          void *value, void (*free_value)(void *))
 {
     if (hash_map == NULL || hash_map->size == 0 || hash_map->data == NULL)
     {

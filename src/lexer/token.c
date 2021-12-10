@@ -92,9 +92,17 @@ bool is_assignement_word(struct token *tok)
     return true;
 }
 
+bool is_fname(struct token *tok)
+{
+    if (tok->type != TOKEN_FNAME)
+        return false;
+    return true;
+}
+
 void token_free(struct token *token)
 {
-    if (token->type == TOKEN_WORD || token->type == TOKEN_ASSIGNEMENT_WORD)
+    if (token->type == TOKEN_WORD || token->type == TOKEN_FNAME
+        || token->type == TOKEN_ASSIGNEMENT_WORD)
         free(token->data.word);
     free(token);
 }
