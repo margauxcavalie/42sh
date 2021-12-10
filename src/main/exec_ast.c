@@ -9,7 +9,8 @@ int main(int argc, char *argv[])
 {
     if (argc == 1)
         errx(1, "Usage: ./exec_ast [SCRIPT]");
-    struct pretoken_vector *vec = prelexify(argv[1]);
+    int i = 0;
+    struct pretoken_vector *vec = prelexify(argv[1], &i);
     struct lexer *lexer = lexer_new(vec);
 
     struct ast_node *ast = NULL;
