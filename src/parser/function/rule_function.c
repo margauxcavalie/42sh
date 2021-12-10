@@ -20,19 +20,19 @@ enum parser_status parse_rule_funcdec(struct ast_node **ast,
     struct lexer *saved_lexer = save_lexer(*lexer);
     enum parser_status status = PARSER_OK;
 
-    if (!is_word(lexer_peek(*lexer)))
+    if (!is_fname(lexer_peek(*lexer)))
     {
         status = PARSER_UNEXPECTED_TOKEN;
         goto error;
     }
-    struct token *word_tok = lexer_pop(*lexer);
-    char function_name[1024];
-    strcpy(function_name, word_tok->data.word);
-    token_free(word_tok);
+    struct token *fname_tok = lexer_pop(*lexer);
+    struct ast_function *ast_function = ast_function_init(fname_tok->data.word);
+    token_free(fname_tok);
 
     if (!is_op(lexer_peek(*lexer), OP_LPARENTHESE))
     {
         status = PARSER_UNEXPECTED_TOKEN;
+        ast_function_free((struct ast_node *)ast_function);
         goto error;
     }
     token_free(lexer_pop(*lexer));
@@ -40,6 +40,7 @@ enum parser_status parse_rule_funcdec(struct ast_node **ast,
     if (!is_op(lexer_peek(*lexer), OP_RPARENTHESE))
     {
         status = PARSER_UNEXPECTED_TOKEN;
+        ast_function_free((struct ast_node *)ast_function);
         goto error;
     }
     token_free(lexer_pop(*lexer));
@@ -49,7 +50,6 @@ enum parser_status parse_rule_funcdec(struct ast_node **ast,
         token_free(lexer_pop(*lexer));
     }
 
-    struct ast_function *ast_function = ast_function_init(function_name);
     *ast = (struct ast_node *)ast_function;
 
     status = parse_rule_shell_cmd(&(ast_function->child), lexer);

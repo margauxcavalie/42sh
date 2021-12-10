@@ -18,7 +18,7 @@ struct runtime *runtime_init()
 void runtime_free(struct runtime *rt)
 {
     // hash_map_free(rt->variables, free);
-    hash_map_func_free(rt->functions, &ast_function_free);
+    hash_map_func_free(rt->functions, &ast_node_free);
     free(rt);
 }
 

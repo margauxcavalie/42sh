@@ -3,6 +3,7 @@
 #include <builtins/builtins.h>
 #include <err.h>
 #include <expansion/expansion.h>
+#include <hash_map_function/hash_map_function.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -77,6 +78,16 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
     if (args_expended == NULL)
     {
         return 2;
+    }
+    // Check if it's a function name
+    struct ast_node *ast_function =
+        hash_map_func_get(rt->functions, (char *)args_expended->data[0]);
+    if (ast_function != NULL)
+    {
+        int status = ast_node_exec(ast_function, rt);
+        vector_apply_on_elts(args_expended, &free);
+        vector_destroy(args_expended);
+        return status;
     }
 
     // Check if the command is a builtin

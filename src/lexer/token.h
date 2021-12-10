@@ -10,6 +10,7 @@ enum token_type
 {
     TOKEN_WORD,
     TOKEN_RW,
+    TOKEN_FNAME,
     TOKEN_IONUMBER,
     TOKEN_OP,
     TOKEN_EOF
@@ -71,3 +72,8 @@ bool is_word(struct token *tok);
  * \brief Check if the token is a ionumber
  */
 bool is_ionumber(struct token *tok);
+/**
+ * @brief Check if the token is a fname
+ *
+ */
+bool is_fname(struct token *tok);

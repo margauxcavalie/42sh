@@ -96,10 +96,35 @@ enum parser_status parse_rule_cmd(struct ast_node **ast, struct lexer **lexer)
     struct lexer *saved_lexer = save_lexer(*lexer);
 
     enum parser_status status = parse_rule_simple_cmd(ast, lexer);
-    if (status != PARSER_OK)
+    if (status == PARSER_UNEXPECTED_TOKEN)
     {
         status = parse_rule_shell_cmd(ast, lexer);
-        if (status != PARSER_OK)
+        if (status == PARSER_OK)
+        {
+            struct ast_node *ast_shell_cmd = *ast;
+
+            struct ast_node **saved_ast = ast;
+
+            struct ast_node *ast_cur = *ast;
+            ast = &ast_cur;
+
+            struct ast_node *last_parent_ast = NULL;
+
+            while (true)
+            {
+                status = parse_rule_redirection(ast, lexer);
+                if (status == PARSER_UNEXPECTED_TOKEN)
+                    break;
+                if (last_parent_ast == NULL)
+                    *saved_ast = *ast;
+                else
+                    ast_redir_set_child((struct ast_redir *)last_parent_ast,
+                                        *ast);
+                last_parent_ast = *ast;
+                *ast = ast_shell_cmd;
+            }
+        }
+        else
         {
             status = parse_rule_funcdec(ast, lexer);
             if (status != PARSER_OK)
@@ -126,29 +151,6 @@ enum parser_status parse_rule_cmd(struct ast_node **ast, struct lexer **lexer)
                 last_parent_ast = *ast;
                 *ast = ast_shell_cmd;
             }
-            lexer_free_without_pretokens(saved_lexer);
-            return PARSER_OK;
-        }
-        struct ast_node *ast_shell_cmd = *ast;
-
-        struct ast_node **saved_ast = ast;
-
-        struct ast_node *ast_cur = *ast;
-        ast = &ast_cur;
-
-        struct ast_node *last_parent_ast = NULL;
-
-        while (true)
-        {
-            status = parse_rule_redirection(ast, lexer);
-            if (status == PARSER_UNEXPECTED_TOKEN)
-                break;
-            if (last_parent_ast == NULL)
-                *saved_ast = *ast;
-            else
-                ast_redir_set_child((struct ast_redir *)last_parent_ast, *ast);
-            last_parent_ast = *ast;
-            *ast = ast_shell_cmd;
         }
     }
     lexer_free_without_pretokens(saved_lexer);
