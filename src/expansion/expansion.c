@@ -14,9 +14,11 @@
  */
 static bool skip_quotes(const char *str, size_t *counter, char c)
 {
+    // printf("%s\n", str);
+    // fflush(stdout);
     // printf("dep : %c\n", str[*counter]);
     *counter += 1;
-    while (str[*counter] && str[*counter] != c)
+    while ((str[*counter] != '\0' && str[*counter] != c))
     {
         // printf("char : %c\n", str[*counter]);
         if (str[*counter] == '\0')
