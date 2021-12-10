@@ -8,7 +8,9 @@
 #include <parser/redir/ast_redir.h>
 #include <parser/redir/rules_redir.h>
 #include <parser/simple_cmd/rules_simple_cmd.h>
+#include <parser/subshell/ast_subshell.h>
 #include <parser/while_until/rules_while_until.h>
+#include <stdlib.h>
 
 enum parser_status get_error_status(struct token *tok)
 {
@@ -28,6 +30,7 @@ static enum parser_status handle_parse_error(enum parser_status status,
 /**
  * @brief temporary version
  * shell_command: '{' compound_list '}'
+ *          | '(' compound_list ')'
  *          | rule_for
  *          | rule_while
  *          | rule_until
@@ -60,6 +63,28 @@ enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
         goto error;
     }
 
+    if (is_op(tok, OP_LPARENTHESE)) // '('
+    {
+        token_free(lexer_pop(*lexer));
+        struct ast_subshell *ast_subshell = ast_subshell_init();
+        *ast = (struct ast_node *)ast_subshell; // attach
+        struct ast_node *ast_subshell_child = NULL;
+        status = parse_rule_compound_list(&ast_subshell_child, lexer);
+        if (status != PARSER_OK)
+            goto error;
+
+        ast_subshell_set_body(ast_subshell, ast_subshell_child);
+        struct token *tok = lexer_peek(*lexer);
+        if (is_op(tok, OP_RPARENTHESE)) // ')'
+        {
+            token_free(lexer_pop(*lexer));
+            lexer_free_without_pretokens(saved_lexer);
+            return PARSER_OK;
+        }
+        status = get_error_status(tok);
+        goto error;
+    }
+
     status = parse_rule_for(ast, lexer);
     if (status == PARSER_UNEXPECTED_TOKEN)
     {
@@ -79,6 +104,7 @@ enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
     lexer_free_without_pretokens(saved_lexer);
     return status;
 error:
+    ast_node_free_detach(ast);
     restore_lexer(lexer, saved_lexer);
     return status;
 }

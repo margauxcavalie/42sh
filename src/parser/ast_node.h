@@ -17,6 +17,7 @@ enum ast_type
     AST_FOR,
     AST_NEG,
     AST_OPERATOR,
+    AST_SUBSHELL,
     AST_DV,
     AST_FUNCTION
 };
