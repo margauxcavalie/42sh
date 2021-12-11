@@ -89,6 +89,8 @@ enum parser_status parse_rule_compound_list(struct ast_node **ast,
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
+    enum parser_status status;
+
     while (is_op(lexer_peek(*lexer), OP_LINEFEED)) // ('\n')*
     {
         token_free(lexer_pop(*lexer));
@@ -98,7 +100,7 @@ enum parser_status parse_rule_compound_list(struct ast_node **ast,
     *ast = (struct ast_node *)ast_list; // attach ast_list to ast
 
     struct ast_node *ast_child = NULL;
-    enum parser_status status = parse_rule_and_or(&ast_child, lexer); // command
+    status = parse_rule_and_or(&ast_child, lexer); // command
     ast_cmd_list_add_ast(ast_list, ast_child);
     if (status != PARSER_OK)
         goto error;
@@ -106,12 +108,14 @@ enum parser_status parse_rule_compound_list(struct ast_node **ast,
     // (compound_separator command)* [compound_separator]
     while (parse_rule_compound_separator(lexer) == PARSER_OK)
     {
-        enum parser_status status = parse_rule_and_or(&ast_child, lexer);
+        status = parse_rule_and_or(&ast_child, lexer);
         if (status != PARSER_OK)
             break;
         ast_cmd_list_add_ast(ast_list, ast_child);
     }
 
+    if (status == PARSER_UNEXPECTED_EOF)
+        goto error;
     lexer_free_without_pretokens(saved_lexer);
     return PARSER_OK;
 error:
