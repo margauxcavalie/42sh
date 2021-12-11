@@ -73,7 +73,7 @@ int ast_while_exec(struct ast_node *ast, struct runtime *rt)
         rt->encountered_continue = false;
     }
 
-    if (rt->encountered_exit == true)
+    if (rt->encountered_exit == true || rt->encountered_continue == true)
         return rt->last_status;
     return 0;
 }

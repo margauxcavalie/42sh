@@ -5,6 +5,7 @@
 
 int builtin_break(int argc, char **argv, struct runtime *rt)
 {
+    rt->encountered_break = true;
     if (argc == 1)
         rt->loops_to_break = 1;
 
@@ -24,5 +25,8 @@ int builtin_break(int argc, char **argv, struct runtime *rt)
     return 0;
 
 illegal_argument:
-    errx(2, "break: Illegal number: %s", argv[1]);
+    // errx(2, "break: Illegal number: %s", argv[1]);
+    warnx("break: Illegal number: %s", argv[1]);
+    rt->loops_to_break = rt->loops_count;
+    return 2;
 }
