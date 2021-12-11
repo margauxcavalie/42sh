@@ -405,3 +405,14 @@ status: 0
 name: script_test_grammar_alphanum
 cmd: echo -n "" | ./42sh ../tests/functional/scripts/alphanum.sh
 status: 0
+---
+name: script_hard_for1
+cmd: ./42sh ../tests/functional/scripts/ascii_house.sh
+stdout: |2
+    /\
+   /  \
+  /____\  `'`
+  |    | `'''`
+  |    |  `|`
+  |_/\_|___|__
+status: 0
