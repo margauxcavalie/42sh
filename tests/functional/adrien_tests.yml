@@ -348,3 +348,60 @@ name: c_eof_unexpected25
 cmd: ./42sh -c "if true; then echo; elif true; then echo; else ls"
 stderr: "42sh: Syntax error: end of file unexpected\n"
 status: 2
+---
+name: script_hard_for1
+cmd: ./42sh ../tests/functional/scripts/hard_for_1.sh
+stdout: |
+  21
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  ed
+  ed
+  ed
+  21
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  ed
+  ed
+  ed
+  21
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  ed
+  ed
+  ed
+status: 0
+---
+name: script_test_grammar_alphanum
+cmd: echo -n "" | ./42sh ../tests/functional/scripts/alphanum.sh
+status: 0
