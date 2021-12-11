@@ -11,3 +11,4 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
                         size_t *counter);
 void var_hash_map_free(struct hash_map *hash_map);
 bool check_assignement_word(char *word);
+bool var_hash_map_remove(struct hash_map *hash_map, char *key);

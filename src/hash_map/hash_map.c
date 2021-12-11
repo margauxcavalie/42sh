@@ -195,7 +195,7 @@ static struct pair_list *list_find_pred(struct pair_list *l, char *key)
 }
 
 static struct pair_list *remove_pair_list(struct pair_list *list, char *key,
-                                          bool *res)
+                                          bool *res, void (*free_value)(void *))
 {
     struct pair_list *tmp;
     if (list == NULL)
@@ -208,7 +208,7 @@ static struct pair_list *remove_pair_list(struct pair_list *list, char *key,
         if (strcmp(list->key, key) == 0)
         {
             tmp = list->next;
-            free(list);
+            free_value(list);
             return tmp;
         }
         // printf("CHECKPOINT\n");
@@ -222,7 +222,7 @@ static struct pair_list *remove_pair_list(struct pair_list *list, char *key,
         if (tmp)
         {
             pred->next = pred->next->next;
-            free(tmp);
+            free_value(tmp);
             return list;
         }
     }
@@ -237,7 +237,7 @@ static struct pair_list *remove_pair_list(struct pair_list *list, char *key,
  * @return true
  * @return false
  */
-bool hash_map_remove(struct hash_map *hash_map, char *key)
+bool hash_map_remove(struct hash_map *hash_map, char *key, void (*free_value)(void *))
 {
     size_t hash_value = hash(key);
     if (hash_map == NULL || hash_map->size == 0 || hash_map->data == NULL)
@@ -247,6 +247,6 @@ bool hash_map_remove(struct hash_map *hash_map, char *key)
     hash_value = hash_value % hash_map->size;
     bool res = true;
     hash_map->data[hash_value] =
-        remove_pair_list(hash_map->data[hash_value], key, &res);
+        remove_pair_list(hash_map->data[hash_value], key, &res, free_value);
     return res;
 }

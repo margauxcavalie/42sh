@@ -37,6 +37,19 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 }
 
 /**
+ * @brief remove the value associated to the key
+ * 
+ * @param hash_map 
+ * @param key 
+ * @return true 
+ * @return false 
+ */
+bool var_hash_map_remove(struct hash_map *hash_map, char *key)
+{
+    return hash_map_remove(hash_map, key, free);
+}
+
+/**
  * @brief free an hash map full of variables
  *
  * @param hash_map
