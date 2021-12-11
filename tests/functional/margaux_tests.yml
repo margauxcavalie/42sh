@@ -198,6 +198,11 @@ cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; break; echo salut; done"
 stdout: "coucou\n"
 status: 0
 ---
+name: break_in_if
+cmd: ./42sh -c "if true; then echo salut; break; echo coucou; fi"
+stdout: "salut\ncoucou\n"
+status: 0
+---
 name: break_in_for_negative
 cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; break -6; echo salut; done"
 stdout: "coucou\n"
@@ -299,4 +304,26 @@ status: 66
 name: subshell_empty
 cmd: ./42sh -c "()"
 stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: subshell_in_for
+cmd: ./42sh -c "for elt in 1 2 3; do (echo coucou; break); done"
+stdout: "coucou\ncoucou\ncoucou\n"
+status: 0
+---
+name: subshell_hard_2
+cmd: ./42sh -c "for elt in 1 2 3; do if true; then echo sable; fi; for el in 1 2; do echo chateau; break -6; done; echo casquette; done"
+stdout: "sable\nchateau\n"
+stderr: "42sh: break: Illegal number: -6\n"
+status: 2
+---
+name: subshell_hard_3
+cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; continue 2; done; echo c; break -20; done"
+stdout: "a\nb\na\nb\na\nb\n"
+status: 0
+---
+name: subshell_hard_4
+cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; break -20; echo c; done; echo d; done"
+stdout: "a\nb\n"
+stderr: "42sh: break: Illegal number: -20\n"
 status: 2
