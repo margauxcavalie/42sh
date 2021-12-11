@@ -237,7 +237,8 @@ static struct pair_list *remove_pair_list(struct pair_list *list, char *key,
  * @return true
  * @return false
  */
-bool hash_map_remove(struct hash_map *hash_map, char *key, void (*free_value)(void *))
+bool hash_map_remove(struct hash_map *hash_map, char *key,
+                     void (*free_value)(void *))
 {
     size_t hash_value = hash(key);
     if (hash_map == NULL || hash_map->size == 0 || hash_map->data == NULL)

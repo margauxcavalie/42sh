@@ -38,11 +38,11 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 
 /**
  * @brief remove the value associated to the key
- * 
- * @param hash_map 
- * @param key 
- * @return true 
- * @return false 
+ *
+ * @param hash_map
+ * @param key
+ * @return true
+ * @return false
  */
 bool var_hash_map_remove(struct hash_map *hash_map, char *key)
 {
