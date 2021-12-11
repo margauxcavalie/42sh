@@ -18,6 +18,7 @@ struct runtime
     int loops_count;
     bool encountered_continue;
     bool encountered_exit;
+    bool encountered_break;
 };
 
 struct runtime *runtime_init();

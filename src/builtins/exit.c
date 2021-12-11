@@ -6,6 +6,7 @@
 int builtin_exit(int argc, char **argv,
                  __attribute__((unused)) struct runtime *rt)
 {
+    rt->encountered_exit = true;
     int return_status;
     if (argc == 1)
         return_status = 0;
@@ -23,9 +24,10 @@ int builtin_exit(int argc, char **argv,
         }
     }
 
-    rt->encountered_exit = true;
     return return_status;
 
 illegal_argument:
     errx(2, "exit: Illegal number: %s", argv[1]);
+    // warnx("exit: Illegal number: %s", argv[1]);
+    // return 2;
 }
