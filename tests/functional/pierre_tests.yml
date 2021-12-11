@@ -205,3 +205,8 @@ name: c_testvar4
 cmd: ./42sh -c ' echo "$var";var=hello;'
 stdout: "\n"
 status: 0
+---
+name: c_for_and_var
+cmd: ./42sh -c 'for word in 1 2 3 4 7 5 2 1 4 7 1 71 7 1 5 2 5641 dfs  hfe oiwui whofi ewuif jhf ui rfew hh; do echo -n "$word"; done'
+stdout: "123475214717171525641dfshfeoiwuiwhofiewuifjhfuirfewhh"
+status: 0
