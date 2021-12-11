@@ -6,7 +6,8 @@ int exec_builtin(struct vector *argv, bool *is_builtin, struct runtime *rt)
     struct matching_builtin our_builtins[] = {
         { "echo", &builtin_echo }, { "continue", &builtin_continue },
         { "cd", &builtin_cd },     { "break", &builtin_break },
-        { "read", &builtin_read }, { "exit", &builtin_exit }
+        { "read", &builtin_read }, { "exit", &builtin_exit },
+        { "[", &builtin_bracket }
     };
     size_t size = sizeof(our_builtins) / sizeof(struct matching_builtin);
 
