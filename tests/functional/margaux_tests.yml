@@ -357,3 +357,18 @@ name: unset_non_existent_var
 cmd: ./42sh -c 'var=coucou; echo "$var"; unset f; echo "$var"'
 stdout: "coucou\ncoucou\n"
 status: 0
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; var2=salut; echo "$var"; echo "$var2"; unset -v var2; echo "$var"; echo "$var2"'
+stdout: "coucou\nsalut\ncoucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name
+cmd: ./42sh -c 'echo=coucou; echo "$echo"; unset echo; echo "$echo"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name2
+cmd: ./42sh -c 'unset=coucou; echo "$unset"; unset unset; echo "$unset"'
+stdout: "coucou\n\n"
+status: 0
