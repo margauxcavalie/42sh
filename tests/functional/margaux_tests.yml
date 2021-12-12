@@ -327,3 +327,33 @@ cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; break 
 stdout: "a\nb\n"
 stderr: "42sh: break: Illegal number: -20\n"
 status: 2
+---
+name: unset_empty
+cmd: ./42sh -c "unset"
+stdout: ""
+status: 0
+---
+name: unset_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset var; echo "$var"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_invalid_opt
+cmd: ./42sh -c 'var=coucou; unset -g var; echo "$var"'
+stderr: "42sh: unset: Illegal option -g\n"
+status: 2
+---
+name: unset_invalid_name
+cmd: ./42sh -c 'var=coucou; unset inexistent var -j; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_invalid_name2
+cmd: ./42sh -c 'var=coucou; unset inexistent -j var; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset f; echo "$var"'
+stdout: "coucou\ncoucou\n"
+status: 0

@@ -208,7 +208,7 @@ static struct pair_list *remove_pair_list(struct pair_list *list, char *key,
         if (strcmp(list->key, key) == 0)
         {
             tmp = list->next;
-            free_value(list);
+            free_pair_list(list, free_value);
             return tmp;
         }
         // printf("CHECKPOINT\n");
@@ -222,7 +222,7 @@ static struct pair_list *remove_pair_list(struct pair_list *list, char *key,
         if (tmp)
         {
             pred->next = pred->next->next;
-            free_value(tmp);
+            free_pair_list(list, free_value);
             return list;
         }
     }

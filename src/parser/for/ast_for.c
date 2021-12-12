@@ -100,7 +100,7 @@ int ast_for_exec(struct ast_node *ast, struct runtime *rt)
         rt->loops_to_break -= 1;
     rt->loops_count -= 1;
     if (rt->encountered_exit || rt->encountered_continue
-        || rt->encountered_break)
+        || rt->encountered_break || rt->no_new_status)
         return rt->last_status;
     return 0;
 }
