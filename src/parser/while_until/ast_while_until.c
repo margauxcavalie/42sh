@@ -73,7 +73,8 @@ int ast_while_exec(struct ast_node *ast, struct runtime *rt)
         rt->encountered_continue = false;
     }
 
-    if (rt->encountered_exit == true || rt->encountered_continue == true)
+    if (rt->encountered_exit == true || rt->encountered_continue == true
+        || rt->encountered_break || rt->no_new_status)
         return rt->last_status;
     return 0;
 }
@@ -93,6 +94,10 @@ int ast_until_exec(struct ast_node *ast, struct runtime *rt)
         rt->loops_count -= 1;
         rt->encountered_continue = false;
     }
+
+    if (rt->encountered_exit == true || rt->encountered_continue == true
+        || rt->encountered_break || rt->no_new_status)
+        return rt->last_status;
 
     return 0;
 }

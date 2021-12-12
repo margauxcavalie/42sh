@@ -327,3 +327,48 @@ cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; break 
 stdout: "a\nb\n"
 stderr: "42sh: break: Illegal number: -20\n"
 status: 2
+---
+name: unset_empty
+cmd: ./42sh -c "unset"
+stdout: ""
+status: 0
+---
+name: unset_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset var; echo "$var"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_invalid_opt
+cmd: ./42sh -c 'var=coucou; unset -g var; echo "$var"'
+stderr: "42sh: unset: Illegal option -g\n"
+status: 2
+---
+name: unset_invalid_name
+cmd: ./42sh -c 'var=coucou; unset inexistent var -j; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_invalid_name2
+cmd: ./42sh -c 'var=coucou; unset inexistent -j var; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset f; echo "$var"'
+stdout: "coucou\ncoucou\n"
+status: 0
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; var2=salut; echo "$var"; echo "$var2"; unset -v var2; echo "$var"; echo "$var2"'
+stdout: "coucou\nsalut\ncoucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name
+cmd: ./42sh -c 'echo=coucou; echo "$echo"; unset echo; echo "$echo"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name2
+cmd: ./42sh -c 'unset=coucou; echo "$unset"; unset unset; echo "$unset"'
+stdout: "coucou\n\n"
+status: 0

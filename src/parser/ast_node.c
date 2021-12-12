@@ -60,10 +60,8 @@ int ast_node_exec(void *ptr, struct runtime *rt)
         return 0;
     struct ast_node *ast = ptr;
 
-    if (rt->encountered_exit == true) // exit
-        return rt->last_status;
-
-    if (rt->loops_to_break != 0 || rt->encountered_continue)
+    if (rt->loops_to_break != 0 || rt->encountered_continue
+        || rt->encountered_exit || rt->no_new_status)
         return rt->last_status;
 
     int status = (*(ast->node_exec))(ast, rt);
