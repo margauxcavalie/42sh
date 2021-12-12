@@ -36,7 +36,6 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
         { "<&", 2,
           .data = { OP_REDIR,
                     .data.redir_data = { REDIR_LESSAND, STDIN_FILENO } } },
-        { "!", 1, .data = { OP_NEG, .data.null = NULL } },
         { "||", 2, .data = { OP_OR, .data.null = NULL } },
         { "&&", 2, .data = { OP_AND, .data.null = NULL } },
         { "|", 1, .data = { OP_PIPE, .data.null = NULL } },
@@ -69,7 +68,7 @@ static enum rw_type match_rw_type(struct pretoken *new_pretoken)
         { "fi", 2, RW_FI },       { "while", 5, RW_WHILE },
         { "do", 2, RW_DO },       { "done", 4, RW_DONE },
         { "until", 5, RW_UNTIL }, { "for", 3, RW_FOR },
-        { "in", 2, RW_IN }
+        { "in", 2, RW_IN },       { "!", 1, RW_NEG }
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
     size_t count = 0;

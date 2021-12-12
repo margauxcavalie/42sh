@@ -55,7 +55,7 @@ enum parser_status parse_rule_pipeline(struct ast_node **ast,
 
     enum parser_status status;
 
-    if (is_op(lexer_peek(*lexer), OP_NEG))
+    if (is_rw(lexer_peek(*lexer), RW_NEG))
     {
         is_negation = true;
         token_free(lexer_pop(*lexer));

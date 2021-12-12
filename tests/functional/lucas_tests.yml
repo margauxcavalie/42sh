@@ -271,3 +271,15 @@ stdout: |
   solut
   banjaur
 status: 0
+---
+name: echo negation
+cmd: ./42sh -c "echo !"
+stdout: |
+  !
+status: 0
+---
+name: echo negation negated
+cmd: ./42sh -c "! echo !"
+stdout: |
+  !
+status: 1
