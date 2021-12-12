@@ -1,6 +1,5 @@
 #include <builtins/builtins.h>
 #include <err.h>
-#include <stdio.h>
 
 int builtin_read(int argc, char **argv, struct runtime *rt)
 {

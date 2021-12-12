@@ -3,8 +3,7 @@
 #include <err.h>
 #include <stdio.h>
 
-int builtin_exit(int argc, char **argv,
-                 __attribute__((unused)) struct runtime *rt)
+int builtin_exit(int argc, char **argv, struct runtime *rt)
 {
     rt->encountered_exit = true;
     int return_status;
