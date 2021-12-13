@@ -15,6 +15,7 @@ struct opts
     enum input_type type;
     char *cmd;
     char *path;
+    int ind_script_args;
 };
 
 struct opts get_options(int argc, char **argv);

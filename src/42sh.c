@@ -179,6 +179,54 @@ enum error read_print_loop(struct cstream *cs, struct vec *line,
     return NO_ERROR;
 }
 
+static void set_arg_var(struct runtime *rt, int argc, char *argv[], int ind)
+{
+    // set IFS
+    char *ifs = zalloc(sizeof(char) * 4);
+    strcpy(ifs, "IFS");
+    char *value = zalloc(sizeof(char) * 4);
+    strcpy(value, "");
+    var_hash_map_insert(rt->variables, ifs, value);
+    // set args
+    int i = 0;
+    struct vec *vec = xmalloc(sizeof(struct vec));
+    vec_init(vec);
+    for (; ind < argc; ind++)
+    {
+        // add to de $1 ... $n list
+        char *arg = zalloc(sizeof(char) * 10);
+        sprintf(arg, "%d", i);
+        char *arg_value = zalloc(sizeof(char) * (strlen(argv[ind]) + 1));
+        sprintf(arg_value, "%s", argv[ind]);
+        i++;
+        var_hash_map_insert(rt->variables, arg, arg_value);
+        // set $* and $@
+        for (size_t n = 0; n < strlen(arg_value); n++)
+        {
+            vec_push(vec, arg_value[n]);
+        }
+        if (ind + 1 != argc)
+            vec_push(vec, ' ');
+    }
+    // set $* and $@
+    char *arg = zalloc(sizeof(char) * 2);
+    sprintf(arg, "*");
+    char *arg_value = zalloc(sizeof(char) * (vec->size + 1));
+    char *str = vec_cstring(vec);
+    sprintf(arg_value, "%s", vec_cstring(vec));
+    var_hash_map_insert(rt->variables, arg, arg_value);
+    arg = zalloc(sizeof(char) * 2);
+    sprintf(arg, "@");
+    var_hash_map_insert(rt->variables, arg, str);
+    free(vec);
+    // set $#
+    arg = zalloc(sizeof(char) * 2);
+    sprintf(arg, "#");
+    arg_value = zalloc(sizeof(char) * 10);
+    sprintf(arg_value, "%d", i - 1);
+    var_hash_map_insert(rt->variables, arg, arg_value);
+}
+
 int main(int argc, char *argv[])
 {
     // Runtime initialisation
@@ -186,6 +234,9 @@ int main(int argc, char *argv[])
     int rc;
 
     struct opts opts = get_options(argc, argv);
+
+    // Setup the script argument
+    set_arg_var(rt, argc, argv, opts.ind_script_args);
 
     // Parse command line arguments and get an input stream
     struct cstream *cs;

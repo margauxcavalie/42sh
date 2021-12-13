@@ -9,9 +9,11 @@ static struct option long_options[] = { { "pretty-print", 0, NULL, 'p' },
 
 static struct opts get_default_opts()
 {
-    struct opts opts = {
-        .pretty_print = false, .type = INPUT_PROMPT, .cmd = NULL, .path = NULL
-    };
+    struct opts opts = { .pretty_print = false,
+                         .type = INPUT_PROMPT,
+                         .cmd = NULL,
+                         .path = NULL,
+                         .ind_script_args = 0 };
     return opts;
 }
 
@@ -46,7 +48,9 @@ struct opts get_options(int argc, char **argv)
         opts.type = INPUT_FILE;
         int nb = argc - optind;
         if (nb > 1)
-            args_error("Cannot set multiples scripts");
+        {
+            opts.ind_script_args = optind;
+        }
         opts.path = argv[optind];
     }
 

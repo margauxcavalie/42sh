@@ -1,6 +1,7 @@
 #include "runtime.h"
 
 #include <parser/function/ast_function.h>
+#include <stdio.h>
 #include <utils/alloc.h>
 
 struct runtime *runtime_init()
@@ -25,5 +26,14 @@ void runtime_free(struct runtime *rt)
 
 void runtime_set_status(struct runtime *rt, int status)
 {
+    // update $?
+    char *key = zalloc(sizeof(char) * 2);
+    char *tmp = "?";
+    char *value = zalloc(sizeof(char) * 12);
+    sprintf(value, "%d", status);
+    // printf("%s",value);
+    strcpy(key, tmp);
+    var_hash_map_insert(rt->variables, key, value);
+    // update rt->last_status
     rt->last_status = status;
 }

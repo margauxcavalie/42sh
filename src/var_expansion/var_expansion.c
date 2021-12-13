@@ -3,9 +3,14 @@
 #include <ctype.h>
 #include <hash_map/hash_map.h>
 #include <lexer/token.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 #include <utils/alloc.h>
 #include <utils/vec.h>
+
 #define HASH_MAP_SIZE 32
 
 /**
@@ -262,6 +267,41 @@ char *build_key(char *var, int *error, size_t *counter)
 }
 
 /**
+ * @brief return a special str if the var is special
+ *
+ * @param key
+ * @return char*
+ */
+char *handle_special_var(struct hash_map *hash_map, char *key)
+{
+    if (key)
+    {
+        if (strcmp(key, "$") == 0)
+        {
+            int pid = getpid();
+            char *res = zalloc(sizeof(char) * 10);
+            sprintf(res, "%d", pid);
+            char *false_key = zalloc(sizeof(char) * 2);
+            strcpy(false_key, "$");
+            var_hash_map_insert(hash_map, false_key, res);
+            return res;
+        }
+        if (strcmp(key, "RANDOM") == 0)
+        {
+            srand(time(NULL));
+            int random = rand() % 32767;
+            char *res = zalloc(sizeof(char) * 10);
+            sprintf(res, "%d", random);
+            char *false_key = zalloc(sizeof(char) * 7);
+            strcpy(false_key, "RANDOM");
+            var_hash_map_insert(hash_map, false_key, res);
+            return res;
+        }
+    }
+    return NULL;
+}
+
+/**
  * @brief return the value associated to this var,
  * key pair syntax : var=true,
  * key : var,
@@ -280,7 +320,13 @@ char *expand_var(struct hash_map *hash_map, char *var, int *error,
     char *key = build_key(var, error, counter);
     if (key == NULL)
         return NULL;
-    char *value = hash_map_get(hash_map, key);
+    char *value = handle_special_var(hash_map, key);
+    if (value != NULL)
+    {
+        free(key);
+        return value;
+    }
+    value = hash_map_get(hash_map, key);
     free(key);
     if (value == NULL)
         return "";
@@ -333,7 +379,6 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
                     count += 1;
                 }
             }
-            // printf("%c\n", str[counter]);
             vec_push(vec, str[count]);
             count += 1;
         }
@@ -343,25 +388,15 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
         }
         // else it's a word
         char *word = expand_var(hash_map, str + count, error, &count);
-        /*printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
-        if (word != NULL)
-            printf("%s\n", word);
-        printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
-        printf("error = %d\n", *error);*/
         if (word == NULL)
         {
             if (*error)
             {
-                // printf("eeeeeeeeeeeeeeeeeeeeeeeeeeeeerror\n");
                 vec_destroy(vec);
                 free(vec);
                 return NULL;
             }
-            /*printf("$ will be added\n");
-            printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");*/
             vec_push(vec, '$');
-            /*printf("$ added\n");
-            printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");*/
             continue;
         }
         // printf("word != NULL\n");
@@ -370,9 +405,6 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
         {
             vec_push(vec, word[i]);
         }
-        // printf("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n");
-        // printf("%s\n", vec_cstring(vec));
-        // printf("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n");
     }
     if (str[count] == '\0')
     {
@@ -384,9 +416,6 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
     count++;
     char *res = vec_cstring(vec); // get the string
     *counter += count;
-    /*printf("ccccccccccccccccccccccccccccccccccccc\n");
-    printf("%s\n", res);
-    printf("ccccccccccccccccccccccccccccccccccccc\n");*/
     free(vec); // free the vec preserving the str
     return res;
 }
