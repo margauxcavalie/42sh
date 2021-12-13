@@ -28,6 +28,18 @@ Test(build_key, dbl_dollar)
     free(key);
 }
 
+Test(build_key, interrogation)
+{
+    char *var = "$?";
+    int error = 0;
+    size_t size = 0;
+    char *key = build_key(var, &error, &size);
+    cr_assert(strcmp(key, "?") == 0);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 2);
+    free(key);
+}
+
 Test(build_key, dbl_dollar_tricky)
 {
     char *var = "${$}";
@@ -720,7 +732,7 @@ Test(expand_all_string, random_example)
     strcpy(key, tmp);
     strcpy(value, tmp2);
     char *key2 = malloc(sizeof(char) * 2);
-    char *tmp21 = "$";
+    char *tmp21 = "a";
     char *value2 = malloc(sizeof(char) * 15);
     char *tmp22 = "JesuisunDollar";
     strcpy(key2, tmp21);
@@ -729,7 +741,7 @@ Test(expand_all_string, random_example)
     var_hash_map_insert(hash_map, key2, value2);
     // test code
     char *var =
-        "\"char *var = ${var} $' $$ yo dfs {dsfsd  wr echo for;; \n $ok   "
+        "\"char *var = ${var} $' $a yo dfs {dsfsd  wr echo for;; \n $ok   "
         "\\${ok  drfdesfs ;a\"";
     char *expected =
         "char *var = ok $' JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
@@ -755,7 +767,7 @@ Test(expand_all_string, random_example2)
     strcpy(key, tmp);
     strcpy(value, tmp2);
     char *key2 = malloc(sizeof(char) * 2);
-    char *tmp21 = "$";
+    char *tmp21 = "a";
     char *value2 = malloc(sizeof(char) * 15);
     char *tmp22 = "JesuisunDollar";
     strcpy(key2, tmp21);
@@ -764,7 +776,7 @@ Test(expand_all_string, random_example2)
     var_hash_map_insert(hash_map, key2, value2);
     // test code
     char *var =
-        "\"char *var = ${var} $ $$ yo dfs {dsfsd  wr echo for;; \n $ok   "
+        "\"char *var = ${var} $ $a yo dfs {dsfsd  wr echo for;; \n $ok   "
         "\\${ok $; $23 drfdesfs ;a\"";
     char *expected =
         "char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
