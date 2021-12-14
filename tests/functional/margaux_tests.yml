@@ -125,6 +125,7 @@ stdout: "coucou coucou coucou "
 name: for_non_existent_command
 cmd: ./42sh -c "for elt in 1 2 ; do e 'coucou '; done"
 stderr: "42sh: command not found: e\n42sh: command not found: e\n"
+status: 127
 ---
 name: for_single_quotes
 cmd: ./42sh -c "for elt in '1 2 3 '; do echo triple croche; done"
