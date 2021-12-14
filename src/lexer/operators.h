@@ -7,7 +7,6 @@ enum op_type
     OP_LINEFEED,
     OP_REDIR,
     OP_PIPE,
-    OP_NEG,
     OP_OR,
     OP_AND,
     OP_LBRACE,

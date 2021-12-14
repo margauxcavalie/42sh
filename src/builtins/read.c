@@ -33,7 +33,7 @@ int builtin_read(int argc, char **argv, struct runtime *rt)
     char *name = strdup(argv[1]);
     var_hash_map_insert(rt->variables, name, str);
 
-    if (e == -1)
+    if (e <= 0)
         return 1;
     return 0;
 }

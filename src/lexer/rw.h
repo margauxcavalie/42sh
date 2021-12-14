@@ -13,5 +13,6 @@ enum rw_type
     RW_DONE,
     RW_UNTIL,
     RW_FOR,
-    RW_IN
+    RW_IN,
+    RW_NEG,
 };

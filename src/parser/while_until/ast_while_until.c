@@ -59,12 +59,14 @@ void ast_until_print(struct ast_node *ast, struct print_context pc)
 
 int ast_while_exec(struct ast_node *ast, struct runtime *rt)
 {
+    int executed = 0;
     struct ast_while_until *ast_while = (struct ast_while_until *)ast;
     if (ast_while->condition)
     {
         rt->loops_count += 1;
         while (!ast_node_exec(ast_while->condition, rt)) // if it returns 0
         {
+            executed = 1;
             if (ast_while->body)
                 ast_node_exec(ast_while->body, rt);
         }
@@ -73,19 +75,19 @@ int ast_while_exec(struct ast_node *ast, struct runtime *rt)
         rt->encountered_continue = false;
     }
 
-    if (rt->encountered_exit == true)
-        return rt->last_status;
-    return 0;
+    return (executed) ? (rt->last_status) : (0);
 }
 
 int ast_until_exec(struct ast_node *ast, struct runtime *rt)
 {
+    int executed = 0;
     struct ast_while_until *ast_until = (struct ast_while_until *)ast;
     if (ast_until->condition)
     {
         rt->loops_count += 1;
         while (ast_node_exec(ast_until->condition, rt)) // if it returns 0
         {
+            executed = 1;
             if (ast_until->body)
                 ast_node_exec(ast_until->body, rt);
         }
@@ -94,7 +96,7 @@ int ast_until_exec(struct ast_node *ast, struct runtime *rt)
         rt->encountered_continue = false;
     }
 
-    return 0;
+    return (executed) ? (rt->last_status) : (0);
 }
 
 /**

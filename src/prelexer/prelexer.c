@@ -11,9 +11,9 @@
 const struct pretoken_operator ops[] = {
     { ">&", 2 }, { "<&", 2 }, { ">>", 2 }, { "&&", 2 }, { "||", 2 }, { "|", 1 },
     { ">|", 2 }, { "<>", 2 }, { "\n", 1 }, { ";", 1 },  { ">", 1 },  { "<", 1 },
-    { "!", 1 },  { "{", 1 },  { "}", 1 },  { "(", 1 },  { ")", 1 },  { "#", 1 }
+    { "{", 1 },  { "}", 1 },  { "(", 1 },  { ")", 1 },  { "#", 1 }
 };
-#define nb_ops 18
+#define nb_ops 17
 
 static bool is_operator(const char *str)
 {
@@ -233,7 +233,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size,
     {
         struct pretoken_operator pretok_op = ops[i];
         // check if '!' is followed by a space
-        if ((!strcmp(pretok_op.str, "!"))
+        /*if ((!strcmp(pretok_op.str, "!"))
             && (!strncmp(pretok_op.str, str, pretok_op.len)))
         {
             if (!strncmp(str + 1, " ", 1))
@@ -251,7 +251,7 @@ struct pretoken *get_next_pretoken(const char *str, size_t *size,
             {
                 break;
             }
-        }
+        }*/
         if (!strncmp(pretok_op.str, str, pretok_op.len))
         {
             // if we found an operator

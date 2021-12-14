@@ -14,6 +14,8 @@ struct runtime *runtime_init()
     new->encountered_continue = false;
     new->variables = var_hash_map_init();
     new->encountered_exit = false;
+    new->encountered_break = false;
+    new->no_new_status = false;
     return new;
 }
 

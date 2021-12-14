@@ -125,6 +125,7 @@ stdout: "coucou coucou coucou "
 name: for_non_existent_command
 cmd: ./42sh -c "for elt in 1 2 ; do e 'coucou '; done"
 stderr: "42sh: command not found: e\n42sh: command not found: e\n"
+status: 127
 ---
 name: for_single_quotes
 cmd: ./42sh -c "for elt in '1 2 3 '; do echo triple croche; done"
@@ -196,6 +197,11 @@ status: 0
 name: break_in_for
 cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; break; echo salut; done"
 stdout: "coucou\n"
+status: 0
+---
+name: break_in_if
+cmd: ./42sh -c "if true; then echo salut; break; echo coucou; fi"
+stdout: "salut\ncoucou\n"
 status: 0
 ---
 name: break_in_for_negative
@@ -300,3 +306,70 @@ name: subshell_empty
 cmd: ./42sh -c "()"
 stderr: "42sh: Syntax error: Unexpected token\n"
 status: 2
+---
+name: subshell_in_for
+cmd: ./42sh -c "for elt in 1 2 3; do (echo coucou; break); done"
+stdout: "coucou\ncoucou\ncoucou\n"
+status: 0
+---
+name: subshell_hard_2
+cmd: ./42sh -c "for elt in 1 2 3; do if true; then echo sable; fi; for el in 1 2; do echo chateau; break -6; done; echo casquette; done"
+stdout: "sable\nchateau\n"
+stderr: "42sh: break: Illegal number: -6\n"
+status: 2
+---
+name: subshell_hard_3
+cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; continue 2; done; echo c; break -20; done"
+stdout: "a\nb\na\nb\na\nb\n"
+status: 0
+---
+name: subshell_hard_4
+cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; break -20; echo c; done; echo d; done"
+stdout: "a\nb\n"
+stderr: "42sh: break: Illegal number: -20\n"
+status: 2
+---
+name: unset_empty
+cmd: ./42sh -c "unset"
+stdout: ""
+status: 0
+---
+name: unset_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset var; echo "$var"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_invalid_opt
+cmd: ./42sh -c 'var=coucou; unset -g var; echo "$var"'
+stderr: "42sh: unset: Illegal option -g\n"
+status: 2
+---
+name: unset_invalid_name
+cmd: ./42sh -c 'var=coucou; unset inexistent var -j; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_invalid_name2
+cmd: ./42sh -c 'var=coucou; unset inexistent -j var; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset f; echo "$var"'
+stdout: "coucou\ncoucou\n"
+status: 0
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; var2=salut; echo "$var"; echo "$var2"; unset -v var2; echo "$var"; echo "$var2"'
+stdout: "coucou\nsalut\ncoucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name
+cmd: ./42sh -c 'echo=coucou; echo "$echo"; unset echo; echo "$echo"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name2
+cmd: ./42sh -c 'unset=coucou; echo "$unset"; unset unset; echo "$unset"'
+stdout: "coucou\n\n"
+status: 0

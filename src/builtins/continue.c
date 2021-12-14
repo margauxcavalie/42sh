@@ -5,6 +5,7 @@
 
 int builtin_continue(int argc, char **argv, struct runtime *rt)
 {
+    rt->encountered_continue = true;
     if (argc == 1)
         rt->loops_to_break = 0;
 
@@ -18,12 +19,13 @@ int builtin_continue(int argc, char **argv, struct runtime *rt)
             rt->loops_to_break = number - 1;
     }
 
-    rt->encountered_continue = true;
     if (rt->loops_to_break > rt->loops_count)
         rt->loops_to_break = rt->loops_count;
 
     return 0;
 
 illegal_argument:
-    errx(2, "continue: Illegal number: %s", argv[1]);
+    warnx("continue: Illegal number: %s", argv[1]);
+    rt->loops_to_break = rt->loops_count;
+    return 2;
 }
