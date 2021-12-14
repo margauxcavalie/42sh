@@ -225,6 +225,21 @@ static void set_arg_var(struct runtime *rt, int argc, char *argv[], int ind)
     arg_value = zalloc(sizeof(char) * 10);
     sprintf(arg_value, "%d", i - 1);
     var_hash_map_insert(rt->variables, arg, arg_value);
+    // set PWD et OLDPWD
+    char *env_pwd = getenv("PWD");
+    char *env_old_pwd = getenv("OLDPWD");
+    // PWD
+    arg = zalloc(sizeof(char) * 4);
+    sprintf(arg, "PWD");
+    arg_value = zalloc(sizeof(char) * (strlen(env_pwd) + 1));
+    sprintf(arg_value, "%s", env_pwd);
+    var_hash_map_insert(rt->variables, arg, arg_value);
+    // OLDPWD
+    arg = zalloc(sizeof(char) * 7);
+    sprintf(arg, "OLDPWD");
+    arg_value = zalloc(sizeof(char) * (strlen(env_old_pwd) + 1));
+    sprintf(arg_value, "%s", env_old_pwd);
+    var_hash_map_insert(rt->variables, arg, arg_value);
 }
 
 int main(int argc, char *argv[])
