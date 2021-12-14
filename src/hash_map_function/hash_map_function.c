@@ -1,6 +1,7 @@
 #include "hash_map_function.h"
 
 #include <parser/ast_node.h>
+#include <parser/function/ast_function.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,6 @@ static struct pair_list_function *list_replace_key(struct pair_list_function *l,
         {
             void *tmp = l->value;
             free_value(tmp);
-            free(key);
             l->value = value;
             return l;
         }
@@ -120,6 +120,7 @@ pair_list_insert(struct pair_list_function *list, char *key, void *value,
             list_replace_key(list, key, value, free_value);
         if (tmp)
         {
+            free(elt->key);
             free(elt);
             return list;
         }
@@ -255,5 +256,6 @@ bool hash_map_func_remove(struct hash_map_function *hash_map, char *key)
     bool res = true;
     hash_map->data[hash_value] =
         remove_pair_list(hash_map->data[hash_value], key, &res);
+    free(key);
     return res;
 }
