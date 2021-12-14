@@ -198,15 +198,18 @@ static void set_arg_var(struct runtime *rt, int argc, char *argv[], int ind)
         sprintf(arg, "%d", i);
         char *arg_value = zalloc(sizeof(char) * (strlen(argv[ind]) + 1));
         sprintf(arg_value, "%s", argv[ind]);
-        i++;
         var_hash_map_insert(rt->variables, arg, arg_value);
         // set $* and $@
-        for (size_t n = 0; n < strlen(arg_value); n++)
+        if (i != 0)
         {
-            vec_push(vec, arg_value[n]);
+            for (size_t n = 0; n < strlen(arg_value); n++)
+            {
+                vec_push(vec, arg_value[n]);
+            }
+            if (ind + 1 != argc)
+                vec_push(vec, ' ');
         }
-        if (ind + 1 != argc)
-            vec_push(vec, ' ');
+        i++;
     }
     // set $* and $@
     char *arg = zalloc(sizeof(char) * 2);
@@ -225,6 +228,37 @@ static void set_arg_var(struct runtime *rt, int argc, char *argv[], int ind)
     arg_value = zalloc(sizeof(char) * 10);
     sprintf(arg_value, "%d", i - 1);
     var_hash_map_insert(rt->variables, arg, arg_value);
+    // set PWD et OLDPWD
+    char *env_pwd = getenv("PWD");
+    char *env_old_pwd = getenv("OLDPWD");
+    // PWD
+    if (env_pwd != NULL)
+    {
+        arg = zalloc(sizeof(char) * 4);
+        sprintf(arg, "PWD");
+        arg_value = zalloc(sizeof(char) * (strlen(env_pwd) + 1));
+        sprintf(arg_value, "%s", env_pwd);
+        var_hash_map_insert(rt->variables, arg, arg_value);
+    }
+    // OLDPWD
+    if (env_old_pwd != NULL)
+    {
+        arg = zalloc(sizeof(char) * 7);
+        sprintf(arg, "OLDPWD");
+        arg_value = zalloc(sizeof(char) * (strlen(env_old_pwd) + 1));
+        sprintf(arg_value, "%s", env_old_pwd);
+        var_hash_map_insert(rt->variables, arg, arg_value);
+    }
+    // UID
+    char *env_uid = getenv("UID");
+    if (env_uid != NULL)
+    {
+        arg = zalloc(sizeof(char) * 4);
+        sprintf(arg, "UID");
+        arg_value = zalloc(sizeof(char) * (strlen(env_uid) + 1));
+        sprintf(arg_value, "%s", env_uid);
+        var_hash_map_insert(rt->variables, arg, arg_value);
+    }
 }
 
 int main(int argc, char *argv[])
