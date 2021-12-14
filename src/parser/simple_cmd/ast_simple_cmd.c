@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <utils/alloc.h>
+#include <utils/my_itoa.h>
 
 /**
  * @brief Frees all the AST contains
@@ -64,6 +65,33 @@ static struct vector *expands_simple_cmd_argv(struct ast_simple_cmd *ast,
     return new;
 }
 
+static int set_function_args(struct vector *argv, struct ast_node *ast,
+                             struct runtime *rt)
+{
+    // TODO: store all env variable in global stack
+
+    size_t params_size = argv->size;
+    char **params_cast = zalloc(sizeof(char *) * (params_size + 1));
+    int count = 1;
+    for (size_t i = 1; i < params_size; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+        params_cast[i] = argv->data[i];
+        setenv(count_ascii, params_cast[i], 1);
+        char *key = strdup(count_ascii);
+        char *value = strdup(params_cast[i]);
+        var_hash_map_insert(rt->variables, key, value);
+        count++;
+        free(count_ascii);
+    }
+
+    int status = ast_node_exec(ast, rt);
+    // TODO: POP all env variable in global stack
+    free(params_cast);
+    return status;
+}
+
 int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
 {
     rt->last_status = rt->last_status + 1 - 1; // TMP
@@ -84,7 +112,7 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
         hash_map_func_get(rt->functions, (char *)args_expended->data[0]);
     if (ast_function != NULL)
     {
-        int status = ast_node_exec(ast_function, rt);
+        int status = set_function_args(args_expended, ast_function, rt);
         vector_apply_on_elts(args_expended, &free);
         vector_destroy(args_expended);
         return status;
