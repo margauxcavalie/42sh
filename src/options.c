@@ -13,7 +13,7 @@ static struct opts get_default_opts()
                          .type = INPUT_PROMPT,
                          .cmd = NULL,
                          .path = NULL,
-                         .ind_script_args = 0 };
+                         .ind_script_args = 1 };
     return opts;
 }
 
