@@ -25,3 +25,4 @@ int builtin_read(int argc, char **argv, struct runtime *rt);
 int builtin_unset(int argc, char **argv, struct runtime *rt);
 int builtin_bracket(int argc, char **argv,
                     __attribute__((unused)) struct runtime *rt);
+int builtin_export(int argc, char **argv, struct runtime *rt);

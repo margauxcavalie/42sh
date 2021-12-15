@@ -14,6 +14,32 @@
 #define HASH_MAP_SIZE 32
 
 /**
+ * @brief function passed to the generci hash table
+ *
+ * @param var
+ */
+static void free_var(void *var)
+{
+    struct var *vartmp = var;
+    free(vartmp->value);
+    free(vartmp);
+}
+
+/**
+ * @brief to init a var
+ *
+ * @param value
+ * @return struct var*
+ */
+static struct var *init_var(char *value, int isenv)
+{
+    struct var *new_var = xmalloc(sizeof(struct var));
+    new_var->value = value;
+    new_var->isenv = isenv;
+    return new_var;
+}
+
+/**
  * @brief init the hash_map storing our variables
  *
  * @return struct hash_map*
@@ -38,7 +64,28 @@ struct hash_map *var_hash_map_init(void)
  */
 bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 {
-    return hash_map_insert(hash_map, key, value, free);
+    int isenv = 0;
+    struct var *var_value = init_var(value, isenv);
+    return hash_map_insert(hash_map, key, var_value, free_var);
+}
+
+/**
+ * @brief insert a new pair value / key in the hash map
+ * key pair syntax : var=true
+ * key : var
+ * value : true
+ * => $(var) = true
+ * @param hash_map
+ * @param key name of the var
+ * @param value value inside
+ * @return true
+ * @return false
+ */
+bool var_hash_map_insert_env(struct hash_map *hash_map, char *key, char *value)
+{
+    int isenv = 1;
+    struct var *var_value = init_var(value, isenv);
+    return hash_map_insert(hash_map, key, var_value, free_var);
 }
 
 /**
@@ -51,7 +98,8 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
  */
 bool var_hash_map_remove(struct hash_map *hash_map, char *key)
 {
-    return hash_map_remove(hash_map, key, free);
+    unsetenv(key);
+    return hash_map_remove(hash_map, key, free_var);
 }
 
 /**
@@ -61,7 +109,7 @@ bool var_hash_map_remove(struct hash_map *hash_map, char *key)
  */
 void var_hash_map_free(struct hash_map *hash_map)
 {
-    hash_map_free(hash_map, free);
+    hash_map_free(hash_map, free_var);
 }
 
 static bool is_a_spec_char(char c)
@@ -319,17 +367,28 @@ char *expand_var(struct hash_map *hash_map, char *var, int *error,
     }
     char *key = build_key(var, error, counter);
     if (key == NULL)
+    {
         return NULL;
+    }
     char *value = handle_special_var(hash_map, key);
     if (value != NULL)
     {
         free(key);
         return value;
     }
-    value = hash_map_get(hash_map, key);
-    free(key);
+    value = NULL;
+    struct var *var_value = hash_map_get(hash_map, key);
+    if (var_value != NULL)
+        value = var_value->value;
     if (value == NULL)
-        return "";
+    {
+        value = getenv(key);
+        if (value == NULL)
+        {
+            value = "";
+        }
+    }
+    free(key);
     return value;
 }
 
