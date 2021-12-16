@@ -3,13 +3,14 @@
 #include <builtins/builtins.h>
 #include <err.h>
 #include <expansion/expansion.h>
-#include <hash_map_function/hash_map_function.h>
 #include <hash_map/hash_map.h>
+#include <hash_map_function/hash_map_function.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <utils/alloc.h>
 #include <utils/my_itoa.h>
+#include <var_expansion/var_expansion.h>
 
 /**
  * @brief Frees all the AST contains
@@ -66,30 +67,91 @@ static struct vector *expands_simple_cmd_argv(struct ast_simple_cmd *ast,
     return new;
 }
 
-static struct vector *put_var_in_vector(struct runtime *rt)
+static void put_var_in_vector(struct runtime *rt)
 {
     struct vector *vec = vector_init(10);
     int count = 0;
-    for (size_t i = 0; i < 10; i++)
+    for (size_t i = 0; i < 20; i++)
     {
         char *count_ascii = zalloc(sizeof(char) * 4096);
         my_itoa(count, count_ascii);
         // get var from hash_table
-        void *var = hash_map_get(rt->variables, count_ascii);
+        struct var *var_struct = hash_map_get(rt->variables, count_ascii);
         // put var in vector
-        vec = vector_append(vec, var);
+        if (var_struct)
+        {
+            char *var_value = strdup(var_struct->value);
+            vec = vector_append(vec, var_value);
+        }
+        else
+        {
+            vec = vector_append(vec, NULL);
+        }
         count++;
         free(count_ascii);
     }
-    return vec;
+    rt->stack_function = stack_push(rt->stack_function, vec);
+}
+
+static void reset_var(struct runtime *rt)
+{
+    int count = 0;
+    for (size_t i = 0; i < 20; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+        // get var from hash_table
+        struct var *var_struct = hash_map_get(rt->variables, count_ascii);
+        if (var_struct)
+        {
+            // reset var
+            free(var_struct->value);
+            var_struct->value = strdup("\0");
+        }
+
+        count++;
+        free(count_ascii);
+    }
+}
+
+// restore var to not have value from outside function
+static void restore_var(struct runtime *rt)
+{
+    // get vector from stack
+    struct vector *vec = stack_peek(rt->stack_function);
+    int count = 0;
+    for (size_t i = 0; i < 20; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+
+        // get var from hash_table
+        if (vec->data[i])
+        {
+            struct var *var_struct = hash_map_get(rt->variables, count_ascii);
+            if (var_struct)
+            {
+                // set var in hash table from var in vector
+                free(var_struct->value);
+                char *var = vec->data[i];
+                var_struct->value = strdup(var);
+            }
+        }
+        count++;
+        free(count_ascii);
+    }
+    // free vector in stack and pop stack
+    rt->stack_function = stack_pop(rt->stack_function);
 }
 
 static int set_function_args(struct vector *argv, struct ast_node *ast,
                              struct runtime *rt)
 {
-    // TODO: store all env variable in global stack
-    struct vector *vec = put_var_in_vector(rt);
-    vec = vec;
+    // store env var from 0 to 9 in stack
+    put_var_in_vector(rt);
+
+    // reset var in hash_table
+    reset_var(rt);
 
     size_t params_size = argv->size;
     char **params_cast = zalloc(sizeof(char *) * (params_size + 1));
@@ -108,7 +170,11 @@ static int set_function_args(struct vector *argv, struct ast_node *ast,
     }
 
     int status = ast_node_exec(ast, rt);
-    // TODO: POP all env variable in global stack
+    // POP all env variable in global stack
+    reset_var(rt);
+
+    restore_var(rt);
+
     free(params_cast);
     return status;
 }

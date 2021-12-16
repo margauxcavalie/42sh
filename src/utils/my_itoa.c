@@ -18,7 +18,6 @@ void reverse(char *s)
             end_index--;
         }
     }
-
 }
 
 char *my_itoa(int value, char *s)
