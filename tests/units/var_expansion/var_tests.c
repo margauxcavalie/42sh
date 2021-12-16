@@ -349,6 +349,27 @@ Test(var_expansion, simple_brackets_noise)
     var_hash_map_free(hash_map);
 }
 
+Test(var_expansion, hard_brackets_noise)
+{
+    int error = 0;
+    struct hash_map *hash_map = var_hash_map_init();
+    // setup the var ok manually var=ok
+    char *key = malloc(sizeof(char) * 5);
+    char *tmp = "100";
+    char *value = malloc(sizeof(char) * 3);
+    char *tmp2 = "ok";
+    strcpy(key, tmp);
+    strcpy(value, tmp2);
+    var_hash_map_insert(hash_map, key, value);
+    // test code
+    char *var = "${100}hello";
+    size_t size = 0;
+    cr_assert(strcmp(expand_var(hash_map, var, &error, &size), "ok") == 0);
+    cr_assert_eq(error, 0);
+    cr_assert_eq(size, 6);
+    var_hash_map_free(hash_map);
+}
+
 Test(var_expansion, error)
 {
     int error = 0;
