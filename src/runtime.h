@@ -1,5 +1,6 @@
 #pragma once
 #include <hash_map_function/hash_map_function.h>
+#include <stack_function/stack.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <var_expansion/var_expansion.h>
@@ -15,6 +16,7 @@ struct runtime
     int last_status; // is the return of the last execution
     struct hash_map *variables;
     struct hash_map_function *functions;
+    struct stack *stack_function;
     int loops_to_break;
     int loops_count;
     bool encountered_continue;

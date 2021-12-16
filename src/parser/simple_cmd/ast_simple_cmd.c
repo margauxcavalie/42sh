@@ -3,11 +3,14 @@
 #include <builtins/builtins.h>
 #include <err.h>
 #include <expansion/expansion.h>
+#include <hash_map/hash_map.h>
 #include <hash_map_function/hash_map_function.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <utils/alloc.h>
+#include <utils/my_itoa.h>
+#include <var_expansion/var_expansion.h>
 
 /**
  * @brief Frees all the AST contains
@@ -64,6 +67,118 @@ static struct vector *expands_simple_cmd_argv(struct ast_simple_cmd *ast,
     return new;
 }
 
+static void put_var_in_vector(struct runtime *rt)
+{
+    struct vector *vec = vector_init(10);
+    int count = 0;
+    for (size_t i = 0; i < 20; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+        // get var from hash_table
+        struct var *var_struct = hash_map_get(rt->variables, count_ascii);
+        // put var in vector
+        if (var_struct)
+        {
+            char *var_value = strdup(var_struct->value);
+            vec = vector_append(vec, var_value);
+        }
+        else
+        {
+            vec = vector_append(vec, NULL);
+        }
+        count++;
+        free(count_ascii);
+    }
+    rt->stack_function = stack_push(rt->stack_function, vec);
+}
+
+static void reset_var(struct runtime *rt)
+{
+    int count = 0;
+    for (size_t i = 0; i < 20; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+        // get var from hash_table
+        struct var *var_struct = hash_map_get(rt->variables, count_ascii);
+        if (var_struct)
+        {
+            // reset var
+            free(var_struct->value);
+            var_struct->value = strdup("\0");
+        }
+
+        count++;
+        free(count_ascii);
+    }
+}
+
+// restore var to not have value from outside function
+static void restore_var(struct runtime *rt)
+{
+    // get vector from stack
+    struct vector *vec = stack_peek(rt->stack_function);
+    int count = 0;
+    for (size_t i = 0; i < 20; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+
+        // get var from hash_table
+        if (vec->data[i])
+        {
+            struct var *var_struct = hash_map_get(rt->variables, count_ascii);
+            if (var_struct)
+            {
+                // set var in hash table from var in vector
+                free(var_struct->value);
+                char *var = vec->data[i];
+                var_struct->value = strdup(var);
+            }
+        }
+        count++;
+        free(count_ascii);
+    }
+    // free vector in stack and pop stack
+    rt->stack_function = stack_pop(rt->stack_function);
+}
+
+static int set_function_args(struct vector *argv, struct ast_node *ast,
+                             struct runtime *rt)
+{
+    // store env var from 0 to 9 in stack
+    put_var_in_vector(rt);
+
+    // reset var in hash_table
+    reset_var(rt);
+
+    size_t params_size = argv->size;
+    char **params_cast = zalloc(sizeof(char *) * (params_size + 1));
+    int count = 1;
+    for (size_t i = 1; i < params_size; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+        params_cast[i] = argv->data[i];
+        setenv(count_ascii, params_cast[i], 1);
+        char *key = strdup(count_ascii);
+        char *value = strdup(params_cast[i]);
+        var_hash_map_insert(rt->variables, key, value);
+        count++;
+        free(count_ascii);
+    }
+
+    int status = ast_node_exec(ast, rt);
+    // POP all env variable in global stack
+    reset_var(rt);
+
+    restore_var(rt);
+
+    free(params_cast);
+    return status;
+}
+
 int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
 {
     rt->last_status = rt->last_status + 1 - 1; // TMP
@@ -84,7 +199,7 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
         hash_map_func_get(rt->functions, (char *)args_expended->data[0]);
     if (ast_function != NULL)
     {
-        int status = ast_node_exec(ast_function, rt);
+        int status = set_function_args(args_expended, ast_function, rt);
         vector_apply_on_elts(args_expended, &free);
         vector_destroy(args_expended);
         return status;
