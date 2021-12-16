@@ -4,6 +4,7 @@
 #include <err.h>
 #include <expansion/expansion.h>
 #include <hash_map_function/hash_map_function.h>
+#include <hash_map/hash_map.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -65,10 +66,30 @@ static struct vector *expands_simple_cmd_argv(struct ast_simple_cmd *ast,
     return new;
 }
 
+static struct vector *put_var_in_vector(struct runtime *rt)
+{
+    struct vector *vec = vector_init(10);
+    int count = 0;
+    for (size_t i = 0; i < 10; i++)
+    {
+        char *count_ascii = zalloc(sizeof(char) * 4096);
+        my_itoa(count, count_ascii);
+        // get var from hash_table
+        void *var = hash_map_get(rt->variables, count_ascii);
+        // put var in vector
+        vec = vector_append(vec, var);
+        count++;
+        free(count_ascii);
+    }
+    return vec;
+}
+
 static int set_function_args(struct vector *argv, struct ast_node *ast,
                              struct runtime *rt)
 {
     // TODO: store all env variable in global stack
+    struct vector *vec = put_var_in_vector(rt);
+    vec = vec;
 
     size_t params_size = argv->size;
     char **params_cast = zalloc(sizeof(char *) * (params_size + 1));

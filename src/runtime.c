@@ -9,6 +9,7 @@ struct runtime *runtime_init()
     struct runtime *new = xmalloc(sizeof(struct runtime));
     new->last_status = 0;
     new->functions = hash_map_func_init(32);
+    new->stack_function = NULL;
     new->loops_to_break = 0;
     new->loops_count = 0;
     new->encountered_continue = false;
