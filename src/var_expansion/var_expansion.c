@@ -65,6 +65,16 @@ struct hash_map *var_hash_map_init(void)
 bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 {
     int isenv = 0;
+    // update env if necessary
+    struct var *oldvar = hash_map_get(hash_map, key);
+    if (oldvar != NULL)
+    {
+        if (oldvar->isenv)
+        {
+            isenv = 1;
+            setenv(key, value, 1);
+        }
+    }
     struct var *var_value = init_var(value, isenv);
     return hash_map_insert(hash_map, key, var_value, free_var);
 }
@@ -85,6 +95,7 @@ bool var_hash_map_insert_env(struct hash_map *hash_map, char *key, char *value)
 {
     int isenv = 1;
     struct var *var_value = init_var(value, isenv);
+    setenv(key, value, 1);
     return hash_map_insert(hash_map, key, var_value, free_var);
 }
 
