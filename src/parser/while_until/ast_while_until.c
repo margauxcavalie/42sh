@@ -60,7 +60,7 @@ void ast_until_print(struct ast_node *ast, struct print_context pc)
 int ast_while_exec(struct ast_node *ast, struct runtime *rt)
 {
     int executed = 0;
-    int temp_status  = 0;
+    int temp_status = 0;
     struct ast_while_until *ast_while = (struct ast_while_until *)ast;
     if (ast_while->condition)
     {
@@ -82,7 +82,7 @@ int ast_while_exec(struct ast_node *ast, struct runtime *rt)
 int ast_until_exec(struct ast_node *ast, struct runtime *rt)
 {
     int executed = 0;
-    int temp_status  = 0;
+    int temp_status = 0;
     struct ast_while_until *ast_until = (struct ast_while_until *)ast;
     if (ast_until->condition)
     {
