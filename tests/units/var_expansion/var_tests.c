@@ -445,7 +445,8 @@ Test(expand_all_string, no_expansion)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 10);
-    cr_assert(strcmp(res, "varhello") == 0);
+    // printf("aaaaaaaaaaaaaaaaaaaaaa : %s\n", res);
+    cr_assert(strcmp(res, "\"varhello\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -468,7 +469,7 @@ Test(expand_all_string, easy)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 13);
-    cr_assert(strcmp(res, "okhello") == 0);
+    cr_assert(strcmp(res, "\"okhello\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -491,7 +492,7 @@ Test(expand_all_string, easy2)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 11);
-    cr_assert(strcmp(res, "hellook") == 0);
+    cr_assert(strcmp(res, "\"hellook\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -514,7 +515,7 @@ Test(expand_all_string, easy3)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 21);
-    cr_assert(strcmp(res, "hellookokok") == 0);
+    cr_assert(strcmp(res, "\"hellookokok\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -537,7 +538,7 @@ Test(expand_all_string, wrong_var)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 23);
-    cr_assert(strcmp(res, "hellook") == 0);
+    cr_assert(strcmp(res, "\"hellook\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -567,7 +568,7 @@ Test(expand_all_string, two_var)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 28);
-    cr_assert(strcmp(res, "hello;ok;okok") == 0);
+    cr_assert(strcmp(res, "\"hello;ok;okok\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -597,7 +598,7 @@ Test(expand_all_string, var_overwrite)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 28);
-    cr_assert(strcmp(res, "hellopasOK") == 0);
+    cr_assert(strcmp(res, "\"hellopasOK\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -620,7 +621,7 @@ Test(expand_all_string, var_not_found)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 24);
-    cr_assert(strcmp(res, "hello") == 0);
+    cr_assert(strcmp(res, "\"hello\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -647,7 +648,7 @@ Test(expand_all_string, back_slash)
     var_hash_map_insert(hash_map, key2, value2);
     // test code
     char *var = "\"\\$\"";
-    char *expected = "$";
+    char *expected = "\"\\$\"";
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 4);
@@ -678,7 +679,7 @@ Test(expand_all_string, dollar_alone)
     var_hash_map_insert(hash_map, key2, value2);
     // test code
     char *var = "\"    hello $ pd\"";
-    char *expected = "    hello $ pd";
+    char *expected = "\"    hello $ pd\"";
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 16);
@@ -710,7 +711,7 @@ Test(expand_all_string, back_slash2)
     var_hash_map_insert(hash_map, key2, value2);
     // test code
     char *var = "\"\\\\$\"";
-    char *expected = "\\$";
+    char *expected = "\"\\\\$\"";
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 5);
@@ -744,8 +745,8 @@ Test(expand_all_string, random_example)
         "\"char *var = ${var} $' $a yo dfs {dsfsd  wr echo for;; \n $ok   "
         "\\${ok  drfdesfs ;a\"";
     char *expected =
-        "char *var = ok $' JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
-        "${ok  drfdesfs ;a";
+        "\"char *var = ok $' JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
+        "\\${ok  drfdesfs ;a\"";
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 82);
@@ -779,8 +780,8 @@ Test(expand_all_string, random_example2)
         "\"char *var = ${var} $ $a yo dfs {dsfsd  wr echo for;; \n $ok   "
         "\\${ok $; $23 drfdesfs ;a\"";
     char *expected =
-        "char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
-        "${ok $; 3 drfdesfs ;a";
+        "\"char *var = ok $ JesuisunDollar yo dfs {dsfsd  wr echo for;; \n    "
+        "\\${ok $; 3 drfdesfs ;a\"";
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 87);
@@ -824,7 +825,7 @@ Test(expand_all_string, things_behind)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 7);
-    cr_assert(strcmp(res, "varhe") == 0);
+    cr_assert(strcmp(res, "\"varhe\"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }
@@ -838,7 +839,7 @@ Test(expand_all_string, escape_gang)
     char *res = expand_all_string(hash_map, var, &error, &size);
     cr_assert_eq(error, 0);
     cr_assert_eq(size, 18);
-    cr_assert(strcmp(res, "\"  \\  \\' $ ` ") == 0);
+    cr_assert(strcmp(res, "\"\\\"  \\  \\' \\$ \\` \"") == 0);
     free(res);
     var_hash_map_free(hash_map);
 }

@@ -433,10 +433,11 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
         *error = 1;
         return NULL;
     }
-    size_t count = 1; // skip the first \"
+    size_t count = 1; //  skip the first \"
     // init the vec
     struct vec *vec = xmalloc(sizeof(struct vec));
     vec_init(vec);
+    vec_push(vec, str[0]); // new push the first \"
     while (str[count] != '\0' && str[count] != '\"')
     {
         // skip until we find a $
@@ -446,6 +447,7 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
             {
                 if (str[count + 1] != '\0' && can_be_escaped(str[count + 1]))
                 {
+                    vec_push(vec, str[count]); // new
                     count += 1;
                 }
             }
@@ -474,6 +476,57 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
         for (size_t i = 0; i < word_size; i++)
         {
             vec_push(vec, word[i]);
+        }
+    }
+    if (str[count] == '\0')
+    {
+        *error = 1;
+        vec_destroy(vec);
+        free(vec);
+        return NULL;
+    }
+    vec_push(vec, str[count]); // new push the last \"
+    count++;
+    char *res = vec_cstring(vec); // get the string
+    *counter += count;
+    free(vec); // free the vec preserving the str
+    return res;
+}
+
+/**
+ * @brief
+ * @param var
+ * @return char*
+ */
+char *expand_all_quotes_string(char *str, int *error, size_t *counter)
+{
+    if (str[0] != '\"')
+    {
+        *error = 1;
+        return NULL;
+    }
+    size_t count = 1; //  skip the first \"
+    // init the vec
+    struct vec *vec = xmalloc(sizeof(struct vec));
+    vec_init(vec);
+    while (str[count] != '\0' && str[count] != '\"')
+    {
+        // skip until we find a $
+        while (str[count] != '\0' && str[count] != '\"')
+        {
+            if (str[count] == '\\') // skip if backslash
+            {
+                if (str[count + 1] != '\0' && can_be_escaped(str[count + 1]))
+                {
+                    count += 1;
+                }
+            }
+            vec_push(vec, str[count]);
+            count += 1;
+        }
+        if (str[count] == '\0' || str[count] == '\"')
+        {
+            break;
         }
     }
     if (str[count] == '\0')
