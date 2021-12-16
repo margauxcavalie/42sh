@@ -158,13 +158,23 @@ static bool is_separator(char c, int count)
 static int check_valid_substitution(char *str, size_t count)
 {
     int res = 1;
-    if ((is_a_spec_char(str[0]) || isdigit(str[0])) && count > 3)
+    if ((is_a_spec_char(str[0])) && count > 3)
     {
         return 0;
     }
-    for (size_t i = 0; str[i] != '}'; i++)
+    if (isdigit(str[0]))
     {
-        res = res && !is_separator(str[i], i);
+        for (size_t i = 0; str[i] != '}'; i++)
+        {
+            res = res && !is_separator(str[i], i) && isdigit(str[i]);
+        }
+    }
+    else
+    {
+        for (size_t i = 0; str[i] != '}'; i++)
+        {
+            res = res && !is_separator(str[i], i);
+        }
     }
     return res;
 }
