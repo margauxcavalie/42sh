@@ -1,8 +1,8 @@
 #include "stack.h"
 
-#include <vector/vector.h>
 #include <stdlib.h>
 #include <utils/alloc.h>
+#include <vector/vector.h>
 
 struct stack *stack_push(struct stack *s, struct vector *vec)
 {
