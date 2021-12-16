@@ -373,3 +373,13 @@ name: unset_tricky_var_name2
 cmd: ./42sh -c 'unset=coucou; echo "$unset"; unset unset; echo "$unset"'
 stdout: "coucou\n\n"
 status: 0
+---
+name: while_wrong
+cmd: ./42sh -c 'var="0"; while [ 0 -eq "$var" ]; do var="1"; ls zgsfdgsdfgd; done'
+stderr: "ls: cannot access 'zgsfdgsdfgd': No such file or directory\n"
+status: 2
+---
+name: until_wrong
+cmd: ./42sh -c 'var="0"; until [ 0 -ne "$var" ]; do var="1"; ls zgsfdgsdfgd; done'
+stderr: "ls: cannot access 'zgsfdgsdfgd': No such file or directory\n"
+status: 2
