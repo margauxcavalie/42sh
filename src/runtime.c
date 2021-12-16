@@ -16,6 +16,7 @@ struct runtime *runtime_init()
     new->encountered_exit = false;
     new->encountered_break = false;
     new->no_new_status = false;
+    new->file = NULL;
     return new;
 }
 

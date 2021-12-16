@@ -40,12 +40,21 @@ int ast_subshell_exec(struct ast_node *ast, struct runtime *rt)
 {
     struct ast_subshell *ast_subshell = (struct ast_subshell *)ast;
 
+    FILE *save_file = rt->file;
+
     int exit_code = 666;
     pid_t pid = fork();
     if (pid == -1)
         return 1;
     if (pid == 0) // child
     {
+        // close file if there is one
+        if (rt->file)
+        {
+            fclose(rt->file);
+            rt->file = NULL;
+        }
+
         exit_code = ast_node_exec(ast_subshell->body, rt);
         exit(exit_code);
     }
@@ -55,6 +64,9 @@ int ast_subshell_exec(struct ast_node *ast, struct runtime *rt)
         waitpid(pid, &wstatus, 0);
         if ((exit_code = WEXITSTATUS(wstatus)) == 127)
             errx(1, "unexpected error in subshell");
+
+        // retore file here
+        rt->file = save_file;
     }
 
     return exit_code;

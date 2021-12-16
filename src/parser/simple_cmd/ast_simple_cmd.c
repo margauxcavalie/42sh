@@ -101,11 +101,20 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
         return status;
     }
 
+    FILE *save_file = rt->file;
+
     pid_t pid = fork();
     if (pid == -1)
         return 1;
     if (pid == 0) // child
     {
+        // close file if there is one
+        if (rt->file)
+        {
+            fclose(rt->file);
+            rt->file = NULL;
+        }
+
         size_t params_size = args_expended->size;
         char **params_cast = zalloc(sizeof(char *) * (params_size + 1));
         for (size_t i = 0; i < params_size; i++)
@@ -116,13 +125,17 @@ int ast_simple_cmd_exec(struct ast_node *ast, struct runtime *rt)
         int e = execvp(params_cast[0], params_cast);
 
         if (e == -1)
-            errx(127, "command not found: %s", params_cast[0]);
-        return 127; // never executed
+            warnx("command not found: %s", params_cast[0]);
+        exit(127);
     }
     else // father
     {
         int wstatus;
         waitpid(pid, &wstatus, 0);
+
+        // retore file here
+        rt->file = save_file;
+
         // free expanded words vector
         vector_apply_on_elts(args_expended, &free);
         vector_destroy(args_expended);

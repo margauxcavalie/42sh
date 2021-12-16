@@ -416,3 +416,19 @@ stdout: |2
   |    |  `|`
   |_/\_|___|__
 status: 0
+---
+name: script_badcmd_before_good
+cmd: ./42sh ../tests/functional/scripts/badcmd_before_good.sh
+stdout: |2
+  Should be printed only once
+stderr: |2
+  42sh: command not found: echof
+status: 0
+---
+name: script_pipe_before_echo
+cmd: ./42sh ../tests/functional/scripts/pipe_before_echo.sh
+stdout: |2
+  test$
+  test
+status: 0
+

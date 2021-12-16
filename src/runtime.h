@@ -1,6 +1,7 @@
 #pragma once
 #include <hash_map_function/hash_map_function.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <var_expansion/var_expansion.h>
 
 /**
@@ -20,6 +21,7 @@ struct runtime
     bool encountered_exit;
     bool encountered_break;
     bool no_new_status;
+    FILE *file; // if script
 };
 
 struct runtime *runtime_init();

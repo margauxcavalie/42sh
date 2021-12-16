@@ -14,8 +14,10 @@
  * \brief Parse the command line arguments
  * \return A character stream
  */
-static struct cstream *parse_args(struct opts opts)
+static struct cstream *parse_args(struct opts opts, struct runtime *rt)
 {
+    rt->file = NULL;
+
     // If launched without argument, read the standard input
     if (opts.type == INPUT_PROMPT)
     {
@@ -33,7 +35,7 @@ static struct cstream *parse_args(struct opts opts)
             warn("failed to open input file");
             return NULL;
         }
-
+        rt->file = fp;
         return cstream_file_create(fp, /* fclose_on_free */ true);
     }
 
@@ -274,7 +276,7 @@ int main(int argc, char *argv[])
 
     // Parse command line arguments and get an input stream
     struct cstream *cs;
-    if ((cs = parse_args(opts)) == NULL)
+    if ((cs = parse_args(opts, rt)) == NULL)
     {
         runtime_set_status(rt, 1);
         goto err_parse_args;
