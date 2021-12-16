@@ -77,10 +77,22 @@ int builtin_export(int argc, char **argv, struct runtime *rt)
         }
         else if (check_valid_name(argv[i]))
         {
+            // setup the key
             char *tmp = zalloc(sizeof(char) * (strlen(argv[i]) + 1));
             strcpy(tmp, argv[i]);
-            char *tmp2 = zalloc(sizeof(char));
-            var_hash_map_insert_env(rt->variables, tmp, tmp2);
+            struct var *oldvalue = hash_map_get(rt->variables, argv[i]);
+            if (oldvalue != NULL) // if the var already exists
+            {
+                char *tmp2 =
+                    zalloc(sizeof(char) * (strlen(oldvalue->value) + 1));
+                strcpy(tmp2, oldvalue->value);
+                var_hash_map_insert_env(rt->variables, tmp, tmp2);
+            }
+            else // if not
+            {
+                char *tmp2 = zalloc(sizeof(char));
+                var_hash_map_insert_env(rt->variables, tmp, tmp2);
+            }
         }
         else
         {

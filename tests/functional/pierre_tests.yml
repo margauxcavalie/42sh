@@ -210,3 +210,8 @@ name: c_for_and_var
 cmd: ./42sh -c 'for word in 1 2 3 4 7 5 2 1 4 7 1 71 7 1 5 2 5641 dfs  hfe oiwui whofi ewuif jhf ui rfew hh; do echo -n "$word"; done'
 stdout: "123475214717171525641dfshfeoiwuiwhofiewuifjhfuirfewhh"
 status: 0
+---
+name: script_uset_and_export
+cmd: ./42sh ../tests/functional/scripts/export_and_unset_test.sh
+stdout: "all_stat_up\nall_stat_up\n\n"
+status: 0
