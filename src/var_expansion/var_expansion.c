@@ -14,6 +14,32 @@
 #define HASH_MAP_SIZE 32
 
 /**
+ * @brief function passed to the generci hash table
+ *
+ * @param var
+ */
+static void free_var(void *var)
+{
+    struct var *vartmp = var;
+    free(vartmp->value);
+    free(vartmp);
+}
+
+/**
+ * @brief to init a var
+ *
+ * @param value
+ * @return struct var*
+ */
+static struct var *init_var(char *value, int isenv)
+{
+    struct var *new_var = xmalloc(sizeof(struct var));
+    new_var->value = value;
+    new_var->isenv = isenv;
+    return new_var;
+}
+
+/**
  * @brief init the hash_map storing our variables
  *
  * @return struct hash_map*
@@ -38,7 +64,39 @@ struct hash_map *var_hash_map_init(void)
  */
 bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 {
-    return hash_map_insert(hash_map, key, value, free);
+    int isenv = 0;
+    // update env if necessary
+    struct var *oldvar = hash_map_get(hash_map, key);
+    if (oldvar != NULL)
+    {
+        if (oldvar->isenv)
+        {
+            isenv = 1;
+            setenv(key, value, 1);
+        }
+    }
+    struct var *var_value = init_var(value, isenv);
+    return hash_map_insert(hash_map, key, var_value, free_var);
+}
+
+/**
+ * @brief insert a new pair value / key in the hash map
+ * key pair syntax : var=true
+ * key : var
+ * value : true
+ * => $(var) = true
+ * @param hash_map
+ * @param key name of the var
+ * @param value value inside
+ * @return true
+ * @return false
+ */
+bool var_hash_map_insert_env(struct hash_map *hash_map, char *key, char *value)
+{
+    int isenv = 1;
+    struct var *var_value = init_var(value, isenv);
+    setenv(key, value, 1);
+    return hash_map_insert(hash_map, key, var_value, free_var);
 }
 
 /**
@@ -51,7 +109,8 @@ bool var_hash_map_insert(struct hash_map *hash_map, char *key, char *value)
  */
 bool var_hash_map_remove(struct hash_map *hash_map, char *key)
 {
-    return hash_map_remove(hash_map, key, free);
+    unsetenv(key);
+    return hash_map_remove(hash_map, key, free_var);
 }
 
 /**
@@ -61,7 +120,7 @@ bool var_hash_map_remove(struct hash_map *hash_map, char *key)
  */
 void var_hash_map_free(struct hash_map *hash_map)
 {
-    hash_map_free(hash_map, free);
+    hash_map_free(hash_map, free_var);
 }
 
 static bool is_a_spec_char(char c)
@@ -319,17 +378,28 @@ char *expand_var(struct hash_map *hash_map, char *var, int *error,
     }
     char *key = build_key(var, error, counter);
     if (key == NULL)
+    {
         return NULL;
+    }
     char *value = handle_special_var(hash_map, key);
     if (value != NULL)
     {
         free(key);
         return value;
     }
-    value = hash_map_get(hash_map, key);
-    free(key);
+    value = NULL;
+    struct var *var_value = hash_map_get(hash_map, key);
+    if (var_value != NULL)
+        value = var_value->value;
     if (value == NULL)
-        return "";
+    {
+        value = getenv(key);
+        if (value == NULL)
+        {
+            value = "";
+        }
+    }
+    free(key);
     return value;
 }
 
@@ -363,10 +433,11 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
         *error = 1;
         return NULL;
     }
-    size_t count = 1; // skip the first \"
+    size_t count = 1; //  skip the first \"
     // init the vec
     struct vec *vec = xmalloc(sizeof(struct vec));
     vec_init(vec);
+    vec_push(vec, str[0]); // new push the first \"
     while (str[count] != '\0' && str[count] != '\"')
     {
         // skip until we find a $
@@ -376,6 +447,7 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
             {
                 if (str[count + 1] != '\0' && can_be_escaped(str[count + 1]))
                 {
+                    vec_push(vec, str[count]); // new
                     count += 1;
                 }
             }
@@ -404,6 +476,57 @@ char *expand_all_string(struct hash_map *hash_map, char *str, int *error,
         for (size_t i = 0; i < word_size; i++)
         {
             vec_push(vec, word[i]);
+        }
+    }
+    if (str[count] == '\0')
+    {
+        *error = 1;
+        vec_destroy(vec);
+        free(vec);
+        return NULL;
+    }
+    vec_push(vec, str[count]); // new push the last \"
+    count++;
+    char *res = vec_cstring(vec); // get the string
+    *counter += count;
+    free(vec); // free the vec preserving the str
+    return res;
+}
+
+/**
+ * @brief
+ * @param var
+ * @return char*
+ */
+char *expand_all_quotes_string(char *str, int *error, size_t *counter)
+{
+    if (str[0] != '\"')
+    {
+        *error = 1;
+        return NULL;
+    }
+    size_t count = 1; //  skip the first \"
+    // init the vec
+    struct vec *vec = xmalloc(sizeof(struct vec));
+    vec_init(vec);
+    while (str[count] != '\0' && str[count] != '\"')
+    {
+        // skip until we find a $
+        while (str[count] != '\0' && str[count] != '\"')
+        {
+            if (str[count] == '\\') // skip if backslash
+            {
+                if (str[count + 1] != '\0' && can_be_escaped(str[count + 1]))
+                {
+                    count += 1;
+                }
+            }
+            vec_push(vec, str[count]);
+            count += 1;
+        }
+        if (str[count] == '\0' || str[count] == '\"')
+        {
+            break;
         }
     }
     if (str[count] == '\0')
