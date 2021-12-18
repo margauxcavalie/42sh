@@ -12,7 +12,8 @@ enum op_type
     OP_LBRACE,
     OP_RBRACE,
     OP_LPARENTHESE,
-    OP_RPARENTHESE
+    OP_RPARENTHESE,
+    OP_DOUBLE_SEMICOLON
 };
 
 enum redir_type

@@ -1,5 +1,6 @@
 #include "parser.h"
 
+#include <parser/case/rules_case.h>
 #include <parser/cmd_list/rules_cmd_list.h>
 #include <parser/for/rules_for.h>
 #include <parser/function/rule_function.h>
@@ -34,6 +35,7 @@ static enum parser_status handle_parse_error(enum parser_status status,
  *          | rule_for
  *          | rule_while
  *          | rule_until
+ *          | rule_case
  *          | rule_if
  *
  * @return enum parser_status
@@ -94,13 +96,16 @@ enum parser_status parse_rule_shell_cmd(struct ast_node **ast,
             status = parse_rule_until(ast, lexer);
             if (status == PARSER_UNEXPECTED_TOKEN)
             {
-                status = parse_rule_if(ast, lexer);
+                status = parse_rule_case(ast, lexer);
                 if (status == PARSER_UNEXPECTED_TOKEN)
-                    goto error;
+                {
+                    status = parse_rule_if(ast, lexer);
+                    if (status == PARSER_UNEXPECTED_TOKEN)
+                        goto error;
+                }
             }
         }
     }
-
     lexer_free_without_pretokens(saved_lexer);
     return status;
 error:

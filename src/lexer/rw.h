@@ -15,4 +15,6 @@ enum rw_type
     RW_FOR,
     RW_IN,
     RW_NEG,
+    RW_CASE,
+    RW_ESAC,
 };

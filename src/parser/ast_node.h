@@ -19,7 +19,8 @@ enum ast_type
     AST_OPERATOR,
     AST_SUBSHELL,
     AST_DV,
-    AST_FUNCTION
+    AST_FUNCTION,
+    AST_CASE
 };
 
 struct print_context

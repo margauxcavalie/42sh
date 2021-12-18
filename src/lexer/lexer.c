@@ -14,6 +14,7 @@ static struct op_data match_op_type(struct pretoken *new_pretoken)
     // initalizes the lookup table
     struct matching_op lookup_table[] = {
         { ";", 1, .data = { OP_SEMICOLON, .data.null = NULL } },
+        { ";;", 2, .data = { OP_DOUBLE_SEMICOLON, .data.null = NULL } },
         { "\n", 1, .data = { OP_LINEFEED, .data.null = NULL } },
         { "<", 1,
           .data = { OP_REDIR,
@@ -68,7 +69,8 @@ static enum rw_type match_rw_type(struct pretoken *new_pretoken)
         { "fi", 2, RW_FI },       { "while", 5, RW_WHILE },
         { "do", 2, RW_DO },       { "done", 4, RW_DONE },
         { "until", 5, RW_UNTIL }, { "for", 3, RW_FOR },
-        { "in", 2, RW_IN },       { "!", 1, RW_NEG }
+        { "in", 2, RW_IN },       { "!", 1, RW_NEG },
+        { "case", 4, RW_CASE },   { "esac", 4, RW_ESAC }
     };
     size_t lt_size = sizeof(lookup_table) / sizeof(struct matching_rw);
     size_t count = 0;
@@ -162,7 +164,8 @@ struct token *get_next_token(struct lexer *lexer)
             }
             /* TODO && prevtok different than case, for, in*/
             else if ((previus_token->type == TOKEN_RW)
-                     && (lexer->last_rw != RW_FOR) && (lexer->last_rw != RW_IN))
+                     && (lexer->last_rw != RW_FOR) && (lexer->last_rw != RW_IN)
+                     && (lexer->last_rw != RW_CASE))
             {
                 is_rw = true;
                 lexer->last_rw = rw_type;
@@ -170,6 +173,12 @@ struct token *get_next_token(struct lexer *lexer)
             }
             // last RW was a FOR and we're at the third position
             else if ((lexer->last_rw == RW_FOR) && (current_line_index == 2))
+            {
+                is_rw = true;
+                lexer->last_rw = rw_type;
+            }
+            // last RW was a CASE and we're at the third position
+            else if ((lexer->last_rw == RW_CASE) && (current_line_index == 2))
             {
                 is_rw = true;
                 lexer->last_rw = rw_type;

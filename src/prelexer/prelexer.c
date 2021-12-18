@@ -8,12 +8,13 @@
 #include <utils/vec.h>
 
 // initializes the lookup table (by decending order (size))
-const struct pretoken_operator ops[] = {
-    { ">&", 2 }, { "<&", 2 }, { ">>", 2 }, { "&&", 2 }, { "||", 2 }, { "|", 1 },
-    { ">|", 2 }, { "<>", 2 }, { "\n", 1 }, { ";", 1 },  { ">", 1 },  { "<", 1 },
-    { "{", 1 },  { "}", 1 },  { "(", 1 },  { ")", 1 },  { "#", 1 }
-};
-#define nb_ops 17
+const struct pretoken_operator ops[] = { { ">&", 2 }, { "<&", 2 }, { ";;", 2 },
+                                         { ">>", 2 }, { "&&", 2 }, { "||", 2 },
+                                         { "|", 1 },  { ">|", 2 }, { "<>", 2 },
+                                         { "\n", 1 }, { ";", 1 },  { ">", 1 },
+                                         { "<", 1 },  { "{", 1 },  { "}", 1 },
+                                         { "(", 1 },  { ")", 1 },  { "#", 1 } };
+#define nb_ops 18
 
 static bool is_operator(const char *str)
 {

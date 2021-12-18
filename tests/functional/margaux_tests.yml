@@ -383,3 +383,39 @@ name: until_wrong
 cmd: ./42sh -c 'var="0"; until [ 0 -ne "$var" ]; do var="1"; ls zgsfdgsdfgd; done'
 stderr: "ls: cannot access 'zgsfdgsdfgd': No such file or directory\n"
 status: 2
+---
+name: case_easy
+cmd: ./42sh ../tests/functional/scripts/case_easy.sh
+stdout: "Hello yourself!\n"
+status: 0
+---
+name: case_medium
+cmd: ./42sh ../tests/functional/scripts/case_medium.sh
+stdout: "salut\nles gars\n"
+status: 0
+---
+name: case_inexistent
+cmd: ./42sh ../tests/functional/scripts/case_inexistent.sh
+stdout: ""
+status: 0
+---
+name: case_bad_cmd
+cmd: ./42sh ../tests/functional/scripts/case_bad_cmd.sh
+stderr: "42sh: command not found: ech\n"
+status: 127
+# ---
+# name: case_bad_cmd_in_middle
+# cmd: ./42sh ../tests/functional/scripts/case_bad_cmd_in_middle.sh
+# stdout: "1\n3\n"
+# stderr: "42sh: command not found: e\n"
+# status: 0
+---
+name: case_with_others
+cmd: ./42sh ../tests/functional/scripts/case_with_others.sh
+stdout: "oui c'est vrai\nsalut\nles gars\nbien joué\n"
+status: 0
+---
+name: case_with_others2
+cmd: ./42sh ../tests/functional/scripts/case_with_others2.sh
+stdout: "oui c'est vrai\nsalut\nles gars\nbien joué\n"
+status: 0

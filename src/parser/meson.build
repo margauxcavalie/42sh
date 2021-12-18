@@ -10,6 +10,7 @@ subdir('redir')
 subdir('for')
 subdir('subshell')
 subdir('declaration_variable')
+subdir('case')
 
 all_sources += files('parser.c')
 all_sources += files('ast_node.c')
