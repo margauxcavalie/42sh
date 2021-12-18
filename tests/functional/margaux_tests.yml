@@ -419,3 +419,8 @@ name: case_with_others2
 cmd: ./42sh ../tests/functional/scripts/case_with_others2.sh
 stdout: "oui c'est vrai\nsalut\nles gars\nbien joué\n"
 status: 0
+---
+name: case_with_var
+cmd: ./42sh ../tests/functional/scripts/case_with_var.sh
+stdout: "salut\nles gars\n"
+status: 0

@@ -18,21 +18,27 @@ parse_rule_case_under_rule2(struct lexer **lexer, struct vector **tmp_patterns)
 {
     struct lexer *saved_lexer = save_lexer(*lexer);
 
+    enum parser_status status;
+
     if (is_op(lexer_peek(*lexer), OP_PIPE)) // '|'
     {
         token_free(lexer_pop(*lexer));
         if (is_word(lexer_peek(*lexer)) == false)
+        {
+            status = get_error_status(lexer_peek(*lexer));
             goto error;
+        }
 
         vector_append(*tmp_patterns, strdup(lexer_peek(*lexer)->data.word));
         token_free(lexer_pop(*lexer));
+
         lexer_free_without_pretokens(saved_lexer);
         return PARSER_OK;
     }
 
 error:
     restore_lexer(lexer, saved_lexer);
-    return PARSER_UNEXPECTED_TOKEN;
+    return status;
 }
 
 /**
@@ -63,6 +69,8 @@ static enum parser_status parse_rule_case_item(struct ast_case **ast_case,
     {
         ;
     }
+    if (status == PARSER_UNEXPECTED_EOF)
+        goto error;
 
     if (is_op(lexer_peek(*lexer), OP_RPARENTHESE) == false) // ')'
         goto error;
@@ -195,7 +203,7 @@ enum parser_status parse_rule_case(struct ast_node **ast, struct lexer **lexer)
 
     if (is_rw(lexer_peek(*lexer), RW_IN) == false) // 'in'
     {
-        status = PARSER_UNEXPECTED_TOKEN;
+        status = get_error_status(lexer_peek(*lexer));
         goto error;
     }
     token_free(lexer_pop(*lexer));
