@@ -1,0 +1,434 @@
+name: c_empty
+cmd: ./42sh -c ""
+status: 0
+---
+# ECHO TEST
+name: c_echo_empty_noopt
+cmd: ./42sh -c "echo"
+stdout: "\n"
+status: 0
+---
+name: c_echo_empty_optn
+cmd: ./42sh -c "echo -n"
+status: 0
+---
+name: c_echo_opte
+cmd: ./42sh -c "echo -e"
+stdout: "\n"
+status: 0
+---
+name: c_echo_optn_opte1
+cmd: ./42sh -c "echo -ne"
+status: 0
+---
+name: c_echo_optn_opte2
+cmd: ./42sh -c "echo -en"
+status: 0
+---
+name: c_echo_optn_opte3
+cmd: ./42sh -c "echo -n -e"
+status: 0
+---
+name: c_echo_optn_opte4
+cmd: ./42sh -c "echo -e -n"
+status: 0
+---
+name: c_echo_basic_word
+cmd: ./42sh -c "echo salut"
+stdout: "salut\n"
+status: 0
+---
+name: c_echo_multiple_word
+cmd: ./42sh -c "echo salut je suis la"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_multiple_word_single_quote
+cmd: ./42sh -c "echo 'salut je suis la'"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_multiple_word_single_quote_viennoiserie
+cmd: ./42sh -c "echo 'salut je' suis 'la'"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_multiple_word_single_quote_viennoiserie2
+cmd: ./42sh -c "echo salut' 'je suis ''''la"
+stdout: "salut je suis la\n"
+status: 0
+---
+name: c_echo_linefeed
+cmd: ./42sh -c "echo \\n"
+stdout: "n\n"
+status: 0
+---
+name: c_echo_linefeed_opte
+cmd: ./42sh -c "echo -e \\\n"
+stdout: "\n\n"
+status: 0
+---
+name: c_echo_tab
+cmd: ./42sh -c "echo \t"
+stdout: "t\n"
+status: 0
+---
+name: c_echo_tab_opte
+cmd: ./42sh -c "echo -e \\\t"
+stdout: "\t\n"
+status: 0
+---
+name: c_echo_backslash
+cmd: ./42sh -c "echo \\\\\\\\"
+stdout: "\\\\\n"
+status: 0
+---
+name: c_echo_backslash_opte
+cmd: ./42sh -c "echo -e \\\\"
+stdout: "\\\n"
+status: 0
+---
+name: c_echo_single_quote_one_word
+cmd: ./42sh -c "echo salut' _ 'salut"
+stdout: "salut _ salut\n"
+status: 0
+---
+name: c_echo_unknown_opt
+cmd: ./42sh -c "echo -z"
+stdout: "-z\n"
+status: 0
+# ----------------------------------
+---
+name: c_unknown_cmd
+cmd: ./42sh -c "sdfhdfhsd"
+stderr: "42sh: command not found: sdfhdfhsd\n"
+status: 127
+---
+name: c_quoted_op1
+cmd: ./42sh -c "echo ';'"
+stdout: ";\n"
+status: 0
+---
+name: c_quoted_op2
+cmd: ./42sh -c "echo '';"
+stdout: "\n"
+status: 0
+---
+name: c_quoted_rw
+cmd: ./42sh -c "echo ''if"
+stdout: "if\n"
+status: 0
+# REDIRECTIONS
+---
+name: c_redir_echo_into_null
+cmd: ./42sh -c "echo test > /dev/null"
+status: 0
+---
+name: c_redir_echo_into_stdout
+cmd: ./42sh -c "echo test > /dev/stdout"
+stdout: "test\n"
+status: 0
+---
+name: c_redir_echo_into_stderr
+cmd: ./42sh -c "echo test > /dev/stderr"
+stderr: "test\n"
+status: 0
+---
+name: c_redir_simple
+cmd: ./42sh -c "echo test > file_test; cat -e < file_test; rm file_test";
+stdout: "test$\n"
+status: 0
+---
+name: c_redir_error_redirect_out
+cmd: ./42sh -c "ls dedzdzedzee 2> /dev/stdout";
+stdout: "ls: cannot access 'dedzdzedzee': No such file or directory\n"
+status: 2
+---
+name: c_redir_rw_op
+cmd: ./42sh -c "echo -n ok 1>     file_test; cat -e <> file_test; rm file_test";
+stdout: "ok"
+status: 0
+---
+name: c_redir_rw_append
+cmd: ./42sh -c "echo -n ok >> file_test; echo -n ok >> file_test; cat -e < file_test; rm file_test";
+stdout: "okok"
+status: 0
+---
+name: c_redir_rw_append_and_truncate
+cmd: ./42sh -c "echo -n ok >> file_test; echo -n salut > file_test; cat -e < file_test; rm file_test";
+stdout: "salut"
+status: 0
+---
+name: c_redir_big_io
+cmd: ./42sh -c "echo salut 88>/dev/stdout";
+stdout: "salut 88\n"
+status: 0
+---
+name: c_redir_empty_error
+cmd: ./42sh -c "echo salut 2>/dev/stdout";
+stdout: "salut\n"
+status: 0
+---
+name: c_redir_noclobber_off
+cmd: ./42sh -c "echo salut >| /dev/stderr";
+stderr: "salut\n"
+status: 0
+---
+name: c_redir_and_stderr
+cmd: ./42sh -c "echo test 2>/dev/null >&2";
+stderr: ""
+status: 0
+---
+name: c_redir_and_stderr
+cmd: ./42sh -c "echo test 5>/dev/stderr >&5";
+stderr: "test\n"
+status: 0
+---
+name: c_redir_and_same
+cmd: ./42sh -c "echo test >&1";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_same1
+cmd: ./42sh -c "echo test 0>&0";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_same2
+cmd: ./42sh -c "echo test 2>&2";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_same3
+cmd: ./42sh -c "echo test 0>&0 2>&2 >&1";
+stdout: "test\n"
+status: 0
+---
+name: c_redir_and_hard
+cmd: ./42sh -c "echo adrien tes trop beau 4>file_test >&4; cat < file_test; rm file_test";
+stdout: "adrien tes trop beau\n"
+status: 0
+---
+name: c_redir_and_hard2
+cmd: ./42sh -c "echo COUILLE 4>file_test 2>&4 >&2; cat 8<file_test <&8; rm file_test";
+stdout: "COUILLE\n"
+status: 0
+---
+name: c_redir_shell_cmd_empty_error
+cmd: ./42sh -c "if true; then echo salut; fi 2>/dev/stdout";
+stdout: "salut\n"
+status: 0
+---
+name: c_redir_shell_cmd_double_redif
+cmd: ./42sh -c "if echo test; then ls plouf; fi 2>/dev/stdout >&2";
+stdout: "ls: cannot access 'plouf': No such file or directory\ntest\n"
+status: 2
+---
+name: c_eof_unexpected
+cmd: ./42sh -c "if";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected2
+cmd: ./42sh -c "for test in a";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected3
+cmd: ./42sh -c "echo |";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected4
+cmd: ./42sh -c "echo &&  ";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected5
+cmd: ./42sh -c "echo ||    ";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected6
+cmd: ./42sh -c "for test in";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected7
+cmd: ./42sh -c "for test";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected8
+cmd: ./42sh -c "for test in a;";
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected9
+cmd: ./42sh -c "for test in a; do"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected10
+cmd: ./42sh -c "for test in a; do echo tezt; ls"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected11
+cmd: ./42sh -c "for test in a; do echo tezt; ls; "
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected12
+cmd: ./42sh -c "while"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected13
+cmd: ./42sh -c "while echo test;"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected14
+cmd: ./42sh -c "while echo test; do echo"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected15
+cmd: ./42sh -c "until"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected16
+cmd: ./42sh -c "until echo test;"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected17
+cmd: ./42sh -c "until echo test; do echo"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected18
+cmd: ./42sh -c "if true;"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected19
+cmd: ./42sh -c "if true; then"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected20
+cmd: ./42sh -c "if true; then echo test"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected21
+cmd: ./42sh -c "if true; then echo; elif"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected22
+cmd: ./42sh -c "if true; then echo; else"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected23
+cmd: ./42sh -c "if true; then echo; elif true; then"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected24
+cmd: ./42sh -c "if true; then echo; elif true; then echo; "
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_eof_unexpected25
+cmd: ./42sh -c "if true; then echo; elif true; then echo; else ls"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: script_hard_for1
+cmd: ./42sh ../tests/functional/scripts/hard_for_1.sh
+stdout: |
+  21
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  ed
+  ed
+  ed
+  21
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  ed
+  ed
+  ed
+  21
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  42
+  37
+  37
+  37
+  ed
+  ed
+  ed
+status: 0
+---
+name: script_test_grammar_alphanum
+cmd: echo -n "" | ./42sh ../tests/functional/scripts/alphanum.sh
+status: 0
+---
+name: script_hard_for1
+cmd: ./42sh ../tests/functional/scripts/ascii_house.sh
+stdout: |2
+    /\
+   /  \
+  /____\  `'`
+  |    | `'''`
+  |    |  `|`
+  |_/\_|___|__
+status: 0
+---
+name: script_badcmd_before_good
+cmd: ./42sh ../tests/functional/scripts/badcmd_before_good.sh
+stdout: |2
+  Should be printed only once
+stderr: |2
+  42sh: command not found: echof
+status: 0
+---
+name: script_pipe_before_echo
+cmd: ./42sh ../tests/functional/scripts/pipe_before_echo.sh
+stdout: |2
+  test$
+  test
+status: 0
+

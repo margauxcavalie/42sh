@@ -1,0 +1,426 @@
+name: nothing
+cmd: ./42sh -c ""
+---
+name: my_first_test
+cmd: ./42sh -c "echo my; echo first; echo test"
+stdout: |
+  my
+  first
+  test
+---
+name: echo_dash_n_simple
+cmd: ./42sh -c "echo -n sausage"
+stdout: "sausage"
+---
+name: echo_dash_n_multiple
+cmd: ./42sh -c "echo -n -n -n -n coucou"
+stdout: "coucou"  
+---
+name: echo_dash_e_simple
+cmd: ./42sh -c "echo -e brocoli"
+stdout: |
+  brocoli
+---
+name: echo_double_dash_simple
+cmd: ./42sh -c "echo -n -e cat"
+stdout: "cat"
+---
+name: echo_double_dash_all_in_one
+cmd: ./42sh -c "echo -ne ramen\\\n"
+stdout: "ramen\n"
+---
+name: echo_triple_backslash_dash_e
+cmd: ./42sh -c "echo -e wesh\\\n\\\n"
+stdout: "wesh\n\n\n"
+---
+name: echo_dash_n_backslash
+cmd: ./42sh -c "echo -en patate\\\n"
+stdout: |
+  patate
+---
+name: if_easy
+cmd: ./42sh -c "if true; then echo OK; fi"
+stdout: |
+  OK
+---
+name: echo_dash_n
+cmd: ./42sh -c "if true; then echo -n OK; else echo KO; fi"
+stdout: "OK"
+---
+name: if_classic
+cmd: ./42sh -c "if true; then echo OK; else KO; fi"
+stdout: |
+  OK
+---
+name: if_echo
+cmd: ./42sh -c "if echo coucou; then echo cest moi; else KO; fi"
+stdout: |
+  coucou
+  cest moi
+---
+name: echo_single_quotes
+cmd: ./42sh -c "echo 'hotdog;;;;;  rugby::if;else;echo;;'"
+stdout: |
+  hotdog;;;;;  rugby::if;else;echo;;
+---
+name: if_echo_single_quotes
+cmd: ./42sh -c "if echo 'hotdog;;; rugby::if;else;echo;;'; then echo 'hotdog;;; rugby::if;else;echo;'; else KO; fi"
+stdout: |
+  hotdog;;; rugby::if;else;echo;;
+  hotdog;;; rugby::if;else;echo;
+---
+name: single_quotes_tricky
+cmd: ./42sh -c "echo -n coucou 'les' gars"
+stdout: "coucou les gars"
+---
+name: single_quotes_tricky_2
+cmd: ./42sh -c "echo -n coucou 'les' gars ''ça 'va' '?'"
+stdout: "coucou les gars ça va ?"
+---
+name: single_quotes_tricky_dash
+cmd: ./42sh -c "echo '-n' mais cetait sur"
+stdout: "mais cetait sur"
+---
+name: if_single_quotes
+cmd: ./42sh -c "if echo ';then'; then echo 'fi'; fi"
+stdout: |
+  ;then
+  fi
+---
+name: if_nothing_printed
+cmd: ./42sh -c "if false; then echo 'you should not print that'; fi"
+stdout: |
+
+---
+name: if_things_in_the_middle
+cmd: ./42sh -c "if false; echo 'coucou'; then echo 'O'K; elif true; false; then echo 'KO'; fi"
+stdout: |
+  coucou
+  OK
+---
+name: multiple_ifs
+cmd: ./42sh -c "if false; echo 'false'; then echo 'O'K; elif true; true; false; then echo 'KO'; fi; echo -n 'rugby'"
+stdout: "false\nOK\nrugby"
+---
+name: if_dash_e
+cmd: ./42sh -c "if false; echo 'coucou\\n'; then echo -e 'O'K\\\n; fi; if true; then echo -ne '\\nyes'; fi"
+stdout: "coucou\\n\nOK\n\n\nyes"
+---
+name: for_empty
+cmd: ./42sh -c "for elt; do echo coucou; done"
+stdout: ""
+---
+name: for_empty_unexistent_command
+cmd: ./42sh -c "for elt; do e coucou; done"
+stdout: ""
+---
+name: for_valid_exemple
+cmd: ./42sh -c "for elt in 1 2 3; do echo coucou; done"
+stdout: "coucou\ncoucou\ncoucou\n"
+---
+name: for_valid_exemple_without_linefeeds
+cmd: ./42sh -c "for elt in 1 2 3; do echo -n 'coucou '; done"
+stdout: "coucou coucou coucou "
+---
+name: for_non_existent_command
+cmd: ./42sh -c "for elt in 1 2 ; do e 'coucou '; done"
+stderr: "42sh: command not found: e\n42sh: command not found: e\n"
+status: 127
+---
+name: for_single_quotes
+cmd: ./42sh -c "for elt in '1 2 3 '; do echo triple croche; done"
+stdout: "triple croche\n"
+---
+name: for_without_word
+cmd: ./42sh -c "for in; do echo triple croche; done"
+stdout: ""
+---
+name: for_un_peu_hard
+cmd: ./42sh -c "for do in then done; do echo f; done"
+stdout: "f\nf\n"
+---
+name: for_future_hard
+cmd: ./42sh -c "for do in for do in echo done; do echo hello; done"
+stdout: "hello\nhello\nhello\nhello\nhello\n"
+---
+name: for_imbriqués
+cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; continue 1; echo chapeau; done; echo salut; done"
+stdout: "coucou\ncoucou\nsalut\ncoucou\ncoucou\nsalut\n"
+---
+name: continue_in_for
+cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; continue; echo salut; done"
+stdout: "coucou\ncoucou\ncoucou\ncoucou\n"
+status: 0
+---
+name: continue_in_for_negative
+cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; continue -6; echo salut; done"
+stdout: "coucou\n"
+stderr: "42sh: continue: Illegal number: -6\n"
+status: 2
+---
+name: continue_in_for_ineffective
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; echo salut; continue; done"
+stdout: "coucou\nsalut\ncoucou\nsalut\n"
+status: 0
+---
+name: continue_in_for_char
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; echo salut; continue oula; done"
+stdout: "coucou\nsalut\n"
+stderr: "42sh: continue: Illegal number: oula\n"
+status: 2
+---
+name: continue_several_loops
+cmd: ./42sh -c "for elt in 1 2; do if true; then echo coucou; continue; fi; echo salut; done"
+stdout: "coucou\ncoucou\n"
+status: 0
+---
+name: continue_several_loops2
+cmd: ./42sh -c "for elt in 1 2; do continue 2; if true; then echo coucou; fi; echo salut; done"
+stdout: ""
+status: 0
+---
+name: continue_several_loops3
+cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; continue 2; done; echo salut; done"
+stdout: "coucou\ncoucou\n"
+status: 0
+---
+name: continue_several_loops_hard
+cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; continue 1; echo chapeau; done; echo salut; done"
+stdout: "coucou\ncoucou\nsalut\ncoucou\ncoucou\nsalut\n"
+status: 0
+---
+name: break_several_loops_hard
+cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; break 1; echo chapeau; done; echo salut; done"
+stdout: "coucou\nsalut\ncoucou\nsalut\n"
+status: 0
+---
+name: break_in_for
+cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; break; echo salut; done"
+stdout: "coucou\n"
+status: 0
+---
+name: break_in_if
+cmd: ./42sh -c "if true; then echo salut; break; echo coucou; fi"
+stdout: "salut\ncoucou\n"
+status: 0
+---
+name: break_in_for_negative
+cmd: ./42sh -c "for elt in 1 2 3 4; do echo coucou; break -6; echo salut; done"
+stdout: "coucou\n"
+stderr: "42sh: break: Illegal number: -6\n"
+status: 2
+---
+name: break_in_for_ineffective
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; echo salut; break; done"
+stdout: "coucou\nsalut\n"
+status: 0
+---
+name: break_in_for_char
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; echo salut; break oula; done"
+stdout: "coucou\nsalut\n"
+stderr: "42sh: break: Illegal number: oula\n"
+status: 2
+---
+name: break_several_loops
+cmd: ./42sh -c "for elt in 1 2; do if true; then echo coucou; break; fi; echo salut; done"
+stdout: "coucou\n"
+status: 0
+---
+name: break_several_loops2
+cmd: ./42sh -c "for elt in 1 2; do break 2; if true; then echo coucou; fi; echo salut; done"
+stdout: ""
+status: 0
+---
+name: break_several_loops3
+cmd: ./42sh -c "for elt in 1 2; do for elt in 1 2; do echo coucou; break 2; done; echo salut; done"
+stdout: "coucou\n"
+status: 0
+---
+name: exit
+cmd: ./42sh -c "exit"
+stdout: ""
+status: 0
+---
+name: exit_number
+cmd: ./42sh -c "exit 66"
+stdout: ""
+status: 66
+---
+name: exit_invalid
+cmd: ./42sh -c "exit -4"
+stderr: "42sh: exit: Illegal number: -4\n"
+status: 2
+---
+name: exit_invalid2
+cmd: ./42sh -c "exit coucou"
+stderr: "42sh: exit: Illegal number: coucou\n"
+status: 2
+---
+name: exit_in_for
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; exit 42; echo salut; done"
+stdout: "coucou\n"
+status: 42
+---
+name: exit_in_for_complicated
+cmd: ./42sh -c "for elt in 1 2; do echo coucou; continue; exit 42; echo salut; done"
+stdout: "coucou\ncoucou\n"
+status: 0
+---
+name: exit_in_while_true
+cmd: ./42sh -c "while true; do echo coucou; exit 69; echo salut; done"
+stdout: "coucou\n"
+status: 69
+---
+name: exit_in_while_false
+cmd: ./42sh -c "while false; do echo coucou; exit 69; echo salut; done"
+stdout: ""
+status: 0
+---
+name: exit_in_until
+cmd: ./42sh -c "until false; do echo coucou; exit erreur; echo salut; done"
+stdout: "coucou\n"
+stderr: "42sh: exit: Illegal number: erreur\n"
+status: 2
+---
+name: subshell_echo
+cmd: ./42sh -c "(echo coucou)"
+stdout: "coucou\n"
+status: 0
+---
+name: subshell_syntax_error
+cmd: ./42sh -c "(echo coucou; then)"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: subshell_with_exit
+cmd: ./42sh -c "(echo coucou; exit 42; echo salut)"
+stdout: "coucou\n"
+status: 42
+---
+name: subshell_in_for
+cmd: ./42sh -c "(echo coucou; for elt in 1 2 3; do echo salut; done; exit 66)"
+stdout: "coucou\nsalut\nsalut\nsalut\n"
+status: 66
+---
+name: subshell_empty
+cmd: ./42sh -c "()"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: subshell_in_for
+cmd: ./42sh -c "for elt in 1 2 3; do (echo coucou; break); done"
+stdout: "coucou\ncoucou\ncoucou\n"
+status: 0
+---
+name: subshell_hard_2
+cmd: ./42sh -c "for elt in 1 2 3; do if true; then echo sable; fi; for el in 1 2; do echo chateau; break -6; done; echo casquette; done"
+stdout: "sable\nchateau\n"
+stderr: "42sh: break: Illegal number: -6\n"
+status: 2
+---
+name: subshell_hard_3
+cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; continue 2; done; echo c; break -20; done"
+stdout: "a\nb\na\nb\na\nb\n"
+status: 0
+---
+name: subshell_hard_4
+cmd: ./42sh -c "for elt in 1 2 3; do echo a; for elt in 1 2 3; do echo b; break -20; echo c; done; echo d; done"
+stdout: "a\nb\n"
+stderr: "42sh: break: Illegal number: -20\n"
+status: 2
+---
+name: unset_empty
+cmd: ./42sh -c "unset"
+stdout: ""
+status: 0
+---
+name: unset_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset var; echo "$var"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_invalid_opt
+cmd: ./42sh -c 'var=coucou; unset -g var; echo "$var"'
+stderr: "42sh: unset: Illegal option -g\n"
+status: 2
+---
+name: unset_invalid_name
+cmd: ./42sh -c 'var=coucou; unset inexistent var -j; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_invalid_name2
+cmd: ./42sh -c 'var=coucou; unset inexistent -j var; echo "$var"'
+stderr: "42sh: unset: -j: bad variable name\n"
+status: 2
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; echo "$var"; unset f; echo "$var"'
+stdout: "coucou\ncoucou\n"
+status: 0
+---
+name: unset_non_existent_var
+cmd: ./42sh -c 'var=coucou; var2=salut; echo "$var"; echo "$var2"; unset -v var2; echo "$var"; echo "$var2"'
+stdout: "coucou\nsalut\ncoucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name
+cmd: ./42sh -c 'echo=coucou; echo "$echo"; unset echo; echo "$echo"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: unset_tricky_var_name2
+cmd: ./42sh -c 'unset=coucou; echo "$unset"; unset unset; echo "$unset"'
+stdout: "coucou\n\n"
+status: 0
+---
+name: while_wrong
+cmd: ./42sh -c 'var="0"; while [ 0 -eq "$var" ]; do var="1"; ls zgsfdgsdfgd; done'
+stderr: "ls: cannot access 'zgsfdgsdfgd': No such file or directory\n"
+status: 2
+---
+name: until_wrong
+cmd: ./42sh -c 'var="0"; until [ 0 -ne "$var" ]; do var="1"; ls zgsfdgsdfgd; done'
+stderr: "ls: cannot access 'zgsfdgsdfgd': No such file or directory\n"
+status: 2
+---
+name: case_easy
+cmd: ./42sh ../tests/functional/scripts/case_easy.sh
+stdout: "Hello yourself!\n"
+status: 0
+---
+name: case_medium
+cmd: ./42sh ../tests/functional/scripts/case_medium.sh
+stdout: "salut\nles gars\n"
+status: 0
+---
+name: case_inexistent
+cmd: ./42sh ../tests/functional/scripts/case_inexistent.sh
+stdout: ""
+status: 0
+---
+name: case_bad_cmd
+cmd: ./42sh ../tests/functional/scripts/case_bad_cmd.sh
+stderr: "42sh: command not found: ech\n"
+status: 127
+# ---
+# name: case_bad_cmd_in_middle
+# cmd: ./42sh ../tests/functional/scripts/case_bad_cmd_in_middle.sh
+# stdout: "1\n3\n"
+# stderr: "42sh: command not found: e\n"
+# status: 0
+---
+name: case_with_others
+cmd: ./42sh ../tests/functional/scripts/case_with_others.sh
+stdout: "oui c'est vrai\nsalut\nles gars\nbien joué\n"
+status: 0
+---
+name: case_with_others2
+cmd: ./42sh ../tests/functional/scripts/case_with_others2.sh
+stdout: "oui c'est vrai\nsalut\nles gars\nbien joué\n"
+status: 0
+---
+name: case_with_var
+cmd: ./42sh ../tests/functional/scripts/case_with_var.sh
+stdout: "salut\nles gars\n"
+status: 0

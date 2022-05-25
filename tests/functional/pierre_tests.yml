@@ -1,0 +1,217 @@
+name: c_empty
+cmd: ./42sh -c ""
+status: 0
+---
+name: c_quotes
+cmd: ./42sh -c "echo ' '"
+stdout: " \n"
+status: 0
+---
+name: c_quotes2
+cmd: ./42sh -c "'echo'    ;"
+stdout: "\n"
+status: 0
+---
+name: c_quotes_fail
+cmd: ./42sh -c "echo ' '    '  "
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
+status: 2
+---
+name: c_quotes_fail2
+cmd: ./42sh -c "' '  ;  '  "
+stderr: "42sh: command not found:  \n42sh: Expansion: unmacthed quotes (tmp)\n"
+status: 2
+---
+name: c_quotes_fail3
+cmd: ./42sh -c "echo ' '    '  echo world"
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
+status: 2
+---
+name: c_quotes_fail4
+cmd: ./42sh -c "echo '  "
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
+status: 2
+---
+name: c_quotes_fail5
+cmd: ./42sh -c "'if' true; then echo hello; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_quotes_fail6
+cmd: ./42sh -c "''if true; then echo hello; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if
+cmd: ./42sh -c "if echo hello; then echo world; else echo merde; fi"
+stdout: "hello\nworld\n"
+status: 0
+---
+name: c_if2
+cmd: ./42sh -c "if true; then if true; then if true; then echo -n oui; fi; fi ;fi"
+stdout: "oui"
+status: 0
+---
+name: c_if_3
+cmd: ./42sh -c "if false; then echo true; else echo false; fi"
+stdout: "false\n"
+status: 0
+---
+name: c_if_4
+cmd: ./42sh -c "if true; then echo true; elif echo false; then echo true; fi"
+stdout: "true\n"
+status: 0
+---
+name: c_if_5
+cmd: ./42sh -c "if false; then echo true; elif echo false; then echo true; fi"
+stdout: "false\ntrue\n"
+status: 0
+---
+name: c_if_6
+cmd: ./42sh -c "if false; then echo true; elif false; then echo true; fi"
+status: 0
+---
+name: c_if_error1
+cmd: ./42sh -c "if true; then fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error2
+cmd: ./42sh -c "if fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error3
+cmd: ./42sh -c "if fi;"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error4
+cmd: ./42sh -c "if true; then ; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error5
+cmd: ./42sh -c "if true; then echo fi"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_if_error6
+cmd: ./42sh -c "if true; then echo oui; fi; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error7
+cmd: ./42sh -c "if true then ; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error8
+cmd: ./42sh -c "if true then fi"
+stderr: "42sh: Syntax error: end of file unexpected\n"
+status: 2
+---
+name: c_if_error9
+cmd: ./42sh -c "if true; then echo oui;else ;echo oui ;fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error10
+cmd: ./42sh -c "if true; then echo oui;else then echo oui;fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error11
+cmd: ./42sh -c "if true; then echo oui;else echo oui; fi; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_if_error12
+cmd: ./42sh -c "if true; then echo oui;elif; echo oui; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_ifchiant
+cmd: ./42sh -c "if true; then if true; then if true; then echo -n oui; fi; fi ;fi"
+stdout: "oui"
+status: 0
+---
+name: c_testbackslash
+cmd: ./42sh -c "if\"\" echo hello; then true; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_testbackslash2
+cmd: ./42sh -c "\if echo hello; then true; fi"
+stderr: "42sh: Syntax error: Unexpected token\n"
+status: 2
+---
+name: c_testbackslash3
+cmd: ./42sh -c "echo \'"
+stdout: "\'\n"
+status: 0
+---
+name: c_testbackslash4
+cmd: ./42sh -c "\'echo'"
+stderr: "42sh: Expansion: unmacthed quotes (tmp)\n"
+status: 2
+---
+name: c_testbackslash5
+cmd: ./42sh -c "\'echo\'"
+stderr: "42sh: command not found: 'echo'\n"
+status: 127
+---
+name: c_testbackslash6
+cmd: ./42sh -c "'echo \'"
+stderr: "42sh: command not found: echo \\\n"
+status: 127
+---
+name: c_testbackslash7
+cmd: ./42sh -c "\echo oui"
+stdout: "oui\n"
+status: 0
+---
+name: c_testbackslash8
+cmd: ./42sh -c "echo \\\\"
+stdout: "\\\n"
+status: 0
+---
+name: c_testbackslash9
+cmd: ./42sh -c "echo '\\\\'"
+stdout: "\\\\\n"
+status: 0
+---
+name: c_testbackslash10
+cmd: ./42sh -c "echo \if"
+stdout: "if\n"
+status: 0
+---
+name: c_testvar1
+cmd: ./42sh -c 'var=hello; echo "$var"'
+stdout: "hello\n"
+status: 0
+---
+name: c_testvar2
+cmd: ./42sh -c 'var=hello; echo "$var"; var=salut; echo "$var"'
+stdout: "hello\nsalut\n"
+status: 0
+---
+name: c_testvar3
+cmd: ./42sh -c 'var=hello; echo "$va"'
+stdout: "\n"
+status: 0
+---
+name: c_testvar4
+cmd: ./42sh -c ' echo "$var";var=hello;'
+stdout: "\n"
+status: 0
+---
+name: c_for_and_var
+cmd: ./42sh -c 'for word in 1 2 3 4 7 5 2 1 4 7 1 71 7 1 5 2 5641 dfs  hfe oiwui whofi ewuif jhf ui rfew hh; do echo -n "$word"; done'
+stdout: "123475214717171525641dfshfeoiwuiwhofiewuifjhfuirfewhh"
+status: 0
+---
+name: script_uset_and_export
+cmd: ./42sh ../tests/functional/scripts/export_and_unset_test.sh
+stdout: "all_stat_up\nall_stat_up\n\n"
+status: 0

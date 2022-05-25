@@ -1,0 +1,285 @@
+name: no command
+cmd: ./42sh -c ""
+---
+name: echo empty
+cmd: ./42sh -c "echo"
+stdout: "\n"
+---
+name: simple echo
+cmd: ./42sh -c "echo hello"
+stdout: |
+  hello
+---
+name: multiple echo
+cmd: ./42sh -c "echo hello; echo bye; echo re; echo byebye"
+stdout: |
+  hello
+  bye
+  re
+  byebye
+---
+name: simple echo option n
+cmd: ./42sh -c "echo -n hello"
+stdout: "hello"
+---
+name: simple echo option e
+cmd: ./42sh -c "echo -e hello\\\n"
+stdout: "hello\n\n"
+---
+name: medium echo option e
+cmd: ./42sh -c "echo -e hello"
+stdout: |
+  hello
+---
+name: medium echo option e and n
+cmd: ./42sh -c "echo -n -e hello"
+stdout: "hello"
+---
+name: hard echo option e and n
+cmd: ./42sh -c "echo -n -e hello\\\n"
+stdout: "hello\n"
+---
+name: echo multiple option n
+cmd: ./42sh -c "echo -n -n -n -n -n hello"
+stdout: "hello"
+---
+name: echo multiple option e
+cmd: ./42sh -c "echo -e -e -e -e -e hello\\\n"
+stdout: "hello\n\n"
+---
+name: echo multiple option n and e
+cmd: ./42sh -c "echo -n -n -e -n -e -n -n -e -e hello"
+stdout: "hello"
+---
+name: echo multiple option n and e with linefeed
+cmd: ./42sh -c "echo -n -n -e -n -e -n -n -e -e hello\\\n"
+stdout: "hello\n"
+---
+name: if simple
+cmd: ./42sh -c "if true; then echo its true; fi"
+stdout: |
+  its true
+---
+name: if hard
+cmd: ./42sh -c "if echo salut; echo bonjour; false; then echo no display; else echo condition was false; fi"
+stdout: |
+  salut
+  bonjour
+  condition was false
+---
+name: if elif hard
+cmd: ./42sh -c "if true; then echo its true; elif true; then echo second true; fi"
+stdout: |
+  its true
+---
+name: if elif hard two
+cmd: ./42sh -c "if false; then echo its true; elif true; then echo second true; fi"
+stdout: |
+  second true
+---
+name: simple single quote
+cmd: ./42sh -c "echo 'echo'"
+stdout: |
+  echo
+---
+name: simple single quote false if
+cmd: ./42sh -c "echo 'if true; then echo in quote'"
+stdout: |
+  if true; then echo in quote
+---
+name: hard single quote
+cmd: ./42sh -c "echo 'aaassadsdf;dsf;sd;;sd;f;sd;;;;;;;ififififithen;;;;;fifi'"
+stdout: |
+  aaassadsdf;dsf;sd;;sd;f;sd;;;;;;;ififififithen;;;;;fifi
+---
+name: hard tricky single quote
+cmd: ./42sh -c "echo ''salut''"
+stdout: |
+  salut
+---
+name: simple pipeline
+cmd: ./42sh -c "echo salut | echo ok"
+stdout: |
+  ok
+---
+name: pipeline no spaces
+cmd: ./42sh -c "echo salut|echo ok"
+stdout: |
+  ok
+---
+name: pipeline tr
+cmd: ./42sh -c "echo salut | tr a o"
+stdout: |
+  solut
+---
+name: pipeline tr multiple
+cmd: ./42sh -c "echo salut | tr a o | tr s c | tr l d | tr u e | tr t d"
+stdout: |
+  coded
+---
+name: pipeline tr multiple strange
+cmd: ./42sh -c "echo salut | tr a o| tr s c|tr l d | tr u e |tr t d"
+stdout: |
+  coded
+---
+name: pipeline cat
+cmd: ./42sh -c "echo salut | cat -e"
+stdout: |
+  salut$
+---
+name: pipeline echoooooos
+cmd: ./42sh -c "echo salut | echo ok | echo ko | echo false | echo true | echo almost | echo almost almost | echo finally"
+stdout: |
+  finally
+---
+name: pipeline if
+cmd: ./42sh -c "if echo salut | tr a o; then echo ok; else echo ko; fi"
+stdout: |
+  solut
+  ok
+status: 0
+---
+name: pipeline if long
+cmd: ./42sh -c "if echo salut | tr a o | tr s c | tr l d | tr u e | tr t d; then echo ok; else echo ko; fi"
+stdout: |
+  coded
+  ok
+status: 0
+---
+name: pipeline neg
+cmd: ./42sh -c "! echo salut | cat -e"
+stdout: |
+  salut$
+status: 1
+---
+name: pipeline neg 2
+cmd: ./42sh -c "! echo salut | false"
+status: 0
+---
+name: pipeline neg space before
+cmd: ./42sh -c "       ! echo salut | cat -e"
+stdout: |
+  salut$
+status: 1
+---
+name: pipeline if neg
+cmd: ./42sh -c "if ! echo salut | tr a o; then echo ok; else echo ko; fi"
+stdout: |
+  solut
+  ko
+status: 0
+---
+name: pipeline neg without pipe 1
+cmd: ./42sh -c "\!"
+stderr: |
+  42sh: command not found: !
+status: 127
+---
+name: pipeline neg without pipe 0
+cmd: ./42sh -c ""
+status: 0
+---
+name: pipeline neg without pipe hard
+cmd: ./42sh -c "! echo ok"
+stdout: |
+  ok
+status: 1
+---
+name: pipeline neg without pipe hard
+cmd: ./42sh -c "! echo ok"
+stdout: |
+  ok
+status: 1
+---
+name: neg if
+cmd: ./42sh -c "! if echo true; then echo ok; else echo ko; fi"
+stdout: |
+  true
+  ok
+status: 1
+---
+name: and_or
+cmd: ./42sh -c "echo ok || echo ko && echo salut && echo bon || echo aaaa"
+stdout: |
+  ok
+  salut
+  bon
+status: 0
+---
+name: and_or neg
+cmd: ./42sh -c "! echo ok || echo ko && echo salut && echo bon || echo aaaa"
+stdout: |
+  ok
+  ko
+  salut
+  bon
+status: 0
+---
+name: and_or neg everywhere
+cmd: ./42sh -c "! echo ok || ! echo ko && ! echo salut && echo bon || ! echo aaaa"
+stdout: |
+  ok
+  ko
+  aaaa
+status: 1
+---
+name: two neg
+cmd: ./42sh -c "\! \!"
+stderr: |
+  42sh: command not found: !
+status: 127
+---
+name: command block simple
+cmd: ./42sh -c "{ echo salut }"
+stdout: |
+  salut
+status: 0
+---
+name: command block simple with semi colon
+cmd: ./42sh -c "{ echo salut; }"
+stdout: |
+  salut
+status: 0
+---
+name: command block multiple
+cmd: ./42sh -c "{ echo salut; echo bonjour; echo aurevoir; echo bye }"
+stdout: |
+  salut
+  bonjour
+  aurevoir
+  bye
+status: 0
+---
+name: command block and pipe
+cmd: ./42sh -c "{ echo salut } | tr a o"
+stdout: |
+  solut
+status: 0
+---
+name: command block and pipe multiple
+cmd: ./42sh -c "{ echo salut; echo lala; echo lucas; echo 42sh } | tr a o"
+stdout: |
+  solut
+  lolo
+  lucos
+  42sh
+status: 0
+---
+name: command block and pipe
+cmd: ./42sh -c "{ echo salut } | tr a o; { echo bonjour; } | tr o a"
+stdout: |
+  solut
+  banjaur
+status: 0
+---
+name: echo negation
+cmd: ./42sh -c "echo !"
+stdout: |
+  !
+status: 0
+---
+name: echo negation negated
+cmd: ./42sh -c "! echo !"
+stdout: |
+  !
+status: 1

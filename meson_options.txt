@@ -1,0 +1,13 @@
+option(
+	'doc',
+	type: 'boolean',
+	value: false,
+	description: 'Generate documentation'
+)
+
+option(
+	'force_check',
+	type: 'boolean',
+	value: false,
+	description: 'always run the testsuite'
+)
